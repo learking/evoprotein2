@@ -2,6 +2,7 @@ package test.beast;
 
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.Sequence;
+import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
 import beast.util.TreeParser;
 import junit.framework.TestCase;
@@ -21,11 +22,31 @@ public class evoprotein2TestCase extends TestCase {
         );
         return data;
     }
+
+    static public Alignment getDummyAlignment() throws Exception {
+        Sequence Human = new Sequence("Human", "CCAAA");
+        Sequence Chimpanzee = new Sequence("Chimpanzee", "CCAAA");
+        Sequence Orangutan = new Sequence("Orangutan", "CTAAC");
+        Sequence Gibbon = new Sequence("Gibbon", "CTAAA");
+        Sequence Gorilla = new Sequence("Gorilla", "CTAAG");
+
+        Alignment data = new Alignment();
+        data.initByName("sequence", Human, "sequence", Chimpanzee, "sequence", Gorilla, "sequence", Orangutan, "sequence", Gibbon,
+                "dataType", "nucleotide"
+        );
+        return data;
+    }
     
     static public Tree getTree(Alignment data) throws Exception {
         TreeParser tree = new TreeParser();
         tree.initByName("taxa", data,
-                "newick", "((Human: 0.07, Chimpanzee: 0.07): 0.43, Gorilla: 0.5, (Orangutan: 0.4, Gibbon: 0.4): 0.1);");
+                "newick", "(((Human: 0.07, Chimpanzee: 0.07): 0.43, (Orangutan: 0.4, Gibbon: 0.4): 0.1):0, Gorilla: 0.5);");
         return tree;
     }
+    
+    static public PathTree getPathTree(Alignment data) throws Exception{
+    	PathTree pathTree = new PathTree();
+    	return pathTree;
+    }
+    
 }
