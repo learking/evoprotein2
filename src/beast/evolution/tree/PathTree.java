@@ -1,7 +1,12 @@
 package beast.evolution.tree;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import evoprotein.evolution.datatype.MutableSequence;
+import evoprotein.evolution.substitution.SubstitutionEvent;
 
 import beast.core.Description;
 import beast.core.Input;
@@ -15,29 +20,67 @@ public class PathTree extends Tree {
 	public Input<Alignment> m_alignment = new Input<Alignment>("alignment",
 			"alignment that contains sequence data");
 	
-	int[][] m_sequences;
+	List<MutableSequence> m_sequences = new ArrayList<MutableSequence>();
 	
 	List<PathBranch> m_branches = new ArrayList<PathBranch>();
 	
 	@Override
 	public void initAndValidate() throws Exception {
 			super.initAndValidate();
-			m_sequences = new int[nodeCount][m_alignment.get().getSiteCount()];
+			
+			int sequenceLength = m_alignment.get().getSiteCount();
+			for(int i=0; i<nodeCount; i++) {
+				m_sequences.add(new MutableSequence(sequenceLength));
+				m_branches.add(new PathBranch(sequenceLength));
+			}
+			
+			initLeafSequences();
+	}
+	
+	private void initLeafSequences() throws Exception{
+		for(int i=0; i< leafNodeCount;i++){
+			String sequenceID = getNode(i).getID();
+			m_sequences.get(i).setSequence(getSequenceByID(sequenceID));
+		}
+	}
+	
+	public int[] getSequenceByID(String sequenceID) throws Exception {
+		Nucleotide nucleo = new Nucleotide();
+		List<Integer> sequenceTarget = new ArrayList<Integer>();
+		for (int i = 0; i < m_alignment.get().getNrTaxa(); i++) {
+			if (m_alignment.get().m_pSequences.get().get(i).m_sTaxon.get()
+					.toString() == sequenceID) {
+				sequenceTarget = m_alignment.get().m_pSequences.get().get(i)
+						.getSequence(nucleo);
+			}
+		}
+		int[] sequence = new int[sequenceTarget.size()];
+		for (int i = 0; i < sequence.length; i++) {
+			sequence[i] = sequenceTarget.get(i);
+		}
+		System.out.println(Arrays.toString(sequence));
+		return sequence;
 	}
 	
 	// setters
 	
 	// for testing purpose only
-	public void setDummySeqInternalNodes (int [] dummySeq){
-		for(int i=0; i<nodeCount; i++){
-			m_sequences[i] = dummySeq;
+	public void setDummySeqInternalNodes (int [] dummySeq) throws Exception{
+		for(int i=leafNodeCount; i<nodeCount; i++){
+			m_sequences.get(i).setSequence(dummySeq);
 		}
 	}
 	
+	// for testing purpose only
+	public void setDummyPathBranch(int nodeNr, int seqSite, SubstitutionEvent newEvent){
+		m_branches.get(nodeNr).getMutationPath(seqSite).add(newEvent);
+	}
+	
+	// showers ;)
 	public void showSequences() {
 		Nucleotide nucleo = new Nucleotide();
 		for (int i = 0; i < m_nodes.length; i++) {
-			int[] tmp_seq = m_sequences[i];
+			int[] tmp_seq = m_sequences.get(i).getSequence();
 			/**
 			 * System.out.println("The length of the sequence is:" +
 			 * aligned_seq.getSiteCount());
@@ -52,8 +95,22 @@ public class PathTree extends Tree {
 		}
 	}
 	
+	public void showOneSitePath(int seqSite){
+
+		for (int i=0; i<m_branches.size(); i++){
+
+			if(m_branches.get(i).getMutationPath(seqSite).size() == 0){
+				System.out.println("no substitution for node:" + i);
+			}else{
+				for(int j=0; j<m_branches.get(i).getMutationPath(seqSite).size();j++){
+					System.out.println("Substituion for node:" + i + " " + m_branches.get(i).getMutationPath(seqSite).get(j).toString());
+				}
+			}
+		}
+	}
+	
 	// getters
-	public int[][] getSequences(){
+	public List<MutableSequence> getSequences(){
 		return m_sequences;
 	}
 }

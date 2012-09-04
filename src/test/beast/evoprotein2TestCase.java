@@ -40,7 +40,7 @@ public class evoprotein2TestCase extends TestCase {
     static public Tree getTree(Alignment data) throws Exception {
         TreeParser tree = new TreeParser();
         tree.initByName("taxa", data,
-                "newick", "(((Human: 0.07, Chimpanzee: 0.07): 0.43, (Orangutan: 0.4, Gibbon: 0.4): 0.1):0, Gorilla: 0.5);");
+                "newick", "(((Human: 0.07, Chimpanzee: 0.07): 0.43, (Orangutan: 0.4, Gibbon: 0.4): 0.1):0.0 , Gorilla: 0.5);");
         return tree;
     }
     

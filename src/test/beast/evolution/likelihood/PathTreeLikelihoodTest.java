@@ -6,6 +6,8 @@ package test.beast.evolution.likelihood;
 
 import org.junit.Test;
 
+import evoprotein.evolution.substitution.SubstitutionEvent;
+
 import test.beast.evoprotein2TestCase;
 
 import beast.evolution.alignment.Alignment;
@@ -36,15 +38,22 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
 	public void testLikelihoodCalculation() throws Exception {
 		PathTree pathTree = new PathTree();
 		pathTree.initByName("initial", tree, "alignment", data);
+		
 		/*
-		int leftNr = pathTree.getRoot().getLeft().getNr();
-		int rightNr = pathTree.getRoot().getRight().getNr();
-		System.out.println("left nr:" + leftNr + " right Nr:" + rightNr + " Root height is:" + pathTree.getRoot().getHeight() + " 7 height:" + pathTree.getNode(7).getHeight());
+		int nodeNr = 5;
+		int leftNr = pathTree.getNode(nodeNr).getLeft().getNr();
+		int rightNr = pathTree.getNode(nodeNr).getRight().getNr();
+		System.out.println("left nr:" + leftNr + " LH:"+ pathTree.getNode(nodeNr).getLeft().getHeight() + " right Nr:" + rightNr + " RH:"+ pathTree.getNode(nodeNr).getRight().getHeight() + " height is:" + pathTree.getNode(nodeNr).getHeight());
 		*/
+		
 		int [] dummySeq = {1,1,0,0,0};
 		pathTree.setDummySeqInternalNodes(dummySeq);
-		// pathTree.showSequences();
+		pathTree.showSequences();
+		pathTree.setDummyPathBranch(2, 1, new SubstitutionEvent(1,3,0.25));
+		pathTree.setDummyPathBranch(3, 1, new SubstitutionEvent(1,3,0.2));
+		pathTree.setDummyPathBranch(4, 1, new SubstitutionEvent(1,3,0.2));
 		
+		pathTree.showOneSitePath(1);
 		
 	}
 

@@ -9,8 +9,6 @@ import beast.evolution.alignment.Alignment;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
 
-import junit.framework.TestCase;
-
 public class PathSamplingOperatorTest extends evoprotein2TestCase {
 
 	Alignment data;

@@ -1,7 +1,11 @@
 package test.beast.evolution.tree;
 
 
+import java.util.List;
+
 import org.junit.Test;
+
+import evoprotein.evolution.datatype.MutableSequence;
 
 import test.beast.evoprotein2TestCase;
 
@@ -27,8 +31,8 @@ public class testPathTree extends evoprotein2TestCase {
 	public void testTreeInitialization() throws Exception{
 		PathTree pathTree = new PathTree();
 		pathTree.initByName("initial", tree, "alignment", data);
-		int[][] sequences = pathTree.getSequences();
-		assertEquals(sequences[0].length, 3000);
+		List<MutableSequence> sequences = pathTree.getSequences();
+		assertEquals(sequences.get(0).getSequence().length, 3000);
 	}
 
 }
