@@ -1,5 +1,8 @@
 package beast.evolution.tree;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import beast.core.Description;
 import beast.core.Input;
 import beast.evolution.alignment.Alignment;
@@ -13,6 +16,8 @@ public class PathTree extends Tree {
 			"alignment that contains sequence data");
 	
 	int[][] m_sequences;
+	
+	List<PathBranch> m_branches = new ArrayList<PathBranch>();
 	
 	@Override
 	public void initAndValidate() throws Exception {

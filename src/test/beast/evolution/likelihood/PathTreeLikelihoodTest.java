@@ -45,7 +45,7 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
 		pathTree.setDummySeqInternalNodes(dummySeq);
 		// pathTree.showSequences();
 		
-		-
+		
 	}
 
 }

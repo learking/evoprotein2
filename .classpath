@@ -2,11 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/beast2"/>
 	<classpathentry kind="lib" path="/beast2/lib/debug-1.0.jar"/>
 	<classpathentry kind="lib" path="/beast2/lib/fest-sources.jar"/>
 	<classpathentry kind="lib" path="/beast2/lib/fest.jar"/>
 	<classpathentry kind="lib" path="/beast2/lib/jam.jar"/>
 	<classpathentry kind="lib" path="/beast2/lib/junit-4.8.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/beast2"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
