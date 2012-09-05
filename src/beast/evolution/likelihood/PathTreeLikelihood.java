@@ -28,6 +28,17 @@ public class PathTreeLikelihood extends Distribution {
         
     }
     
+    @Override
+    public double calculateLogP(){
+    	double oneSiteP = calculateOneSiteLogP(1);
+    	return oneSiteP;
+    }
+    
+    public double calculateOneSiteLogP(int seqSite){
+    	
+    	return 1.0;
+    }
+    
 	@Override
 	public List<String> getArguments() {
 		// TODO Auto-generated method stub

@@ -8,9 +8,16 @@ import org.junit.Test;
 
 import evoprotein.evolution.substitution.SubstitutionEvent;
 
+import test.beast.BEASTTestCase;
 import test.beast.evoprotein2TestCase;
 
+import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
+import beast.evolution.likelihood.PathTreeLikelihood;
+import beast.evolution.likelihood.TreeLikelihood;
+import beast.evolution.sitemodel.SiteModel;
+import beast.evolution.substitutionmodel.Frequencies;
+import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
 
@@ -36,6 +43,10 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
 	
 	@Test
 	public void testLikelihoodCalculation() throws Exception {
+		// data has been setup already in setup()
+		
+		// set up PathTree
+		
 		PathTree pathTree = new PathTree();
 		pathTree.initByName("initial", tree, "alignment", data);
 		
@@ -55,6 +66,33 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
 		
 		pathTree.showOneSitePath(1);
 		
+		// set up Substitution model
+		RealParameter f = new RealParameter(new Double[]{0.25, 0.25, 0.25, 0.25});
+        Frequencies freqs = new Frequencies();
+        freqs.initByName("frequencies", f, "estimate", false);
+    
+        InstantHKY instantHKY = new InstantHKY();
+        instantHKY.initByName("kappa", "2.0", "frequencies", freqs);
+		
+		// set up SiteModel (which includes setting up substitution model)
+        SiteModel siteModel = new SiteModel();
+        siteModel.initByName("mutationRate", "1.0", "gammaCategoryCount", 1, "substModel", instantHKY);
+		
+		// create PathTreeLikelihood
+        PathTreeLikelihood likelihood = new PathTreeLikelihood();
+        likelihood.initByName("data", data, "tree", tree, "siteModel", siteModel);
+		
+		// test PathTreeLikelihood's correctness
+        double fLogP = 0;
+        fLogP = likelihood.calculateOneSiteLogP(1);
+        
+        // Tasks for today, Sep 5th, 2012
+        // 1. manually compute "one-site likelihood for the given tree"
+        // 2. implement oneSiteLikelihood for "PathTreeLikelihood" and test it
+        // 3. extend oneSiteLikelihood to all sites
+        
+        assertEquals(fLogP, -1856.303048876734, BEASTTestCase.PRECISION);
+        
 	}
 
 }
