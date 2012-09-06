@@ -2,7 +2,6 @@ package beast.evolution.tree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import evoprotein.evolution.datatype.MutableSequence;

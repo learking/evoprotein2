@@ -4,7 +4,6 @@
 package beast.evolution.tree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import evoprotein.evolution.substitution.SubstitutionEvent;
