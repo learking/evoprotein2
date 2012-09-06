@@ -8,10 +8,7 @@ import org.junit.Test;
 
 import beast.core.parameter.RealParameter;
 import beast.evolution.substitutionmodel.Frequencies;
-import beast.evolution.substitutionmodel.HKY;
 import beast.evolution.substitutionmodel.InstantHKY;
-
-import test.beast.evolution.substmodel.HKYTest.Instance;
 
 import junit.framework.TestCase;
 

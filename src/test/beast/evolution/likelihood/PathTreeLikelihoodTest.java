@@ -63,7 +63,7 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
 		pathTree.setDummyPathBranch(3, 1, new SubstitutionEvent(1,3,0.2));
 		pathTree.setDummyPathBranch(4, 1, new SubstitutionEvent(1,3,0.2));
 		
-		pathTree.showOneSitePath(1);
+		//pathTree.showOneSitePath(1);
 		
 		// set up Substitution model
 		RealParameter f = new RealParameter(new Double[]{0.25, 0.25, 0.25, 0.25});
@@ -79,18 +79,18 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
 		
 		// create PathTreeLikelihood
         PathTreeLikelihood likelihood = new PathTreeLikelihood();
-        likelihood.initByName("data", data, "tree", tree, "siteModel", siteModel);
+        likelihood.initByName("PathTree", pathTree, "siteModel", siteModel);
 		
 		// test PathTreeLikelihood's correctness
-        double fLogP = 0;
-        fLogP = likelihood.calculateOneSiteLogP(1);
+        double oneSiteLogP = 0;
+        oneSiteLogP = likelihood.calculateOneSiteLogP(1);
         
         // Tasks for today, Sep 5th, 2012
-        // 1. manually compute "one-site likelihood for the given tree"
         // 2. implement oneSiteLikelihood for "PathTreeLikelihood" and test it
         // 3. extend oneSiteLikelihood to all sites
         
-        assertEquals(fLogP, -1856.303048876734, BEASTTestCase.PRECISION);
+        assertEquals(oneSiteLogP, 4.0, BEASTTestCase.PRECISION);
+        //assertEquals(oneSiteLogP, -3.189441542, BEASTTestCase.PRECISION);
         
 	}
 

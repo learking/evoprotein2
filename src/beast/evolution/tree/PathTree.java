@@ -30,7 +30,12 @@ public class PathTree extends Tree {
 			int sequenceLength = m_alignment.get().getSiteCount();
 			for(int i=0; i<nodeCount; i++) {
 				m_sequences.add(new MutableSequence(sequenceLength));
-				m_branches.add(new PathBranch(sequenceLength));
+				if(m_nodes[i].isRoot()){
+					m_branches.add(new PathBranch());
+				}
+				else{
+					m_branches.add(new PathBranch(sequenceLength, m_nodes[i].getParent().getNr(), i));
+				}
 			}
 			
 			initLeafSequences();
@@ -111,5 +116,9 @@ public class PathTree extends Tree {
 	// getters
 	public List<MutableSequence> getSequences(){
 		return m_sequences;
+	}
+	
+	public PathBranch getBranch(int branchNr){
+		return m_branches.get(branchNr);
 	}
 }
