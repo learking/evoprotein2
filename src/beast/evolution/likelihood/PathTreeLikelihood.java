@@ -3,6 +3,9 @@ package beast.evolution.likelihood;
 import java.util.List;
 import java.util.Random;
 
+import evoprotein.evolution.datatype.MutableSequence;
+import evoprotein.evolution.substitution.SubstitutionEvent;
+
 import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Input;
@@ -47,21 +50,59 @@ public class PathTreeLikelihood extends Distribution {
     		if(!m_pathTree.get().getNode(i).isRoot()){
     			if(m_pathTree.get().getNode(i).getHeight() != m_pathTree.get().getRoot().getHeight()){
     				PathBranch currentBranch = m_pathTree.get().getBranch(i);
-    				double currentHeight = 0.0;
 
     				// sanity check
     				if (i != currentBranch.getEndNodeNr()){
     					throw new Exception("EndNode number does not match!");
     				}
-    				// TO-DO stuff
-    				if(currentBranch.getMutationPath(seqSite).size() == 0){
-    					// prob that nothing happened
-    					
-    					oneSiteLogP += 0.0;
+    				
+    				// get "end" and "begin" nucleotide
+    				int endNodeNr = currentBranch.getEndNodeNr();
+    				int beginNodeNr = currentBranch.getBeginNodeNr();
+					MutableSequence endSeq = m_pathTree.get().getSequences().get(endNodeNr);
+					MutableSequence beginSeq = m_pathTree.get().getSequences().get(beginNodeNr);
+					int endNucleotide = endSeq.getSequence()[seqSite];
+					int beginNucleotide = beginSeq.getSequence()[seqSite];
+					int transitionOutEventCode;
+					int transitionEventCode;
+					double currentBranchLength = m_pathTree.get().getNode(endNodeNr).getLength();
+					List<SubstitutionEvent> currentSubstitutionEvents = currentBranch.getMutationPath(seqSite);
+    				
+    				if(currentSubstitutionEvents.size() == 0){
+    					// sanity check
+    					if(beginNucleotide != endNucleotide){
+    						throw new Exception("begin and end nucleotide should be the same when there is no substitution along this branch!");
+    					}
+    					// diagonal elements are already negative
+    					transitionOutEventCode = beginNucleotide*4 + beginNucleotide;
+    					oneSiteLogP += instantMatrix[transitionOutEventCode] * currentBranchLength;
     				}else{
     					// ...
+    					double cumulativeHeight = 0.0;
+    					int lastNucleotide = -1;
+    					for (int substitutionIndex=0; substitutionIndex < currentSubstitutionEvents.size(); substitutionIndex ++){
+    						
+    						int previousNucleotide = currentSubstitutionEvents.get(substitutionIndex).getPreviousNucleotide();
+    						int currentNucleotide = currentSubstitutionEvents.get(substitutionIndex).getCurrentNucleotide();
+    						// determine the last nucleotide
+    						if(substitutionIndex == (currentSubstitutionEvents.size()- 1)){
+    							lastNucleotide = currentNucleotide;
+    						}
+    						
+    						double currentTimeInterval = currentSubstitutionEvents.get(substitutionIndex).getTimeInterval();
+    						cumulativeHeight += currentTimeInterval;
+    						transitionOutEventCode = previousNucleotide * 4 + previousNucleotide;
+    						transitionEventCode = previousNucleotide * 4 + currentNucleotide;
+    						oneSiteLogP += Math.log(instantMatrix[transitionEventCode]) + instantMatrix[transitionOutEventCode] * currentTimeInterval;
+    					}
     					
-    					oneSiteLogP += 1.0;
+    					double unchangedHeight = currentBranchLength - cumulativeHeight;
+    					// sanity check
+    					if(lastNucleotide != endNucleotide){
+    						throw new Exception("after last substituion, the nucleotide should be the same as the end of the branch! ");
+    					}
+    					transitionOutEventCode = lastNucleotide*4 + lastNucleotide;
+    					oneSiteLogP += instantMatrix[transitionOutEventCode] * unchangedHeight;
     				}
     			}
     		}

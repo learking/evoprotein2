@@ -89,8 +89,7 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
         // 2. implement oneSiteLikelihood for "PathTreeLikelihood" and test it
         // 3. extend oneSiteLikelihood to all sites
         
-        assertEquals(oneSiteLogP, 3.0, BEASTTestCase.PRECISION);
-        //assertEquals(oneSiteLogP, -3.189441542, BEASTTestCase.PRECISION);
+        assertEquals(oneSiteLogP, -4.049441542, BEASTTestCase.PRECISION);
         
 	}
 

@@ -6,6 +6,7 @@ import org.junit.Test;
 import test.beast.evoprotein2TestCase;
 
 import beast.evolution.alignment.Alignment;
+import beast.evolution.operators.PathSamplingOperator;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
 
@@ -25,8 +26,9 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
     }
 	
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void testPathSamplingOperator() throws Exception {
+		PathSamplingOperator pathSamplingOperator = new PathSamplingOperator();
+		pathSamplingOperator.initByName("pathtree", pathTree);
 	}
 
 }

@@ -42,4 +42,8 @@ public class PathBranch {
 		return endNodeNr;
 	}
 	
+	public int getBeginNodeNr(){
+		return beginNodeNr;
+	}
+	
 }

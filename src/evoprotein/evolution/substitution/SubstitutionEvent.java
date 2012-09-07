@@ -17,4 +17,17 @@ public class SubstitutionEvent {
 		outputString = Integer.toString(previousNucleotide) + "->" +Integer.toString(currentNucleotide) + " timeInterval: " + Double.toString(timeInterval);
 		return outputString;
 	}
+	
+	// getters
+	public double getTimeInterval(){
+		return timeInterval;
+	}
+	
+	public int getCurrentNucleotide(){
+		return currentNucleotide;
+	}
+	
+	public int getPreviousNucleotide(){
+		return previousNucleotide;
+	}
 }
