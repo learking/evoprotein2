@@ -56,10 +56,12 @@ public class PathTreeLikelihood extends Distribution {
     				// TO-DO stuff
     				if(currentBranch.getMutationPath(seqSite).size() == 0){
     					// prob that nothing happened
-    					oneSiteLogP += 1.0;
+    					
+    					oneSiteLogP += 0.0;
     				}else{
     					// ...
-    					oneSiteLogP += 0.0;
+    					
+    					oneSiteLogP += 1.0;
     				}
     			}
     		}
