@@ -44,6 +44,7 @@ Thumbs.db
 # BEAST2 test results #
 #######################
 *.trees
+*.state
 
 # BEAST2 compiled code #
 ########################

@@ -29,9 +29,11 @@ public class PathSamplingOperator extends Operator {
 	public double proposal() {
 		PathTree m_pathTree = m_pPathTree.get();
 		
-		// anyway to utilize old path density without recalculation?
+		// Is there any way to utilize old path density without recalculation?
 		// for example, if the proposal gets rejected
 		double oldPathDensity, newPathDensity, fHastingsRatio;
+		
+		
 		
 		// calculate new path density
 		
