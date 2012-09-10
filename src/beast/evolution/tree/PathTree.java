@@ -62,7 +62,7 @@ public class PathTree extends Tree {
 		for (int i = 0; i < sequence.length; i++) {
 			sequence[i] = sequenceTarget.get(i);
 		}
-		System.out.println(Arrays.toString(sequence));
+		//System.out.println(Arrays.toString(sequence));
 		return sequence;
 	}
 	

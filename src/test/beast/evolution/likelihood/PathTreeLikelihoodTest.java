@@ -50,7 +50,7 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
 		pathTree.initByName("initial", tree, "alignment", data);
 		
 		/*
-		int nodeNr = 5;
+		int nodeNr = 6;
 		int leftNr = pathTree.getNode(nodeNr).getLeft().getNr();
 		int rightNr = pathTree.getNode(nodeNr).getRight().getNr();
 		System.out.println("left nr:" + leftNr + " LH:"+ pathTree.getNode(nodeNr).getLeft().getHeight() + " right Nr:" + rightNr + " RH:"+ pathTree.getNode(nodeNr).getRight().getHeight() + " height is:" + pathTree.getNode(nodeNr).getHeight());

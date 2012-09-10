@@ -17,11 +17,9 @@ import beast.evolution.tree.PathTree;
 public class PathSamplingOperator extends Operator {
 	
 	public Input<PathTree> m_pPathTree = new Input<PathTree>("pathtree", "pathtree on which this operation is performed", Validate.REQUIRED);
-	PathTree m_pathTree;
 	
     @Override
     public void initAndValidate() throws Exception {
-    	m_pathTree = m_pPathTree.get();
     }
 	
 	/*
@@ -29,9 +27,27 @@ public class PathSamplingOperator extends Operator {
 	 */
 	@Override
 	public double proposal() {
-		// TODO Auto-generated method stub
+		PathTree m_pathTree = m_pPathTree.get();
 		
-		return Double.NEGATIVE_INFINITY;
+		// anyway to utilize old path density without recalculation?
+		// for example, if the proposal gets rejected
+		double oldPathDensity, newPathDensity, fHastingsRatio;
+		
+		// calculate new path density
+		
+		// 1. Pupko: propose ancestral states
+		
+		// 2. Nielsen: propose substitution events
+		
+		// combine Pupko and Nielsen's partial density
+		
+		// calculate hastings ratio
+		newPathDensity = 0.1;
+		oldPathDensity = 0.2;
+		fHastingsRatio = newPathDensity / oldPathDensity;
+		
+		// 
+		return fHastingsRatio;
 	}
 
 }
