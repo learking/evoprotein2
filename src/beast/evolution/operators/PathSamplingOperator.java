@@ -47,6 +47,7 @@ public class PathSamplingOperator extends Operator {
 		newPathDensity = 0.1;
 		oldPathDensity = 0.2;
 		fHastingsRatio = newPathDensity / oldPathDensity;
+		fHastingsRatio = 1.0;
 		
 		// 
 		return fHastingsRatio;

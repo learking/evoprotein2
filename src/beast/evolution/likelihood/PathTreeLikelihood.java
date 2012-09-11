@@ -16,6 +16,7 @@ import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.substitutionmodel.SubstitutionModel;
 import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
+import beast.evolution.tree.Tree;
 
 @Description("Calculates likelihood of PathTree using ... (to be filled in)")
 public class PathTreeLikelihood extends Distribution {
@@ -37,8 +38,9 @@ public class PathTreeLikelihood extends Distribution {
     
     @Override
     public double calculateLogP() throws Exception{
-    	double oneSiteP = calculateOneSiteLogP(1);
-    	return oneSiteP;
+    	//double oneSiteP = calculateOneSiteLogP(1);
+    	//return oneSiteP;
+    	return 100.0;
     }
     
     public double calculateOneSiteLogP(int seqSite) throws Exception{
@@ -108,6 +110,48 @@ public class PathTreeLikelihood extends Distribution {
     		}
     	}
     	return oneSiteLogP;
+    }
+    
+    /** CalculationNode methods **/
+    
+    @Override
+    protected boolean requiresRecalculation() {
+    	/*
+        if (m_beagle != null) {
+            return m_beagle.requiresRecalculation();
+        }
+        m_nHasDirt = Tree.IS_CLEAN;
+
+        if (m_data.get().isDirtyCalculation()) {
+            m_nHasDirt = Tree.IS_FILTHY;
+            return true;
+        }
+        if (m_siteModel.isDirtyCalculation()) {
+            m_nHasDirt = Tree.IS_DIRTY;
+            return true;
+        }
+        if (m_branchRateModel != null && m_branchRateModel.isDirtyCalculation()) {
+            m_nHasDirt = Tree.IS_DIRTY;
+            return true;
+        }
+        return m_tree.get().somethingIsDirty();
+        */
+    	
+    	return true;
+    }
+    
+    @Override
+    public void store() {
+
+        super.store();
+
+    }
+
+    @Override
+    public void restore() {
+
+        super.restore();
+
     }
     
 	@Override

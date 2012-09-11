@@ -19,7 +19,7 @@
         </sequence>
     </data>
 
-    <input spec='HKY' id='hky'>
+    <input spec='beast.evolution.substitutionmodel.InstantHKY' id='hky'>
         <kappa idref='hky.kappa'/>
         <frequencies id='freqs' spec='Frequencies'>
             <data idref='alignment'/>
@@ -30,22 +30,26 @@
         <substModel idref='hky'/>
     </input>
 
-    <input spec='TreeLikelihood' id="treeLikelihood">
-        <data idref="alignment"/>
-        <tree idref="tree"/>
+    <input spec='beast.evolution.likelihood.PathTreeLikelihood' id="pathTreeLikelihood">
+        <PathTree idref="pathtree"/>
         <siteModel idref="siteModel"/>
     </input>
 
     <tree id='tree' spec='beast.util.TreeParser' newick='(((Human: 0.07, Chimpanzee: 0.07): 0.43, (Orangutan: 0.4, Gibbon: 0.4): 0.1):0.0 , Gorilla: 0.5)'>
     	<taxa idref="alignment" />
     </tree>
+    
+    <input spec='beast.evolution.tree.PathTree' id='pathtree'>
+    	<initial idref="tree" />
+    	<alignment idref="alignment" />
+    </input>
 
     <parameter id="hky.kappa" value="1.0" lower="0.0"/>
     
     <run spec="MCMC" id="mcmc" chainLength="10000">
-	<distribution id='likelihood' idref="treeLikelihood"/>
+	<distribution id='likelihood' idref="pathTreeLikelihood"/>
 
-        <operator id='kappaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@hky.kappa"/>
+        <operator id='dummyPathSamplingOperator' spec='beast.evolution.operators.PathSamplingOperator' weight="1" pathtree="@pathtree"/>
         <logger logEvery="1000" fileName="test.$(seed).log">
 	        <model idref='likelihood'/>
             <log idref="likelihood"/>
