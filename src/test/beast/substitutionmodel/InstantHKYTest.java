@@ -6,8 +6,6 @@ package test.beast.substitutionmodel;
 
 import org.junit.Test;
 
-import test.beast.evolution.substmodel.HKYTest.Instance;
-
 import beast.core.parameter.RealParameter;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;

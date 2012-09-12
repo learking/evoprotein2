@@ -116,28 +116,7 @@ public class PathTreeLikelihood extends Distribution {
     
     @Override
     protected boolean requiresRecalculation() {
-    	/*
-        if (m_beagle != null) {
-            return m_beagle.requiresRecalculation();
-        }
-        m_nHasDirt = Tree.IS_CLEAN;
-
-        if (m_data.get().isDirtyCalculation()) {
-            m_nHasDirt = Tree.IS_FILTHY;
-            return true;
-        }
-        if (m_siteModel.isDirtyCalculation()) {
-            m_nHasDirt = Tree.IS_DIRTY;
-            return true;
-        }
-        if (m_branchRateModel != null && m_branchRateModel.isDirtyCalculation()) {
-            m_nHasDirt = Tree.IS_DIRTY;
-            return true;
-        }
-        return m_tree.get().somethingIsDirty();
-        */
-    	
-    	return true;
+    	return m_pathTree.get().somethingIsDirty();
     }
     
     @Override

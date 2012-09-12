@@ -46,4 +46,13 @@ public class PathBranch {
 		return beginNodeNr;
 	}
 	
+	// deep copy
+	public PathBranch copy(){
+		PathBranch pathbranch = new PathBranch(m_MutationPaths.size(), beginNodeNr, endNodeNr);
+		// if any branch has any substitution event, add them into pathbranch
+		
+		// to-do
+		return pathbranch;
+	}
+	
 }

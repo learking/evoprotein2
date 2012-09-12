@@ -20,8 +20,10 @@ public class PathTree extends Tree {
 			"alignment that contains sequence data");
 	
 	List<MutableSequence> m_sequences = new ArrayList<MutableSequence>();
+	List<MutableSequence> m_storedsequences = new ArrayList<MutableSequence>();
 	
 	List<PathBranch> m_branches = new ArrayList<PathBranch>();
+	List<PathBranch> m_storedbranches = new ArrayList<PathBranch>();
 	
 	@Override
 	public void initAndValidate() throws Exception {
@@ -121,4 +123,39 @@ public class PathTree extends Tree {
 	public PathBranch getBranch(int branchNr){
 		return m_branches.get(branchNr);
 	}
+	
+    /**
+     * StateNode implementation
+     */
+    @Override
+    public void setEverythingDirty(boolean bDirty) {
+    	super.setEverythingDirty(bDirty);
+    	// To-do
+    }
+    
+    /**
+     * StateNode implementation 
+     * @throws Exception *
+     */
+    @Override
+    protected void store() {
+    	super.store();
+    	// store branches
+    	for(MutableSequence tmpSeq: m_sequences){
+    		m_storedsequences.add(tmpSeq.copy());
+    	}
+    	// store sequences
+    	for(PathBranch tmpbranch:m_branches){
+    		m_storedbranches.add(tmpbranch.copy());
+    	}
+    }
+
+    @Override
+    public void restore() {
+    	super.restore();
+    	// restore branches
+    	
+    	// restore sequences
+    }
+    
 }

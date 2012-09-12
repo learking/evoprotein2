@@ -9,14 +9,12 @@ public class MutableSequence {
 	}
 	
 	// setters
-	public void setSequence(int[] newSequence) throws Exception {
+	public void setSequence(int[] newSequence){
 		// sanity check
 		if(intSequence.length == newSequence.length){
 			for(int i=0; i<newSequence.length; i++){
 				intSequence[i] = newSequence[i];
 			}
-		}else{
-			throw new Exception("new Sequence's length is different from old one!");
 		}
 	}
 	
@@ -25,4 +23,12 @@ public class MutableSequence {
 		return intSequence;
 	}
 	
+	/*
+	 * deep copy
+	 */
+	public MutableSequence copy(){
+		MutableSequence mutableSequence = new MutableSequence(intSequence.length);
+		mutableSequence.setSequence(intSequence);
+		return mutableSequence;
+	}
 }
