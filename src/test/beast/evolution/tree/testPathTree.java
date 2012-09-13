@@ -23,7 +23,7 @@ public class testPathTree extends evoprotein2TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        data = getAlignment();
+        data = getDummyAlignment();
         tree = getTree(data);
     }
 	
@@ -32,7 +32,21 @@ public class testPathTree extends evoprotein2TestCase {
 		PathTree pathTree = new PathTree();
 		pathTree.initByName("initial", tree, "alignment", data);
 		List<MutableSequence> sequences = pathTree.getSequences();
-		assertEquals(sequences.get(0).getSequence().length, 3000);
+		assertEquals(sequences.get(0).getSequence().length, 5);
 	}
 
+	@Test
+	public void testStoreRestore() throws Exception {
+		PathTree pathTree = new PathTree();
+		pathTree.initByName("initial", tree, "alignment", data);
+		pathTree.fakeStore();
+		pathTree.showSequences();
+		int [] dummySeq = {1,1,1,1,1};
+		pathTree.setDummySeqInternalNodes(dummySeq);
+		System.out.println("#################################################################");
+		pathTree.showSequences();
+		System.out.println("#################################################################");
+		pathTree.restore();
+		pathTree.showSequences();
+	}
 }

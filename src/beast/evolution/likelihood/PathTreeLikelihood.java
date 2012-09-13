@@ -16,7 +16,6 @@ import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.substitutionmodel.SubstitutionModel;
 import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
-import beast.evolution.tree.Tree;
 
 @Description("Calculates likelihood of PathTree using ... (to be filled in)")
 public class PathTreeLikelihood extends Distribution {
@@ -40,7 +39,11 @@ public class PathTreeLikelihood extends Distribution {
     public double calculateLogP() throws Exception{
     	//double oneSiteP = calculateOneSiteLogP(1);
     	//return oneSiteP;
-    	return 100.0;
+    	if(this.isDirtyCalculation()){
+    		return 99.999;
+    	}else{
+    		return 100.0;
+    	}
     }
     
     public double calculateOneSiteLogP(int seqSite) throws Exception{
@@ -116,6 +119,7 @@ public class PathTreeLikelihood extends Distribution {
     
     @Override
     protected boolean requiresRecalculation() {
+    	// if tree is dirty, recalculate
     	return m_pathTree.get().somethingIsDirty();
     }
     

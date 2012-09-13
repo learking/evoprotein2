@@ -70,18 +70,6 @@ public class PathTree extends Tree {
 	
 	// setters
 	
-	// for testing purpose only
-	public void setDummySeqInternalNodes (int [] dummySeq) throws Exception{
-		for(int i=leafNodeCount; i<nodeCount; i++){
-			m_sequences.get(i).setSequence(dummySeq);
-		}
-	}
-	
-	// for testing purpose only
-	public void setDummyPathBranch(int nodeNr, int seqSite, SubstitutionEvent newEvent){
-		m_branches.get(nodeNr).getMutationPath(seqSite).add(newEvent);
-	}
-	
 	// showers ;)
 	public void showSequences() {
 		Nucleotide nucleo = new Nucleotide();
@@ -140,6 +128,7 @@ public class PathTree extends Tree {
     @Override
     protected void store() {
     	super.store();
+    	// if MCMC works correct, sequences and branches should not be empty
     	// store sequences
     	for(MutableSequence tmpSeq: m_sequences){
     		m_storedsequences.add(tmpSeq.copy());
@@ -150,6 +139,11 @@ public class PathTree extends Tree {
     	}
     }
 
+    //tmp
+    public void fakeStore(){
+    	store();
+    }
+    
     @Override
     public void restore() {
     	super.restore();
@@ -163,6 +157,30 @@ public class PathTree extends Tree {
     	for(PathBranch tmpbranch:m_storedbranches){
     		m_branches.add(tmpbranch.copy());
     	}
+    	
+    	// tmp
+    	showSequences();
+    	System.out.println("#############################################################################");
     }
     
+    // tmp
+	public void setDummySeqInternalNodesAll (){
+		for(int i=leafNodeCount; i<nodeCount; i++){
+			int [] newSeq = new int[]{3,3,3,3,3};
+			m_sequences.get(i).setSequence(newSeq);
+		}
+	}
+	
+	// tmp
+	public void setDummySeqInternalNodes (int [] dummySeq) throws Exception{
+		for(int i=leafNodeCount; i<nodeCount; i++){
+			m_sequences.get(i).setSequence(dummySeq);
+		}
+	}
+	
+	// tmp
+	public void setDummyPathBranch(int nodeNr, int seqSite, SubstitutionEvent newEvent){
+		m_branches.get(nodeNr).getMutationPath(seqSite).add(newEvent);
+	}
+	
 }
