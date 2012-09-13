@@ -140,11 +140,11 @@ public class PathTree extends Tree {
     @Override
     protected void store() {
     	super.store();
-    	// store branches
+    	// store sequences
     	for(MutableSequence tmpSeq: m_sequences){
     		m_storedsequences.add(tmpSeq.copy());
     	}
-    	// store sequences
+    	// store branches
     	for(PathBranch tmpbranch:m_branches){
     		m_storedbranches.add(tmpbranch.copy());
     	}
@@ -153,9 +153,16 @@ public class PathTree extends Tree {
     @Override
     public void restore() {
     	super.restore();
-    	// restore branches
-    	
     	// restore sequences
+    	m_sequences = new ArrayList<MutableSequence>();
+    	for(MutableSequence tmpSeq: m_storedsequences){
+    		m_sequences.add(tmpSeq.copy());
+    	}
+    	// restore branches
+    	m_branches = new ArrayList<PathBranch>();
+    	for(PathBranch tmpbranch:m_storedbranches){
+    		m_branches.add(tmpbranch.copy());
+    	}
     }
     
 }

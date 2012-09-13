@@ -46,12 +46,22 @@ public class PathBranch {
 		return beginNodeNr;
 	}
 	
+	// setters
+	public void setMutationPath(int mutationPathIndex, List<SubstitutionEvent> newMutationPath) {
+		for(SubstitutionEvent tmpSubstitutionEvent : newMutationPath) {
+			m_MutationPaths.get(mutationPathIndex).add(tmpSubstitutionEvent.copy());
+		}
+	}
+	
 	// deep copy
 	public PathBranch copy(){
 		PathBranch pathbranch = new PathBranch(m_MutationPaths.size(), beginNodeNr, endNodeNr);
 		// if any branch has any substitution event, add them into pathbranch
-		
-		// to-do
+		int mutationPathIndex = -1;
+		for(List<SubstitutionEvent> tmpMutationPath: m_MutationPaths) {
+			mutationPathIndex++;
+			pathbranch.setMutationPath(mutationPathIndex, tmpMutationPath);
+		}
 		return pathbranch;
 	}
 	

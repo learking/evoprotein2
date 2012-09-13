@@ -30,4 +30,10 @@ public class SubstitutionEvent {
 	public int getPreviousNucleotide(){
 		return previousNucleotide;
 	}
+	
+	// copy
+	public SubstitutionEvent copy() {
+		SubstitutionEvent substitutionEvent = new SubstitutionEvent(previousNucleotide, currentNucleotide, timeInterval);
+		return substitutionEvent;
+	}
 }
