@@ -49,7 +49,7 @@
     <run spec="MCMC" id="mcmc" chainLength="2">
 	<distribution id='likelihood' idref="pathTreeLikelihood"/>
 
-        <operator id='dummyPathSamplingOperator' spec='beast.evolution.operators.PathSamplingOperator' weight="1" pathtree="@pathtree"/>
+        <operator id='dummyPathSamplingOperator' spec='beast.evolution.operators.PathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@siteModel"/>
         <logger logEvery="1" fileName="test.$(seed).log">
 	        <model idref='likelihood'/>
             <log idref="likelihood"/>
