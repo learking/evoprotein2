@@ -32,12 +32,13 @@ public class PathSamplingOperator extends Operator {
     public void initAndValidate() throws Exception {
     	m_substitutionModel = m_pSiteModel.get().m_pSubstModel.get();
     }
-	
+    
 	/*
 	 * @see beast.core.Operator#proposal()
 	 */
 	@Override
 	public double proposal() {
+		
 		// register this operator with input PathTree
 		PathTree pathTree = m_pathTree.get(this);
 
@@ -48,8 +49,9 @@ public class PathSamplingOperator extends Operator {
 		List<double []> pMatrices = PupkoOneSite(pathTree, 0);
 		
 		for (double[] tmpMatrix : pMatrices){
-		System.out.println(Arrays.toString(tmpMatrix));
+			System.out.println(Arrays.toString(tmpMatrix));
 		}
+		
 		/*
 		pathTree.setDummySeqInternalNodesAll();
 		pathTree.showSequences();
@@ -90,7 +92,7 @@ public class PathSamplingOperator extends Operator {
 		return fHastingsRatio;
 	}
 	
-	protected List<double[]> PupkoOneSite(PathTree pathTree, int seqSite){
+	public List<double[]> PupkoOneSite(PathTree pathTree, int seqSite){
 		final double [] zeroArray = new double [4*4];
 		
 		// if the seq state at this site of the current node "N" is "j" and its parent seq state is "i"
@@ -99,6 +101,8 @@ public class PathSamplingOperator extends Operator {
 		for (int i=0; i< pathTree.getNodeCount(); i++){
 			pMatrices.add(new double[4*4]);
 		}
+
+		
 		
 		/* deal with leaf nodes first (since they can be readily calculated) */
 		for (int leafNodeNr = 0; leafNodeNr < pathTree.getLeafNodeCount(); leafNodeNr++) {
@@ -112,29 +116,41 @@ public class PathSamplingOperator extends Operator {
 		}
 		// remove the root number from internalNodeNum
 		internalNodeIndices.remove(internalNodeIndices.indexOf(pathTree.getRoot().getNr()));
-		
+
 		while(internalNodeIndices.size() > 0 ){
 			for (int i = 0; i < internalNodeIndices.size(); i++) {
 				int currentNodeNr = internalNodeIndices.get(i);
 				Node currentNode = pathTree.getNode(currentNodeNr);
+				System.out.println("internalnode:" + currentNodeNr);
 				if (currentNode.getLength() > 0) {
 					int leftNum = currentNode.getLeft().getNr();
 					int rightNum = currentNode.getRight().getNr();
-				// if both left and right child node has been updated, then
-				// update this internal node
+				    // if pMatrices of both left and right child node has been calculated
 					if ((!pMatrices.get(leftNum).equals(zeroArray))&&(!pMatrices.get(rightNum).equals(zeroArray))) {
 						// set up pMatrix for this internal node
 						setInternalpMatrix(pMatrices.get(currentNodeNr), pMatrices.get(leftNum), pMatrices.get(rightNum), currentNode.getLength());
 						internalNodeIndices.remove(i);
 					}
 				}
+				
+				if (currentNode.getLength() == 0){
+					int leftNum = currentNode.getLeft().getNr();
+					int rightNum = currentNode.getRight().getNr();
+				    // if pMatrices of both left and right child node has been calculated
+					if ((!pMatrices.get(leftNum).equals(zeroArray))&&(!pMatrices.get(rightNum).equals(zeroArray))) {
+						// set up pMatrix for this internal node
+						//setSudoRootpMatrix(pMatrices.get(currentNodeNr), pMatrices.get(leftNum), pMatrices.get(rightNum), currentNode.getLength());
+						internalNodeIndices.remove(i);
+					}
+				}
+				
 			}
 		}
-		
+
 		return pMatrices;
 	}
 	
-	protected void setLeafpMatrix(double [] pMatrix, double branchLength, int nucleotideState){
+	public void setLeafpMatrix(double [] pMatrix, double branchLength, int nucleotideState){
 		double [] transitionMatrix = new double [4*4];
 		m_substitutionModel.getTransitionProbabilities(null, branchLength, 0, 1.0, transitionMatrix);
 		for(int i=0; i<4; i++){
@@ -142,12 +158,46 @@ public class PathSamplingOperator extends Operator {
 		}
 	}
 
-	protected void setInternalpMatrix(double [] currentpMatrix, double [] leftpMatrix, double [] rightpMatrix, double branchLength){
+	public void setInternalpMatrix(double [] currentpMatrix, double [] leftpMatrix, double [] rightpMatrix, double branchLength){
 		double [] transitionMatrix = new double [4*4];
 		m_substitutionModel.getTransitionProbabilities(null, branchLength, 0, 1.0, transitionMatrix);
-		for(int currentNodeNucleoState = 0; currentNodeNucleoState < 4; currentNodeNucleoState++){
-			//TO-DO
+
+		for(int parentNodeNucleoState = 0; parentNodeNucleoState < 4; parentNodeNucleoState++){
+			for(int currentNodeNucleoState = 0; currentNodeNucleoState < 4; currentNodeNucleoState++){
+				double transitionProb = transitionMatrix[parentNodeNucleoState * 4 + currentNodeNucleoState];
+				double leftpMatrixRowSum = getpMatrixRowSum(leftpMatrix, currentNodeNucleoState);
+				double rightpMatrixRowSum = getpMatrixRowSum(rightpMatrix, currentNodeNucleoState);
+				currentpMatrix[parentNodeNucleoState * 4 + currentNodeNucleoState] = transitionProb * leftpMatrixRowSum * rightpMatrixRowSum;
+			}
 		}
+	}
+	
+	public double setSudoRoot(double [] leftpMatrix, double [] rightpMatrix, double[] tipNodepMatrix){
+		double sudoRootNucleoStateProb = 0.0;
+		final double [] frequences = m_substitutionModel.getFrequencies();
+		double [] nucleoStateProbs = new double [4*4];
+		for(int nucleoState=0; nucleoState < 4; nucleoState++){
+			double nucleoStateFreq = frequences[nucleoState];
+			double leftpMatrixRowSum = getpMatrixRowSum(leftpMatrix, nucleoState);
+			double rightpMatrixRowSum = getpMatrixRowSum(rightpMatrix, nucleoState);
+			double tipNodepMatrixRowSum = getpMatrixRowSum(tipNodepMatrix, nucleoState);
+			nucleoStateProbs[nucleoState] = nucleoStateFreq * leftpMatrixRowSum * rightpMatrixRowSum * tipNodepMatrixRowSum;
+		}
+		// TO-DO: select a state based on nucleoStateProbs
+		
+		return sudoRootNucleoStateProb;
+	}
+	
+	public double getpMatrixRowSum(double [] pMatrix, int rowNr){
+
+		double rowSum = 0.0;
+		int startPosition = rowNr * 4;
+		int endPosition = startPosition + 4;
+		for (int i = startPosition; i< endPosition; i++){
+			rowSum += pMatrix[i];
+		}
+
+		return rowSum;
 	}
 	
 }
