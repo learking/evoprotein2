@@ -74,8 +74,8 @@ public class PathSamplingOperator extends Operator {
 			}
 		}
 		
-		pathTree.showSequences();
-	    System.out.println("--------------------------------------------------------------------------");
+		// pathTree.showSequences();
+	    // System.out.println("--------------------------------------------------------------------------");
 
 		/*
 		pathTree.setDummySeqInternalNodesAll();
@@ -130,8 +130,6 @@ public class PathSamplingOperator extends Operator {
 		for (int i=0; i< pathTree.getNodeCount(); i++){
 			pMatrices.add(new double[4*4]);
 		}
-
-		
 		
 		/* deal with leaf nodes first (since they can be readily calculated) */
 		for (int leafNodeNr = 0; leafNodeNr < pathTree.getLeafNodeCount(); leafNodeNr++) {
@@ -346,17 +344,19 @@ public class PathSamplingOperator extends Operator {
 		PathBranch thisBranch = pathTree.getBranch(branchNr);
 		double thisBranchLength = pathTree.getNode(thisBranch.getEndNodeNr()).getLength();
 		
-		/*
+		
 		for(int seqSite = 0; seqSite < siteNr ; seqSite++){
 			int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[seqSite];
 			int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[seqSite];
 			NielsenSampleOneBranchOneSite(thisBranch, seqSite, thisBranchLength, parentNucleoState, childNucleoState);
 		}
-		*/
+		
+		/*
 		System.out.println("branch:" + branchNr);
 		int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[0];
 		int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[0];
 		NielsenSampleOneBranchOneSite(thisBranch, 0, thisBranchLength, parentNucleoState, childNucleoState);
+		*/
 		return 0;
 	}
 	
@@ -364,7 +364,6 @@ public class PathSamplingOperator extends Operator {
 		
 		final int childState = childNucleoState;
 		final int parentState = parentNucleoState;
-
 		final double totalTime = thisBranchLength;
 
 		List<SubstitutionEvent> substitutionEvents = new ArrayList<SubstitutionEvent>();
@@ -382,41 +381,84 @@ public class PathSamplingOperator extends Operator {
 		
 		if(parentState == childState){
 			while(lastNucleotide != childState){
-				substitutionEvents.clear();
-				
+				// initialize stuff
+				substitutionEvents.clear();			
 				currentTime = 0;
+				currentState = parentState;
+				
 				while(currentTime < totalTime){
 					timeInterval = Randomizer.nextExponential(lambda);
-					if(currentTime + timeInterval > totalTime){
+					if(currentTime + timeInterval >= totalTime){
 						currentTime = totalTime;
 						lastNucleotide = currentState;
-						System.out.println("first sample, greater than total time");
 					}else{
-						System.out.println("NOt greater, sample another state!");
 						currentTime += timeInterval;
 						beginNucleotide = currentState;
 						currentState = Randomizer.randomChoice(differentCDFs[currentState]);
 						endNucleotide = currentState;
 						// create new substitutionevent and add it to events
+						// System.out.println("begin:" + beginNucleotide + " end:" + endNucleotide);
 						substitutionEvents.add(new SubstitutionEvent(beginNucleotide, endNucleotide, timeInterval));
 					}
-				}
-				
-				if(substitutionEvents.size() != 0){
-					lastNucleotide = substitutionEvents.get(substitutionEvents.size() - 1).getCurrentNucleotide();
 				}
 			}
 			
 			// copy substitutionEvents to ...
 			if(substitutionEvents.size() != 0){
 				thisBranch.setMutationPath(seqSite, substitutionEvents);
-				System.out.println("number of substitution events:" + substitutionEvents.size());
 			}
 			
 		}else{
+			while (lastNucleotide != childState) {
+				// initialize stuff
+				substitutionEvents.clear();			
+				currentTime = 0;
+				currentState = parentState;
+				
+				boolean firstSample = true;
+				while (currentTime < totalTime) {
+					if (firstSample) {
+						timeInterval = sampleFirstSubstitutionTime(totalTime);
+						currentTime = currentTime + timeInterval;
+						
+						beginNucleotide = currentState;
+						currentState = Randomizer.randomChoice(differentCDFs[currentState]);
+						endNucleotide = currentState;
+						substitutionEvents.add(new SubstitutionEvent(beginNucleotide, endNucleotide, timeInterval));
+						
+						firstSample = false;
+					} else {
+						timeInterval = Randomizer.nextExponential(lambda);
+						if (currentTime + timeInterval >= totalTime) {
+							currentTime = totalTime;
+							lastNucleotide = currentState;
+						} else {
+							currentTime += timeInterval;
+							
+							beginNucleotide = currentState;
+							currentState = Randomizer.randomChoice(differentCDFs[currentState]);
+							endNucleotide = currentState;
+							substitutionEvents.add(new SubstitutionEvent(beginNucleotide, endNucleotide, timeInterval));
+						}
+					}
+				}
+			}
 			
+			// copy substitutionEvents to ...
+			if(substitutionEvents.size() != 0){
+				thisBranch.setMutationPath(seqSite, substitutionEvents);
+			}
 		}
-		
+		/*
+		if(childState == parentState) {
+			if(substitutionEvents.size() > 0) {
+				System.out.println("begin: " + parentState + " child: " + childState);
+				for (SubstitutionEvent substEvent : substitutionEvents) {
+					System.out.println(substEvent.toString());
+				}
+			}
+		}
+		*/
 		return 0;
 	}
 	
@@ -456,5 +498,18 @@ public class PathSamplingOperator extends Operator {
 			tmpCDF[i] = cumulativeProb;
 		}
 		return tmpCDF;
+	}
+	
+	public double sampleFirstSubstitutionTime(double totalTime) {
+		// store the final result
+		double sampledFirstTime;
+
+		// draw a random number between 0 and 1
+		double randNum = Randomizer.nextDouble();
+
+		// calculate the time for the first substitution
+		sampledFirstTime = -Math
+				.log(1.0 - randNum * (1 - Math.exp(-totalTime)));
+		return sampledFirstTime;
 	}
 }
