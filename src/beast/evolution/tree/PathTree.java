@@ -134,10 +134,12 @@ public class PathTree extends Tree {
     	super.store();
     	// if MCMC works correct, sequences and branches should not be empty
     	// store sequences
+    	m_storedsequences.clear();
     	for(MutableSequence tmpSeq: m_sequences){
     		m_storedsequences.add(tmpSeq.copy());
     	}
     	// store branches
+    	m_storedbranches.clear();
     	for(PathBranch tmpbranch:m_branches){
     		m_storedbranches.add(tmpbranch.copy());
     	}
@@ -163,8 +165,8 @@ public class PathTree extends Tree {
     	}
     	
     	// tmp
-    	showSequences();
-    	System.out.println("#############################################################################");
+    	// showSequences();
+    	// System.out.println("#############################################################################");
     }
     
     // tmp

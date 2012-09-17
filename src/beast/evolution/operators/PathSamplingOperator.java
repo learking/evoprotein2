@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import evoprotein.evolution.datatype.MutableSequence;
+import evoprotein.evolution.substitution.SubstitutionEvent;
 
 import beast.core.Input;
 import beast.core.Input.Validate;
@@ -15,6 +16,7 @@ import beast.core.Operator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.SubstitutionModel;
 import beast.evolution.tree.Node;
+import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 import beast.util.Randomizer;
 
@@ -31,6 +33,9 @@ public class PathSamplingOperator extends Operator {
 	
     SubstitutionModel.Base m_substitutionModel;
 	
+    // lambda parameter for nextExponential()
+    final double lambda = 1.0;
+    
     @Override
     public void initAndValidate() throws Exception {
     	m_substitutionModel = m_pSiteModel.get().m_pSubstModel.get();
@@ -79,7 +84,7 @@ public class PathSamplingOperator extends Operator {
 		// if this is the first run, we need to come up with oldPathDensity first
 		
 		
-		//
+		// 
 		
 		// change the tree and set the tree to be dirty
 		pathTree.setSomethingIsDirty(true);
@@ -145,7 +150,7 @@ public class PathSamplingOperator extends Operator {
 			for (int i = 0; i < internalNodeIndices.size(); i++) {
 				int currentNodeNr = internalNodeIndices.get(i);
 				Node currentNode = pathTree.getNode(currentNodeNr);
-				System.out.println("internalnode:" + currentNodeNr);
+				// System.out.println("internalnode:" + currentNodeNr);
 				if (currentNode.getLength() > 0) {
 					int leftNum = currentNode.getLeft().getNr();
 					int rightNum = currentNode.getRight().getNr();
@@ -238,7 +243,7 @@ public class PathSamplingOperator extends Operator {
 			nucleoStateCDF[i] = cumulativeProb;
 		}
 		
-		System.out.println("CDF:" + Arrays.toString(nucleoStateCDF));
+		//System.out.println("CDF:" + Arrays.toString(nucleoStateCDF));
 		
 		// pick a nucleoState randomly based on nucleoStateProbs
 		int sudoRootNucleoState = Randomizer.randomChoice(nucleoStateCDF);
@@ -337,6 +342,119 @@ public class PathSamplingOperator extends Operator {
 	}
 	
 	public double NielsenSampleOneBranch(PathTree pathTree, int branchNr) {
+		int siteNr = pathTree.getSequences().get(0).getSequence().length;
+		PathBranch thisBranch = pathTree.getBranch(branchNr);
+		double thisBranchLength = pathTree.getNode(thisBranch.getEndNodeNr()).getLength();
+		
+		/*
+		for(int seqSite = 0; seqSite < siteNr ; seqSite++){
+			int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[seqSite];
+			int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[seqSite];
+			NielsenSampleOneBranchOneSite(thisBranch, seqSite, thisBranchLength, parentNucleoState, childNucleoState);
+		}
+		*/
+		System.out.println("branch:" + branchNr);
+		int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[0];
+		int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[0];
+		NielsenSampleOneBranchOneSite(thisBranch, 0, thisBranchLength, parentNucleoState, childNucleoState);
 		return 0;
+	}
+	
+	public double NielsenSampleOneBranchOneSite(PathBranch thisBranch, int seqSite, double thisBranchLength, int parentNucleoState, int childNucleoState){
+		
+		final int childState = childNucleoState;
+		final int parentState = parentNucleoState;
+
+		final double totalTime = thisBranchLength;
+
+		List<SubstitutionEvent> substitutionEvents = new ArrayList<SubstitutionEvent>();
+		
+		// CDFs for sampling another different nucleotide
+		final double [][] differentCDFs = getDifferentNucleoCDF();
+		
+		// parameters used in the calculation
+		int lastNucleotide = -1;
+		double currentTime = 0;
+		int currentState = parentState;
+		int beginNucleotide = -1;
+		int endNucleotide = -1;
+		double timeInterval = 0;
+		
+		if(parentState == childState){
+			while(lastNucleotide != childState){
+				substitutionEvents.clear();
+				
+				currentTime = 0;
+				while(currentTime < totalTime){
+					timeInterval = Randomizer.nextExponential(lambda);
+					if(currentTime + timeInterval > totalTime){
+						currentTime = totalTime;
+						lastNucleotide = currentState;
+						System.out.println("first sample, greater than total time");
+					}else{
+						System.out.println("NOt greater, sample another state!");
+						currentTime += timeInterval;
+						beginNucleotide = currentState;
+						currentState = Randomizer.randomChoice(differentCDFs[currentState]);
+						endNucleotide = currentState;
+						// create new substitutionevent and add it to events
+						substitutionEvents.add(new SubstitutionEvent(beginNucleotide, endNucleotide, timeInterval));
+					}
+				}
+				
+				if(substitutionEvents.size() != 0){
+					lastNucleotide = substitutionEvents.get(substitutionEvents.size() - 1).getCurrentNucleotide();
+				}
+			}
+			
+			// copy substitutionEvents to ...
+			if(substitutionEvents.size() != 0){
+				thisBranch.setMutationPath(seqSite, substitutionEvents);
+				System.out.println("number of substitution events:" + substitutionEvents.size());
+			}
+			
+		}else{
+			
+		}
+		
+		return 0;
+	}
+	
+	public double [][] getDifferentNucleoCDF(){
+		final double [] frequences = m_substitutionModel.getFrequencies();
+		double [][] differentNucleoCDFs = new double [4][4];
+		
+		double [] CDFwithoutA = getCDFwithoutOneNucleo(frequences, 0);
+		double [] CDFwithoutC = getCDFwithoutOneNucleo(frequences, 1);
+		double [] CDFwithoutG = getCDFwithoutOneNucleo(frequences, 2);
+		double [] CDFwithoutT = getCDFwithoutOneNucleo(frequences, 3);
+		
+		differentNucleoCDFs[0]= CDFwithoutA;
+		differentNucleoCDFs[1]= CDFwithoutC;
+		differentNucleoCDFs[2]= CDFwithoutG;
+		differentNucleoCDFs[3]= CDFwithoutT;
+		
+		return differentNucleoCDFs;
+	}
+	
+	public double [] getCDFwithoutOneNucleo(double [] frequences, int nucleoState){
+		double [] tmpFreqs = new double[4];
+		double [] tmpCDF = new double [4];
+		
+		for (int i = 0; i < 4 ; i++){
+			if(i == nucleoState){
+				tmpFreqs[i] = 0;
+			}else{
+				tmpFreqs[i] = frequences[i];
+			}
+		}
+		
+		double [] tmpPDF = Randomizer.getNormalized(tmpFreqs);
+		double cumulativeProb = 0;
+		for (int i = 0 ; i < 4 ; i++) {
+			cumulativeProb += tmpPDF[i];
+			tmpCDF[i] = cumulativeProb;
+		}
+		return tmpCDF;
 	}
 }

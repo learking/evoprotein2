@@ -48,6 +48,7 @@ public class PathBranch {
 	
 	// setters
 	public void setMutationPath(int mutationPathIndex, List<SubstitutionEvent> newMutationPath) {
+		m_MutationPaths.get(mutationPathIndex).clear();
 		for(SubstitutionEvent tmpSubstitutionEvent : newMutationPath) {
 			m_MutationPaths.get(mutationPathIndex).add(tmpSubstitutionEvent.copy());
 		}
