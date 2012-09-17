@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import evoprotein.evolution.datatype.MutableSequence;
+
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.Operator;
@@ -14,6 +16,7 @@ import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.SubstitutionModel;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.PathTree;
+import beast.util.Randomizer;
 
 /**
  * @author kuangyu
@@ -41,22 +44,37 @@ public class PathSamplingOperator extends Operator {
 		
 		// register this operator with input PathTree
 		PathTree pathTree = m_pathTree.get(this);
+		int rootNr = pathTree.getRoot().getNr();
+		int sudoRootNr = 0;
+		for (Node childNode : pathTree.getRoot().getChildren()) {
+			if(!childNode.isLeaf()) {
+				sudoRootNr = childNode.getNr();
+			}
+		}
 
 		// Is there any way to utilize old path density without recalculation?
 		// for example, if the proposal gets rejected
 		double oldPathDensity, newPathDensity, fHastingsRatio;
 		
-		List<double []> pMatrices = PupkoOneSite(pathTree, 0);
-		
-		for (double[] tmpMatrix : pMatrices){
-			System.out.println(Arrays.toString(tmpMatrix));
+		for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
+			PupkoOneSite(pathTree, seqSite);
 		}
 		
-		/*
-		pathTree.setDummySeqInternalNodesAll();
+		// NielsenOneSite
+		// don't need to traverse tree (we can work on m_branches directly, since now we have internal states already)
+		// TO-DO
+		for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
+			if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
+				NielsenSampleOneBranch(pathTree, branchNr);
+			}
+		}
+		
 		pathTree.showSequences();
 	    System.out.println("--------------------------------------------------------------------------");
-		*/
+
+		/*
+		pathTree.setDummySeqInternalNodesAll();
+				*/
 		
 		// if this is the first run, we need to come up with oldPathDensity first
 		
@@ -92,8 +110,14 @@ public class PathSamplingOperator extends Operator {
 		return fHastingsRatio;
 	}
 	
-	public List<double[]> PupkoOneSite(PathTree pathTree, int seqSite){
-		final double [] zeroArray = new double [4*4];
+	public List<double[]> PupkoOneSite(PathTree pathTree, int seqSite){		
+		int rootNr = pathTree.getRoot().getNr();
+		int sudoRootNr = 0;
+		for (Node childNode : pathTree.getRoot().getChildren()) {
+			if(!childNode.isLeaf()) {
+				sudoRootNr = childNode.getNr();
+			}
+		}
 		
 		// if the seq state at this site of the current node "N" is "j" and its parent seq state is "i"
 		// then P(N=j | N_parent = i) is the "i*4 + j"th item in the "N"th Matrix of the list
@@ -126,7 +150,7 @@ public class PathSamplingOperator extends Operator {
 					int leftNum = currentNode.getLeft().getNr();
 					int rightNum = currentNode.getRight().getNr();
 				    // if pMatrices of both left and right child node has been calculated
-					if ((!pMatrices.get(leftNum).equals(zeroArray))&&(!pMatrices.get(rightNum).equals(zeroArray))) {
+					if ((getpMatrixSum(pMatrices.get(leftNum))!=0)&&(getpMatrixSum(pMatrices.get(rightNum))!=0)) {
 						// set up pMatrix for this internal node
 						setInternalpMatrix(pMatrices.get(currentNodeNr), pMatrices.get(leftNum), pMatrices.get(rightNum), currentNode.getLength());
 						internalNodeIndices.remove(i);
@@ -137,9 +161,19 @@ public class PathSamplingOperator extends Operator {
 					int leftNum = currentNode.getLeft().getNr();
 					int rightNum = currentNode.getRight().getNr();
 				    // if pMatrices of both left and right child node has been calculated
-					if ((!pMatrices.get(leftNum).equals(zeroArray))&&(!pMatrices.get(rightNum).equals(zeroArray))) {
-						// set up pMatrix for this internal node
-						//setSudoRootpMatrix(pMatrices.get(currentNodeNr), pMatrices.get(leftNum), pMatrices.get(rightNum), currentNode.getLength());
+					if ((getpMatrixSum(pMatrices.get(leftNum))!=0)&&(getpMatrixSum(pMatrices.get(rightNum))!=0)) {
+						// get tip node that is the immediate child of root
+						int tipNodeNr = -1;
+						List<Node> rootChildren = pathTree.getRoot().getChildren();
+						for (Node tmpNode : rootChildren) {
+							if (tmpNode.isLeaf()) {
+								tipNodeNr = tmpNode.getNr();
+							}
+						}
+						// too many parameters (to be simplified later)
+						setSudoRoot(pathTree, currentNode.getNr(), seqSite, pMatrices.get(leftNum), pMatrices.get(rightNum), pMatrices.get(tipNodeNr));
+						// trace back and set all internal nodes based on pMatrices
+						setInternalNodes(pathTree, currentNode.getNr(), seqSite, pMatrices);
 						internalNodeIndices.remove(i);
 					}
 				}
@@ -147,6 +181,10 @@ public class PathSamplingOperator extends Operator {
 			}
 		}
 
+		// let the root have the same sequence as the sudoRoot
+		MutableSequence newRootSeq = pathTree.getSequences().get(sudoRootNr).copy();
+		pathTree.getSequences().get(rootNr).setSequence(newRootSeq.getSequence());
+		
 		return pMatrices;
 	}
 	
@@ -172,10 +210,11 @@ public class PathSamplingOperator extends Operator {
 		}
 	}
 	
-	public double setSudoRoot(double [] leftpMatrix, double [] rightpMatrix, double[] tipNodepMatrix){
+	public double setSudoRoot(PathTree pathTree, int sudoRootNr, int seqSite, double [] leftpMatrix, double [] rightpMatrix, double[] tipNodepMatrix){
+		
 		double sudoRootNucleoStateProb = 0.0;
 		final double [] frequences = m_substitutionModel.getFrequencies();
-		double [] nucleoStateProbs = new double [4*4];
+		double [] nucleoStateProbs = new double [4];
 		for(int nucleoState=0; nucleoState < 4; nucleoState++){
 			double nucleoStateFreq = frequences[nucleoState];
 			double leftpMatrixRowSum = getpMatrixRowSum(leftpMatrix, nucleoState);
@@ -183,11 +222,88 @@ public class PathSamplingOperator extends Operator {
 			double tipNodepMatrixRowSum = getpMatrixRowSum(tipNodepMatrix, nucleoState);
 			nucleoStateProbs[nucleoState] = nucleoStateFreq * leftpMatrixRowSum * rightpMatrixRowSum * tipNodepMatrixRowSum;
 		}
-		// TO-DO: select a state based on nucleoStateProbs
+		
+		// normalize nucleoStateFreq using its added-up total
+		double totalNucleoStateProb = 0;
+		for (int i=0; i < nucleoStateProbs.length; i++) {
+			totalNucleoStateProb += nucleoStateProbs[i];
+		}
+
+		// compute CDF based on nucleoStateProbs
+		double [] nucleoStateCDF = new double [4];
+		double cumulativeProb = 0;
+		for (int i=0; i < nucleoStateProbs.length; i++) {
+			nucleoStateProbs[i] = nucleoStateProbs[i] / totalNucleoStateProb;
+			cumulativeProb += nucleoStateProbs[i];
+			nucleoStateCDF[i] = cumulativeProb;
+		}
+		
+		System.out.println("CDF:" + Arrays.toString(nucleoStateCDF));
+		
+		// pick a nucleoState randomly based on nucleoStateProbs
+		int sudoRootNucleoState = Randomizer.randomChoice(nucleoStateCDF);
+		sudoRootNucleoStateProb = nucleoStateProbs[sudoRootNucleoState];
+		pathTree.getSequences().get(sudoRootNr).getSequence()[seqSite] = sudoRootNucleoState;
 		
 		return sudoRootNucleoStateProb;
 	}
 	
+	public void setInternalNodes(PathTree pathTree, int sudoRootNr, int seqSite, List<double []> pMatrices) {
+		
+		// get sudoRoot state
+		int sudoRootNucleoState = pathTree.getSequences().get(sudoRootNr).getSequence()[seqSite];
+		Node leftNode = pathTree.getNode(sudoRootNr).getLeft();
+		Node rightNode = pathTree.getNode(sudoRootNr).getRight();
+		traverseInternalNode(leftNode, pathTree, seqSite, pMatrices);
+		traverseInternalNode(rightNode, pathTree, seqSite, pMatrices);
+		// we need a recursive function here to traverse the tree and set states for internal nodes
+		// idea:
+		// traverse(left)
+		// traverse(right)
+		// traverse{
+		//	traverse(left)
+		//  traverse(right)
+		// }
+		//if() {
+			
+		//}
+		
+	}
+	
+	public void traverseInternalNode(Node node, PathTree pathTree, int seqSite, List<double []> pMatrices) {
+		if(!node.isLeaf()) {
+			double [] pMatrix = pMatrices.get(node.getNr());
+			int parentNucleoState = pathTree.getSequences().get(node.getParent().getNr()).getSequence()[seqSite];
+			
+			double [] currentpVector = getpMatrixOneRow(pMatrix, parentNucleoState);
+			double currentpVectorSum = getpMatrixRowSum(pMatrix, parentNucleoState);
+			for (int i = 0; i < currentpVector.length ; i++) {
+				currentpVector[i] = currentpVector[i] / currentpVectorSum;
+			}
+			
+			// compute CDF based on nucleoStateProbs
+			double [] thisNodeStateCDF = new double [4];
+			double cumulativeProb = 0;
+			for (int i=0; i < currentpVector.length; i++) {
+				cumulativeProb += currentpVector[i];
+				thisNodeStateCDF[i] = cumulativeProb;
+			}
+			
+			// pick a nucleoState randomly based on nucleoStateProbs
+			int thisNodeState = Randomizer.randomChoice(thisNodeStateCDF);
+			double thisNodeStateProb = currentpVector[thisNodeState];
+			pathTree.getSequences().get(node.getNr()).getSequence()[seqSite] = thisNodeState;
+			
+			//recursive part:
+			traverseInternalNode(node.getLeft() , pathTree, seqSite, pMatrices);
+			traverseInternalNode(node.getRight() , pathTree, seqSite, pMatrices);
+			
+			// think about how to return value
+			// return thisNodeStateProb;
+		}
+	}
+	
+	// matrix calculation helper function
 	public double getpMatrixRowSum(double [] pMatrix, int rowNr){
 
 		double rowSum = 0.0;
@@ -200,4 +316,27 @@ public class PathSamplingOperator extends Operator {
 		return rowSum;
 	}
 	
+	public double getpMatrixSum(double [] pMatrix) {
+		double sum = 0;
+		for (double p : pMatrix) {
+			sum += p;
+		}
+		return sum;
+	}
+	
+	public double [] getpMatrixOneRow(double [] pMatrix, int rowNr) {
+		double [] thisRow = new double [4];
+		int thisRowNr = rowNr;
+		int startPosition = thisRowNr * 4;
+		int endPosition = startPosition + 4;
+		for (int i = startPosition; i < endPosition; i++) {
+			int thisRowIndex = i - startPosition;
+			thisRow[thisRowIndex] = pMatrix[i];
+		}
+		return thisRow;
+	}
+	
+	public double NielsenSampleOneBranch(PathTree pathTree, int branchNr) {
+		return 0;
+	}
 }

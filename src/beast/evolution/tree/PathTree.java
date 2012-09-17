@@ -108,6 +108,10 @@ public class PathTree extends Tree {
 		return m_sequences;
 	}
 	
+	public List<PathBranch> getBranches(){
+		return m_branches;
+	}
+	
 	public PathBranch getBranch(int branchNr){
 		return m_branches.get(branchNr);
 	}
