@@ -107,10 +107,10 @@ public class PathSamplingOperator extends Operator {
 		oldPathDensity = 0.2;
 		fHastingsRatio = newPathDensity / oldPathDensity;
 		// to make sure MCMC will reject everytime
-		fHastingsRatio = Double.NEGATIVE_INFINITY;
+		// fHastingsRatio = Double.NEGATIVE_INFINITY;
 		
 		// to make sure MCMC will accept everytime
-		// fHastingsRatio = Double.POSITIVE_INFINITY;
+		fHastingsRatio = Double.POSITIVE_INFINITY;
 		
 		return fHastingsRatio;
 	}

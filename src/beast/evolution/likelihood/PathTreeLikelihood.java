@@ -1,5 +1,6 @@
 package beast.evolution.likelihood;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -37,10 +38,11 @@ public class PathTreeLikelihood extends Distribution {
     
     @Override
     public double calculateLogP() throws Exception{
-    	//double oneSiteP = calculateOneSiteLogP(1);
+    	double oneSiteP = calculateOneSiteLogP(0);
+    	logP = oneSiteP;
     	//return oneSiteP;
     	if(this.isDirtyCalculation()){
-    		return 99.999;
+    		return logP;
     	}else{
     		return 100.0;
     	}
@@ -75,9 +77,13 @@ public class PathTreeLikelihood extends Distribution {
     				
     				if(currentSubstitutionEvents.size() == 0){
     					// sanity check
+    					// need to deal with first time calculation
+    					
     					if(beginNucleotide != endNucleotide){
+    						System.out.println(Arrays.toString(beginSeq.getSequence()));
     						throw new Exception("begin and end nucleotide should be the same when there is no substitution along this branch!");
     					}
+    					
     					// diagonal elements are already negative
     					transitionOutEventCode = beginNucleotide*4 + beginNucleotide;
     					oneSiteLogP += instantMatrix[transitionOutEventCode] * currentBranchLength;
