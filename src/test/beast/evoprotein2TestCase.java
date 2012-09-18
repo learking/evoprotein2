@@ -1,5 +1,7 @@
 package test.beast;
 
+import beast.core.parameter.Parameter;
+import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.Sequence;
 import beast.evolution.tree.PathTree;
@@ -49,4 +51,9 @@ public class evoprotein2TestCase extends TestCase {
     	return pathTree;
     }
     
+    static public RealParameter getKappa() throws Exception{
+    	RealParameter kappa = new RealParameter();
+    	kappa.initByName("value", "1.0");
+    	return kappa;
+    }
 }

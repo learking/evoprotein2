@@ -46,7 +46,7 @@
 
     <parameter id="hky.kappa" value="1.0" lower="0.0"/>
     
-    <run spec="MCMC" id="mcmc" chainLength="2">
+    <run spec="MCMC" id="mcmc" chainLength="100">
 	<distribution id='likelihood' idref="pathTreeLikelihood"/>
 
         <operator id='dummyPathSamplingOperator' spec='beast.evolution.operators.PathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@siteModel"/>

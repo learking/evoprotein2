@@ -109,9 +109,11 @@ public class PathTreeLikelihood extends Distribution {
     					
     					double unchangedHeight = currentBranchLength - cumulativeHeight;
     					// sanity check
+    					
     					if(lastNucleotide != endNucleotide){
     						throw new Exception("after last substituion, the nucleotide should be the same as the end of the branch! ");
     					}
+    					
     					transitionOutEventCode = lastNucleotide*4 + lastNucleotide;
     					oneSiteLogP += instantMatrix[transitionOutEventCode] * unchangedHeight;
     				}
