@@ -46,7 +46,7 @@ public class PathSamplingOperator extends Operator {
 	 */
 	@Override
 	public double proposal() {
-		
+		System.out.print("propose:");
 		// register this operator with input PathTree
 		PathTree pathTree = m_pathTree.get(this);
 		int rootNr = pathTree.getRoot().getNr();
@@ -107,11 +107,11 @@ public class PathSamplingOperator extends Operator {
 		oldPathDensity = 0.2;
 		fHastingsRatio = newPathDensity / oldPathDensity;
 		// to make sure MCMC will reject everytime
-		// fHastingsRatio = Double.NEGATIVE_INFINITY;
+		//fHastingsRatio = -10;
 		
 		// to make sure MCMC will accept everytime
-		fHastingsRatio = Double.POSITIVE_INFINITY;
-		
+		//fHastingsRatio = Double.POSITIVE_INFINITY;
+		fHastingsRatio = 10;
 		return fHastingsRatio;
 	}
 	

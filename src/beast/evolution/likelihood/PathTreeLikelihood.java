@@ -15,6 +15,7 @@ import beast.core.Input.Validate;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.substitutionmodel.SubstitutionModel;
+import beast.evolution.tree.Node;
 import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 
@@ -38,6 +39,7 @@ public class PathTreeLikelihood extends Distribution {
     
     @Override
     public double calculateLogP() throws Exception{
+    	System.out.println("ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
     	double oneSiteP = calculateOneSiteLogP(0);
     	logP = oneSiteP;
     	//return oneSiteP;
@@ -49,12 +51,20 @@ public class PathTreeLikelihood extends Distribution {
     }
     
     public double calculateOneSiteLogP(int seqSite) throws Exception{
+		
     	double oneSiteLogP = 0.0;
 		double[] instantMatrix = new double[4 * 4];
 		m_substModel.getInstantRateMatrix(instantMatrix);
     	
+		int sudoRootNr = 0;
+		for (Node childNode : m_pathTree.get().getRoot().getChildren()) {
+			if(!childNode.isLeaf()) {
+				sudoRootNr = childNode.getNr();
+			}
+		}
+		
     	for (int i=0 ; i< m_pathTree.get().getNodeCount(); i++){
-    		if(!m_pathTree.get().getNode(i).isRoot()){
+    		if((!m_pathTree.get().getNode(i).isRoot()) && (m_pathTree.get().getNode(i).getNr()!=sudoRootNr)){
     			if(m_pathTree.get().getNode(i).getHeight() != m_pathTree.get().getRoot().getHeight()){
     				PathBranch currentBranch = m_pathTree.get().getBranch(i);
 
@@ -78,12 +88,12 @@ public class PathTreeLikelihood extends Distribution {
     				if(currentSubstitutionEvents.size() == 0){
     					// sanity check
     					// need to deal with first time calculation
-    					/*
+    					
     					if(beginNucleotide != endNucleotide){
-    						System.out.println(Arrays.toString(beginSeq.getSequence()));
-    						throw new Exception("begin and end nucleotide should be the same when there is no substitution along this branch!");
+    						System.out.print("begin!=end");
+    						//throw new Exception("begin and end nucleotide should be the same when there is no substitution along this branch!");
     					}
-    					*/
+    					
     					// diagonal elements are already negative
     					transitionOutEventCode = beginNucleotide*4 + beginNucleotide;
     					oneSiteLogP += instantMatrix[transitionOutEventCode] * currentBranchLength;
@@ -109,11 +119,13 @@ public class PathTreeLikelihood extends Distribution {
     					
     					double unchangedHeight = currentBranchLength - cumulativeHeight;
     					// sanity check
-    					/*
+    					
     					if(lastNucleotide != endNucleotide){
+    						System.out.println("first:" + beginNucleotide + " end:" + endNucleotide + " last:" + lastNucleotide + " size:" + currentSubstitutionEvents.size());
+    						System.out.println("last!=end");
     						throw new Exception("after last substituion, the nucleotide should be the same as the end of the branch! ");
     					}
-    					*/
+    					
     					transitionOutEventCode = lastNucleotide*4 + lastNucleotide;
     					oneSiteLogP += instantMatrix[transitionOutEventCode] * unchangedHeight;
     				}

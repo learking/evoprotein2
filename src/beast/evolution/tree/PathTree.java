@@ -154,12 +154,12 @@ public class PathTree extends Tree {
     public void restore() {
     	super.restore();
     	// restore sequences
-    	m_sequences = new ArrayList<MutableSequence>();
+    	m_sequences.clear();
     	for(MutableSequence tmpSeq: m_storedsequences){
     		m_sequences.add(tmpSeq.copy());
     	}
     	// restore branches
-    	m_branches = new ArrayList<PathBranch>();
+    	m_branches.clear();
     	for(PathBranch tmpbranch:m_storedbranches){
     		m_branches.add(tmpbranch.copy());
     	}

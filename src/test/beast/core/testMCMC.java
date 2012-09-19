@@ -111,14 +111,14 @@ public class testMCMC extends evoprotein2TestCase {
     }
 
 	@Test
-	public void test() throws Exception {
+	public void testMCMCrun() throws Exception {
 		
 		// create  MCMC
 		MCMC mcmc = new MCMC();
 		//mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", operatorsInput);
 		
 		// rightnow, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", tmpLogger, "operator", pathSamplingOperator);
+		mcmc.initByName("chainLength", 1000, "distribution", likelihood, "logger", tmpLogger, "operator", pathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 		
