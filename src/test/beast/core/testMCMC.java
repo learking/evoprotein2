@@ -52,6 +52,8 @@ public class testMCMC extends evoprotein2TestCase {
 	ArrayList<Operator> operatorsInput;
 	Operator tmpOperator;
 	
+	PathSamplingOperator pathSamplingOperator;
+	
     @Override
     protected void setUp() throws Exception {
         super.setUp();
@@ -104,8 +106,8 @@ public class testMCMC extends evoprotein2TestCase {
         
         // operators
         operatorsInput = new ArrayList<Operator>();
-        PathSamplingOperator pathSamplingOperator = new PathSamplingOperator();
-        pathSamplingOperator.initByName("pathtree", pathTree, "siteModel", siteModel);
+        pathSamplingOperator = new PathSamplingOperator();
+        pathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", siteModel);
         operatorsInput.add(pathSamplingOperator);
         // why type mismatch?
     }
@@ -118,7 +120,7 @@ public class testMCMC extends evoprotein2TestCase {
 		//mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", operatorsInput);
 		
 		// rightnow, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", operatorsInput);
+		mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", pathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 		
