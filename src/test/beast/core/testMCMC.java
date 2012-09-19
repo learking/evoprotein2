@@ -46,11 +46,8 @@ public class testMCMC extends evoprotein2TestCase {
 	PathTreeLikelihood pathTreeLikelihood;
 	Distribution likelihood;
 
-	ArrayList<Logger> logger;
 	Logger tmpLogger;
 	ArrayList<Plugin> log;
-	ArrayList<Operator> operatorsInput;
-	Operator tmpOperator;
 	
 	PathSamplingOperator pathSamplingOperator;
 	
@@ -93,6 +90,9 @@ public class testMCMC extends evoprotein2TestCase {
         //logger.add(tmpLogger);
         
         // loggers
+        tmpLogger = new Logger();
+        tmpLogger.initByName("fileName", "testMCMC.log", "logEvery", 1, "model", likelihood, "log", likelihood, "log", kappa);
+        
         /*
         List<Logger> m_logger = new ArrayList<Logger>();
         tmpLogger = new Logger();
@@ -105,11 +105,9 @@ public class testMCMC extends evoprotein2TestCase {
         // why type mismatch?
         
         // operators
-        operatorsInput = new ArrayList<Operator>();
         pathSamplingOperator = new PathSamplingOperator();
         pathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", siteModel);
-        operatorsInput.add(pathSamplingOperator);
-        // why type mismatch?
+
     }
 
 	@Test
@@ -120,7 +118,7 @@ public class testMCMC extends evoprotein2TestCase {
 		//mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", operatorsInput);
 		
 		// rightnow, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", pathSamplingOperator);
+		mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", tmpLogger, "operator", pathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 		

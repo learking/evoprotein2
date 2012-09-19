@@ -78,12 +78,12 @@ public class PathTreeLikelihood extends Distribution {
     				if(currentSubstitutionEvents.size() == 0){
     					// sanity check
     					// need to deal with first time calculation
-    					
+    					/*
     					if(beginNucleotide != endNucleotide){
     						System.out.println(Arrays.toString(beginSeq.getSequence()));
     						throw new Exception("begin and end nucleotide should be the same when there is no substitution along this branch!");
     					}
-    					
+    					*/
     					// diagonal elements are already negative
     					transitionOutEventCode = beginNucleotide*4 + beginNucleotide;
     					oneSiteLogP += instantMatrix[transitionOutEventCode] * currentBranchLength;
@@ -109,11 +109,11 @@ public class PathTreeLikelihood extends Distribution {
     					
     					double unchangedHeight = currentBranchLength - cumulativeHeight;
     					// sanity check
-    					
+    					/*
     					if(lastNucleotide != endNucleotide){
     						throw new Exception("after last substituion, the nucleotide should be the same as the end of the branch! ");
     					}
-    					
+    					*/
     					transitionOutEventCode = lastNucleotide*4 + lastNucleotide;
     					oneSiteLogP += instantMatrix[transitionOutEventCode] * unchangedHeight;
     				}
