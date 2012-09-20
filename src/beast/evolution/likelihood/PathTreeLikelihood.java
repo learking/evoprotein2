@@ -39,14 +39,28 @@ public class PathTreeLikelihood extends Distribution {
     
     @Override
     public double calculateLogP() throws Exception{
-    	System.out.println("ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
-    	double oneSiteP = calculateOneSiteLogP(0);
-    	logP = oneSiteP;
-    	//return oneSiteP;
-    	if(this.isDirtyCalculation()){
+    	// if the first time calculating "oldLikelihood"
+    	int rootNr = m_pathTree.get().getRoot().getNr();
+    	int [] rootSeq = m_pathTree.get().getSequences().get(rootNr).getSequence();
+    	boolean firstTimeCalculation;
+    	int rootSeqTotal = 0;
+    	for(int i = 0 ; i < rootSeq.length ; i++){
+    		rootSeqTotal += rootSeq[0];
+    	}
+    	if(rootSeqTotal == 0){
+    		firstTimeCalculation = true;
+    	}
+    	else{
+    		firstTimeCalculation = false;
+    	}
+    	
+    	if(firstTimeCalculation){
+    		logP = -100.0;
     		return logP;
     	}else{
-    		return 100.0;
+        	double oneSiteP = calculateOneSiteLogP(0);
+        	logP = oneSiteP;
+        	return logP;
     	}
     }
     
