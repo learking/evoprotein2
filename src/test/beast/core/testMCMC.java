@@ -121,8 +121,6 @@ public class testMCMC extends evoprotein2TestCase {
 		mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", tmpLogger, "operator", pathSamplingOperator);
 		// run MCMC
 		mcmc.run();
-		
-		System.out.println("Setup is a success!");
 	}
 
 	

@@ -64,6 +64,7 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 			}
 		}
         
+		// simulate multiple runs inside MCMC
 		for (int iSample = 0; iSample < 1000 ; iSample++){
 			// Pupko
 			for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
@@ -78,8 +79,8 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 			
 			// function here to check the correctness of the above two methods:
 			checkPathSampling(pathTree, sudoRootNr, rootNr);
-			
 		}
+		
 	}
 
 	public void checkPathSampling(PathTree pathTree, int sudoRootNr, int rootNr) throws Exception{
@@ -105,6 +106,12 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 					else{
 						int lastNucleotide = eventsAtThisSite.get(eventsAtThisSite.size() - 1).getCurrentNucleotide();
 						if(lastNucleotide != endNucleotide){
+							System.out.println("last:" + lastNucleotide + " end:" + endNucleotide + 
+									" begin:" + beginNucleotide + " branchNr:" + branchNr + " seqSite:" + seqSite
+									+ "events:");
+							for (SubstitutionEvent tmpEvent : eventsAtThisSite){
+								System.out.print(tmpEvent.toString());
+							}
 							throw new Exception("last != end");
 						}
 					}

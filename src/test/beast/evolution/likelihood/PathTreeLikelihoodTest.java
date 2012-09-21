@@ -91,6 +91,13 @@ public class PathTreeLikelihoodTest extends evoprotein2TestCase {
         
         assertEquals(oneSiteLogP, -4.049441542, BEASTTestCase.PRECISION);
         
+        double allSitesSeperateCalculation = 0;
+        double allSitesTogetherCalculation = 0;
+        for (int seqSite = 0 ; seqSite < dummySeq.length ; seqSite++){
+        	allSitesSeperateCalculation += likelihood.calculateOneSiteLogP(seqSite);
+        }
+        allSitesTogetherCalculation = likelihood.calculatePathTreeLogP();
+        assertEquals(allSitesSeperateCalculation, allSitesTogetherCalculation, BEASTTestCase.PRECISION);
 	}
 
 }

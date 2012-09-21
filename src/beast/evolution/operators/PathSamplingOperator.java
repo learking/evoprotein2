@@ -46,7 +46,6 @@ public class PathSamplingOperator extends Operator {
 	 */
 	@Override
 	public double proposal() {
-		System.out.print("propose:");
 		// register this operator with input PathTree
 		PathTree pathTree = m_pathTree.get(this);
 		int rootNr = pathTree.getRoot().getNr();
@@ -111,7 +110,7 @@ public class PathSamplingOperator extends Operator {
 		
 		// to make sure MCMC will accept everytime
 		//fHastingsRatio = Double.POSITIVE_INFINITY;
-		fHastingsRatio = 10;
+		fHastingsRatio = 999999999;
 		return fHastingsRatio;
 	}
 	
@@ -402,13 +401,16 @@ public class PathSamplingOperator extends Operator {
 					}
 				}
 			}
-			
+
 			// copy substitutionEvents to ...
 			if(substitutionEvents.size() != 0){
 				thisBranch.setMutationPath(seqSite, substitutionEvents);
+			}else{
+				thisBranch.getMutationPath(seqSite).clear();
 			}
 			
-		}else{
+		}
+		else{
 			while (lastNucleotide != childState) {
 				// initialize stuff
 				substitutionEvents.clear();			
@@ -447,8 +449,12 @@ public class PathSamplingOperator extends Operator {
 			// copy substitutionEvents to ...
 			if(substitutionEvents.size() != 0){
 				thisBranch.setMutationPath(seqSite, substitutionEvents);
+			}else{
+				System.err.print("Error: expecting at least one substitution at this site on this branch!");
 			}
 		}
+
+		
 		/*
 		if(childState == parentState) {
 			if(substitutionEvents.size() > 0) {
