@@ -34,8 +34,9 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 	
 	@Test
 	public void testPathSamplingOperator() throws Exception {
-        data = getAlignment();
-        
+        data = getDummyAlignment();
+        //data = getAlignment();
+		
         tree = getTree(data);
 		
         pathTree = new PathTree();
@@ -65,7 +66,7 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 		}
         
 		// simulate multiple runs inside MCMC
-		for (int iSample = 0; iSample < 1000 ; iSample++){
+		for (int iSample = 0; iSample < 3 ; iSample++){
 			// Pupko
 			for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
 				pathSamplingOperator.PupkoOneSite(pathTree, seqSite);
@@ -79,6 +80,8 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 			
 			// function here to check the correctness of the above two methods:
 			checkPathSampling(pathTree, sudoRootNr, rootNr);
+			pathSamplingOperator.setPathLogDenstiyToZero();
+			System.out.println("===============================================");
 		}
 		
 	}

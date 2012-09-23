@@ -32,6 +32,7 @@ public class PathSamplingOperator extends Operator {
     public Input<SiteModel.Base> m_pSiteModel = new Input<SiteModel.Base>("siteModel", "site model for leafs in the beast.tree", Validate.REQUIRED);
 	
     SubstitutionModel.Base m_substitutionModel;
+    double fHastingsRatio, newPathLogDensity;
 	
     // lambda parameter for nextExponential()
     final double lambda = 1.0;
@@ -46,6 +47,9 @@ public class PathSamplingOperator extends Operator {
 	 */
 	@Override
 	public double proposal() {
+		// reset fHastingsRatio
+		fHastingsRatio = 0;
+		newPathLogDensity = 0;
 		// register this operator with input PathTree
 		PathTree pathTree = m_pathTree.get(this);
 		int rootNr = pathTree.getRoot().getNr();
@@ -58,7 +62,7 @@ public class PathSamplingOperator extends Operator {
 
 		// Is there any way to utilize old path density without recalculation?
 		// for example, if the proposal gets rejected
-		double oldPathDensity, newPathDensity, fHastingsRatio;
+		double oldPathDensity;
 		
 		for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
 			PupkoOneSite(pathTree, seqSite);
@@ -102,9 +106,9 @@ public class PathSamplingOperator extends Operator {
 		// combine Pupko and Nielsen's partial density
 		
 		// calculate hastings ratio
-		newPathDensity = 0.1;
+		newPathLogDensity = 0.1;
 		oldPathDensity = 0.2;
-		fHastingsRatio = newPathDensity / oldPathDensity;
+		fHastingsRatio = newPathLogDensity / oldPathDensity;
 		// to make sure MCMC will reject everytime
 		//fHastingsRatio = -10;
 		
@@ -114,7 +118,7 @@ public class PathSamplingOperator extends Operator {
 		return fHastingsRatio;
 	}
 	
-	public List<double[]> PupkoOneSite(PathTree pathTree, int seqSite){		
+	public void PupkoOneSite(PathTree pathTree, int seqSite){		
 		int rootNr = pathTree.getRoot().getNr();
 		int sudoRootNr = 0;
 		for (Node childNode : pathTree.getRoot().getChildren()) {
@@ -186,8 +190,7 @@ public class PathSamplingOperator extends Operator {
 		// let the root have the same sequence as the sudoRoot
 		MutableSequence newRootSeq = pathTree.getSequences().get(sudoRootNr).copy();
 		pathTree.getSequences().get(rootNr).setSequence(newRootSeq.getSequence());
-		
-		return pMatrices;
+		System.out.println("logDensity: " + newPathLogDensity);
 	}
 	
 	public void setLeafpMatrix(double [] pMatrix, double branchLength, int nucleotideState){
@@ -212,7 +215,7 @@ public class PathSamplingOperator extends Operator {
 		}
 	}
 	
-	public double setSudoRoot(PathTree pathTree, int sudoRootNr, int seqSite, double [] leftpMatrix, double [] rightpMatrix, double[] tipNodepMatrix){
+	public void setSudoRoot(PathTree pathTree, int sudoRootNr, int seqSite, double [] leftpMatrix, double [] rightpMatrix, double[] tipNodepMatrix){
 		
 		double sudoRootNucleoStateProb = 0.0;
 		final double [] frequences = m_substitutionModel.getFrequencies();
@@ -247,7 +250,8 @@ public class PathSamplingOperator extends Operator {
 		sudoRootNucleoStateProb = nucleoStateProbs[sudoRootNucleoState];
 		pathTree.getSequences().get(sudoRootNr).getSequence()[seqSite] = sudoRootNucleoState;
 		
-		return sudoRootNucleoStateProb;
+		System.out.println("sudoRoot state:" + sudoRootNucleoState + " prob:" + sudoRootNucleoStateProb);
+		addToPathLogDensity(Math.log(sudoRootNucleoStateProb));
 	}
 	
 	public void setInternalNodes(PathTree pathTree, int sudoRootNr, int seqSite, List<double []> pMatrices) {
@@ -256,20 +260,9 @@ public class PathSamplingOperator extends Operator {
 		int sudoRootNucleoState = pathTree.getSequences().get(sudoRootNr).getSequence()[seqSite];
 		Node leftNode = pathTree.getNode(sudoRootNr).getLeft();
 		Node rightNode = pathTree.getNode(sudoRootNr).getRight();
+		// traverseInternalNode is a recursive function
 		traverseInternalNode(leftNode, pathTree, seqSite, pMatrices);
 		traverseInternalNode(rightNode, pathTree, seqSite, pMatrices);
-		// we need a recursive function here to traverse the tree and set states for internal nodes
-		// idea:
-		// traverse(left)
-		// traverse(right)
-		// traverse{
-		//	traverse(left)
-		//  traverse(right)
-		// }
-		//if() {
-			
-		//}
-		
 	}
 	
 	public void traverseInternalNode(Node node, PathTree pathTree, int seqSite, List<double []> pMatrices) {
@@ -294,14 +287,14 @@ public class PathSamplingOperator extends Operator {
 			// pick a nucleoState randomly based on nucleoStateProbs
 			int thisNodeState = Randomizer.randomChoice(thisNodeStateCDF);
 			double thisNodeStateProb = currentpVector[thisNodeState];
+			addToPathLogDensity(Math.log(thisNodeStateProb));
+			System.out.println("node"+node.getNr() + " prob:" + thisNodeStateProb + " state:" + thisNodeState);
 			pathTree.getSequences().get(node.getNr()).getSequence()[seqSite] = thisNodeState;
 			
 			//recursive part:
 			traverseInternalNode(node.getLeft() , pathTree, seqSite, pMatrices);
 			traverseInternalNode(node.getRight() , pathTree, seqSite, pMatrices);
 			
-			// think about how to return value
-			// return thisNodeStateProb;
 		}
 	}
 	
@@ -517,5 +510,18 @@ public class PathSamplingOperator extends Operator {
 		sampledFirstTime = -Math
 				.log(1.0 - randNum * (1 - Math.exp(-totalTime)));
 		return sampledFirstTime;
+	}
+	
+	protected void addToPathLogDensity(double partialLogDensity) {
+		newPathLogDensity += partialLogDensity;
+	}
+	
+	//for debugging only
+	public double getPathLogDensity() {
+		return newPathLogDensity;
+	}
+	
+	public void setPathLogDenstiyToZero() {
+		newPathLogDensity = 0;
 	}
 }
