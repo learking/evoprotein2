@@ -14,6 +14,7 @@ import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.Operator;
 import beast.evolution.sitemodel.SiteModel;
+import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.substitutionmodel.SubstitutionModel;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.PathBranch;
@@ -33,6 +34,7 @@ public class PathSamplingOperator extends Operator {
 	
     SubstitutionModel.Base m_substitutionModel;
     double fHastingsRatio, newPathLogDensity;
+    double oldPathLogDensity = Double.NEGATIVE_INFINITY;
 	
     // lambda parameter for nextExponential()
     final double lambda = 1.0;
@@ -50,8 +52,33 @@ public class PathSamplingOperator extends Operator {
 		// reset fHastingsRatio
 		fHastingsRatio = 0;
 		newPathLogDensity = 0;
+		
 		// register this operator with input PathTree
 		PathTree pathTree = m_pathTree.get(this);
+		
+		// first time: calculate newPathLogDensity
+		// let MCMC accept it
+		if(oldPathLogDensity == Double.NEGATIVE_INFINITY){
+			pathSampling(pathTree);
+			oldPathLogDensity = newPathLogDensity;
+			fHastingsRatio = 999999999;
+		}else{
+			// after first time:
+			// step 1: calculate oldPathLikelihood (for now)
+			//TO-DO
+			
+			// step 2: sample path
+			pathSampling(pathTree);	
+			// step 3: get hastingsRatio (old - new !!!)
+			fHastingsRatio = oldPathLogDensity - newPathLogDensity;
+		}
+		
+		// change the tree and set the tree to be dirty
+		pathTree.setSomethingIsDirty(true);
+		return fHastingsRatio;
+	}
+	
+	public void pathSampling(PathTree pathTree){
 		int rootNr = pathTree.getRoot().getNr();
 		int sudoRootNr = 0;
 		for (Node childNode : pathTree.getRoot().getChildren()) {
@@ -59,10 +86,6 @@ public class PathSamplingOperator extends Operator {
 				sudoRootNr = childNode.getNr();
 			}
 		}
-
-		// Is there any way to utilize old path density without recalculation?
-		// for example, if the proposal gets rejected
-		double oldPathDensity;
 		
 		for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
 			PupkoOneSite(pathTree, seqSite);
@@ -70,52 +93,11 @@ public class PathSamplingOperator extends Operator {
 		
 		// NielsenOneSite
 		// don't need to traverse tree (we can work on m_branches directly, since now we have internal states already)
-		// TO-DO
 		for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
 			if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
 				NielsenSampleOneBranch(pathTree, branchNr);
 			}
 		}
-		
-		// pathTree.showSequences();
-	    // System.out.println("--------------------------------------------------------------------------");
-
-		/*
-		pathTree.setDummySeqInternalNodesAll();
-				*/
-		
-		// if this is the first run, we need to come up with oldPathDensity first
-		
-		
-		// 
-		
-		// change the tree and set the tree to be dirty
-		pathTree.setSomethingIsDirty(true);
-		
-		// MCMC to test our implementation:
-		// case 1: reject
-		
-		// case 2: accept
-		
-		// calculate new path density
-		
-		// 1. Pupko: propose ancestral states
-		
-		// 2. Nielsen: propose substitution events
-		
-		// combine Pupko and Nielsen's partial density
-		
-		// calculate hastings ratio
-		newPathLogDensity = 0.1;
-		oldPathDensity = 0.2;
-		fHastingsRatio = newPathLogDensity / oldPathDensity;
-		// to make sure MCMC will reject everytime
-		//fHastingsRatio = -10;
-		
-		// to make sure MCMC will accept everytime
-		//fHastingsRatio = Double.POSITIVE_INFINITY;
-		fHastingsRatio = 999999999;
-		return fHastingsRatio;
 	}
 	
 	public void PupkoOneSite(PathTree pathTree, int seqSite){		
@@ -458,6 +440,7 @@ public class PathSamplingOperator extends Operator {
 			}
 		}
 		*/
+		addToPathLogDensity(calculateOneSiteLogP(childState, parentState, totalTime, substitutionEvents));
 		return 0;
 	}
 	
@@ -514,6 +497,68 @@ public class PathSamplingOperator extends Operator {
 	
 	protected void addToPathLogDensity(double partialLogDensity) {
 		newPathLogDensity += partialLogDensity;
+	}
+	
+	public double calculateOneSiteLogP(int childState, int parentState, double branchLength, List<SubstitutionEvent> substitutionEvents) {
+
+		double oneSiteLogP = 0.0;
+		double[] instantMatrix = new double[4 * 4];
+		// this needs to be changed to more general method
+		((InstantHKY) m_substitutionModel).getInstantRateMatrix(instantMatrix);
+
+		// get "end" and "begin" nucleotide
+		int endNucleotide = childState;
+		int beginNucleotide = parentState;
+
+		int transitionOutEventCode;
+		int transitionEventCode;
+		double currentBranchLength = branchLength;
+		List<SubstitutionEvent> currentSubstitutionEvents = substitutionEvents;
+
+		if (currentSubstitutionEvents.size() == 0) {
+			// diagonal elements are already negative
+			transitionOutEventCode = beginNucleotide * 4 + beginNucleotide;
+			oneSiteLogP += instantMatrix[transitionOutEventCode]
+					* currentBranchLength;
+		} else {
+			// ...
+			double cumulativeHeight = 0.0;
+			int lastNucleotide = -1;
+			for (int substitutionIndex = 0; substitutionIndex < currentSubstitutionEvents
+					.size(); substitutionIndex++) {
+
+				int previousNucleotide = currentSubstitutionEvents.get(
+						substitutionIndex).getPreviousNucleotide();
+				int currentNucleotide = currentSubstitutionEvents.get(
+						substitutionIndex).getCurrentNucleotide();
+				// determine the last nucleotide
+				if (substitutionIndex == (currentSubstitutionEvents.size() - 1)) {
+					lastNucleotide = currentNucleotide;
+				}
+
+				double currentTimeInterval = currentSubstitutionEvents.get(
+						substitutionIndex).getTimeInterval();
+				cumulativeHeight += currentTimeInterval;
+				transitionOutEventCode = previousNucleotide * 4
+						+ previousNucleotide;
+				transitionEventCode = previousNucleotide * 4
+						+ currentNucleotide;
+				oneSiteLogP += Math.log(instantMatrix[transitionEventCode])
+						+ instantMatrix[transitionOutEventCode]
+						* currentTimeInterval;
+			}
+
+			double unchangedHeight = currentBranchLength - cumulativeHeight;
+
+			transitionOutEventCode = lastNucleotide * 4 + lastNucleotide;
+			oneSiteLogP += instantMatrix[transitionOutEventCode]
+					* unchangedHeight;
+		}
+
+		double [] transitionMatrix = new double [4*4];
+		m_substitutionModel.getTransitionProbabilities(null, currentBranchLength, 0, 1, transitionMatrix);
+		oneSiteLogP = oneSiteLogP - Math.log(transitionMatrix[beginNucleotide*4 + endNucleotide]);
+		return oneSiteLogP;
 	}
 	
 	//for debugging only

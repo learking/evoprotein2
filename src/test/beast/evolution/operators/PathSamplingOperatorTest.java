@@ -12,6 +12,7 @@ import test.beast.core.testMCMC;
 
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
+import beast.evolution.likelihood.PathTreeLikelihood;
 import beast.evolution.operators.PathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
@@ -71,12 +72,14 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 			for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
 				pathSamplingOperator.PupkoOneSite(pathTree, seqSite);
 			}
+			// pathSamplingOperator.setPathLogDenstiyToZero();
 			// Nielsen
 			for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
 				if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
 					pathSamplingOperator.NielsenSampleOneBranch(pathTree, branchNr);
 				}
 			}
+			System.err.println("HastingRatio:" + pathSamplingOperator.getPathLogDensity());
 			
 			// function here to check the correctness of the above two methods:
 			checkPathSampling(pathTree, sudoRootNr, rootNr);
