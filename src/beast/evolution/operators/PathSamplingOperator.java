@@ -44,6 +44,13 @@ public class PathSamplingOperator extends Operator {
     	m_substitutionModel = m_pSiteModel.get().m_pSubstModel.get();
     }
     
+    @Override
+    public void accept(){
+    	super.accept();
+    	// when accept, update the value of oldPathLogDensity
+    	oldPathLogDensity = newPathLogDensity;
+    }
+    
 	/*
 	 * @see beast.core.Operator#proposal()
 	 */
@@ -56,20 +63,17 @@ public class PathSamplingOperator extends Operator {
 		// register this operator with input PathTree
 		PathTree pathTree = m_pathTree.get(this);
 		
-		// first time: calculate newPathLogDensity
-		// let MCMC accept it
 		if(oldPathLogDensity == Double.NEGATIVE_INFINITY){
+			// first time: calculate newPathLogDensity
 			pathSampling(pathTree);
 			oldPathLogDensity = newPathLogDensity;
+			// let MCMC accept it
 			fHastingsRatio = 999999999;
 		}else{
 			// after first time:
-			// step 1: calculate oldPathLikelihood (for now)
-			//TO-DO
-			
-			// step 2: sample path
+			// step 1: sample path
 			pathSampling(pathTree);	
-			// step 3: get hastingsRatio (old - new !!!)
+			// step 2: get hastingsRatio (assuming oldPathLogDensity is still valid (for now) !!!)
 			fHastingsRatio = oldPathLogDensity - newPathLogDensity;
 		}
 		
@@ -172,7 +176,6 @@ public class PathSamplingOperator extends Operator {
 		// let the root have the same sequence as the sudoRoot
 		MutableSequence newRootSeq = pathTree.getSequences().get(sudoRootNr).copy();
 		pathTree.getSequences().get(rootNr).setSequence(newRootSeq.getSequence());
-		System.out.println("logDensity: " + newPathLogDensity);
 	}
 	
 	public void setLeafpMatrix(double [] pMatrix, double branchLength, int nucleotideState){
@@ -225,14 +228,11 @@ public class PathSamplingOperator extends Operator {
 			nucleoStateCDF[i] = cumulativeProb;
 		}
 		
-		//System.out.println("CDF:" + Arrays.toString(nucleoStateCDF));
-		
 		// pick a nucleoState randomly based on nucleoStateProbs
 		int sudoRootNucleoState = Randomizer.randomChoice(nucleoStateCDF);
 		sudoRootNucleoStateProb = nucleoStateProbs[sudoRootNucleoState];
 		pathTree.getSequences().get(sudoRootNr).getSequence()[seqSite] = sudoRootNucleoState;
 		
-		System.out.println("sudoRoot state:" + sudoRootNucleoState + " prob:" + sudoRootNucleoStateProb);
 		addToPathLogDensity(Math.log(sudoRootNucleoStateProb));
 	}
 	
@@ -270,7 +270,6 @@ public class PathSamplingOperator extends Operator {
 			int thisNodeState = Randomizer.randomChoice(thisNodeStateCDF);
 			double thisNodeStateProb = currentpVector[thisNodeState];
 			addToPathLogDensity(Math.log(thisNodeStateProb));
-			System.out.println("node"+node.getNr() + " prob:" + thisNodeStateProb + " state:" + thisNodeState);
 			pathTree.getSequences().get(node.getNr()).getSequence()[seqSite] = thisNodeState;
 			
 			//recursive part:

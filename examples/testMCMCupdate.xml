@@ -19,6 +19,8 @@
 	    </sequence>
     </data>
 
+    <parameter id="hky.kappa" value="1.0" lower="0.0"/>
+
     <input spec='beast.evolution.substitutionmodel.InstantHKY' id='hky'>
         <kappa idref='hky.kappa'/>
         <frequencies id='freqs' spec='Frequencies'>
@@ -30,11 +32,6 @@
         <substModel idref='hky'/>
     </input>
 
-    <input spec='beast.evolution.likelihood.PathTreeLikelihood' id="pathTreeLikelihood">
-        <PathTree idref="pathtree"/>
-        <siteModel idref="siteModel"/>
-    </input>
-
     <tree id='tree' spec='beast.util.TreeParser' newick='(((Human: 0.07, Chimpanzee: 0.07): 0.43, (Orangutan: 0.4, Gibbon: 0.4): 0.1):0.0 , Gorilla: 0.5)'>
     	<taxa idref="alignment" />
     </tree>
@@ -44,12 +41,33 @@
     	<alignment idref="alignment" />
     </input>
 
-    <parameter id="hky.kappa" value="1.0" lower="0.0"/>
+    <input spec='beast.evolution.likelihood.PathTreeLikelihood' id="pathTreeLikelihood">
+        <PathTree idref="pathtree"/>
+        <siteModel idref="siteModel"/>
+    </input>
     
-    <run spec="MCMC" id="mcmc" chainLength="100">
-	<distribution id='likelihood' idref="pathTreeLikelihood"/>
+    <!-- proposal is using a different (usually simpler model) than path likelihood -->
+    <!-- for now, we just duplicate the model used in pathlikelihood, but let it to be an independent model -->
+    <parameter id="proposal.kappa" value="1.0" lower="0.0"/>
 
-        <operator id='dummyPathSamplingOperator' spec='beast.evolution.operators.PathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@siteModel"/>
+    <input spec='beast.evolution.substitutionmodel.InstantHKY' id='proposal.hky'>
+        <kappa idref='proposal.kappa'/>
+        <frequencies id='proposal.freqs' spec='Frequencies'>
+            <data idref='alignment'/>
+        </frequencies>
+    </input>
+
+    <input spec='SiteModel' id="proposal.siteModel" gammaCategoryCount='1'>
+        <substModel idref='proposal.hky'/>
+    </input>
+    
+    
+    <run spec="MCMC" id="mcmc" chainLength="2">
+		
+		<distribution id='likelihood' idref="pathTreeLikelihood"/>
+
+        <operator id='dummyPathSamplingOperator' spec='beast.evolution.operators.PathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@proposal.siteModel"/>
+        
         <logger logEvery="1" fileName="test.$(seed).log">
 	        <model idref='likelihood'/>
             <log idref="likelihood"/>
