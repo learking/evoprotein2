@@ -18,6 +18,18 @@ public class SubstitutionEvent {
 		return outputString;
 	}
 	
+	// Currently, we assume that if an event is not transversion, it must be transition
+	public boolean isTransition(){
+		if((previousNucleotide == 0 && currentNucleotide == 2)
+				|| (previousNucleotide == 2 && currentNucleotide == 0)
+				|| (previousNucleotide == 1 && currentNucleotide == 3)
+				|| (previousNucleotide == 3 && currentNucleotide == 1)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
 	// getters
 	public double getTimeInterval(){
 		return timeInterval;

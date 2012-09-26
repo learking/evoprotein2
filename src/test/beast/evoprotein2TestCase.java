@@ -51,9 +51,9 @@ public class evoprotein2TestCase extends TestCase {
     	return pathTree;
     }
     
-    static public RealParameter getKappa() throws Exception{
+    static public RealParameter getKappa(String value) throws Exception{
     	RealParameter kappa = new RealParameter();
-    	kappa.initByName("value", "1.0");
+    	kappa.initByName("value", value);
     	return kappa;
     }
 }

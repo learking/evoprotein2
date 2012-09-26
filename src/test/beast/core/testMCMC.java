@@ -34,9 +34,13 @@ public class testMCMC extends evoprotein2TestCase {
 	Tree tree;
 	PathTree pathTree;
 	InstantHKY instantHKY;
+	InstantHKY proposalInstantHKY;
 	RealParameter kappa;
-	Frequencies frequences;
+	RealParameter proposalKappa;
+	Frequencies frequencies;
+	Frequencies proposalFrequencies;
 	SiteModel siteModel;
+	SiteModel proposalSiteModel;
 	PathTreeLikelihood pathTreeLikelihood;
 	Distribution likelihood;
 
@@ -56,13 +60,13 @@ public class testMCMC extends evoprotein2TestCase {
         pathTree = new PathTree();
 		pathTree.initByName("initial", tree, "alignment", data);
         
-		kappa = getKappa();
+		kappa = getKappa("1.5");
         
-        frequences = new Frequencies();
-        frequences.initByName("data", data);
+        frequencies = new Frequencies();
+        frequencies.initByName("data", data);
         
         instantHKY = new InstantHKY();
-        instantHKY.initByName("kappa", kappa, "frequencies", frequences);
+        instantHKY.initByName("kappa", kappa, "frequencies", frequencies);
         
         siteModel = new SiteModel();
         siteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
@@ -88,24 +92,22 @@ public class testMCMC extends evoprotein2TestCase {
         tmpLogger.initByName("fileName", "testMCMC.log", "logEvery", 1, "model", likelihood, "log", likelihood, "log", kappa);
         
         // duplicate everything about the model so that it is independent of the model used in the pathTreeLikelihood calculation
-        /*
 		
-		kappa = getKappa();
+		proposalKappa = getKappa("1.5");
         
-        frequences = new Frequencies();
-        frequences.initByName("data", data);
+        proposalFrequencies = new Frequencies();
+        proposalFrequencies.initByName("data", data);
         
-        instantHKY = new InstantHKY();
-        instantHKY.initByName("kappa", kappa, "frequencies", frequences);
+        proposalInstantHKY = new InstantHKY();
+        proposalInstantHKY.initByName("kappa", proposalKappa, "frequencies", proposalFrequencies);
         
-        siteModel = new SiteModel();
-        siteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
+        proposalSiteModel = new SiteModel();
+        proposalSiteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
         
-        */
         
         // operators
         pathSamplingOperator = new PathSamplingOperator();
-        pathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", siteModel);
+        pathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", proposalSiteModel);
 
     }
 
@@ -117,7 +119,7 @@ public class testMCMC extends evoprotein2TestCase {
 		//mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", operatorsInput);
 		
 		// rightnow, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", tmpLogger, "operator", pathSamplingOperator);
+		mcmc.initByName("chainLength", 1000, "distribution", likelihood, "logger", tmpLogger, "operator", pathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 	}

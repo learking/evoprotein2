@@ -43,7 +43,7 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
         pathTree = new PathTree();
 		pathTree.initByName("initial", tree, "alignment", data);
         
-		kappa = getKappa();
+		kappa = getKappa("1.5");
         
         frequences = new Frequencies();
         frequences.initByName("data", data);

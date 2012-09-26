@@ -49,7 +49,67 @@ public class PathSamplingOperator extends Operator {
     	super.accept();
     	// when accept, update the value of oldPathLogDensity
     	oldPathLogDensity = newPathLogDensity;
+    	
+    	// for debugging
+    	estimateParameters();
     }
+    
+	public void estimateParameters() {
+
+		final PathTree pathTree = m_pathTree.get();
+		
+		double kappaEstimate = 0;
+		int transitionNr = 0;
+		int transversionNr = 0;
+		
+		int awayFromA = 0;
+		int toA = 0;
+		
+		for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
+			if (branchNr != pathTree.getRoot().getNr()) {
+				double branchLength = pathTree.getNode(
+						pathTree.getBranch(branchNr).getEndNodeNr())
+						.getLength();
+
+				int totalSubstitutionsNr = 0;
+
+				for (int seqSite = 0; seqSite < 3000; seqSite++) {
+					int substitutionsNr = pathTree.getBranch(branchNr)
+							.getMutationPath(seqSite).size();
+					totalSubstitutionsNr += substitutionsNr;
+					
+					if(substitutionsNr > 0){
+						for(SubstitutionEvent substitution : pathTree.getBranch(branchNr)
+								.getMutationPath(seqSite)) {
+							if(substitution.isTransition()){
+								transitionNr += 1;
+							}else{
+								transversionNr += 1;
+							}
+							
+							if(substitution.getCurrentNucleotide() == 0){
+								toA += 1;
+							}
+							
+							if(substitution.getPreviousNucleotide() == 0){
+								awayFromA += 1;
+							}
+						}
+					}
+					
+				}
+
+				double branchLengthEstimate = (double) totalSubstitutionsNr / 3000.0;
+				//System.out.println("branch" + branchNr + " length:"
+				//		+ branchLength + " estimate:" + branchLengthEstimate);
+			}
+		}
+		
+		kappaEstimate = (double) transitionNr / (double) transversionNr;
+		//System.out.println("Kappa estimate:" + kappaEstimate);
+		
+		System.out.println("away from A:" + awayFromA + " to A:" + toA);
+	}
     
 	/*
 	 * @see beast.core.Operator#proposal()
