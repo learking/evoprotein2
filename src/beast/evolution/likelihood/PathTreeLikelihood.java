@@ -1,6 +1,5 @@
 package beast.evolution.likelihood;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -15,7 +14,6 @@ import beast.core.Input.Validate;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.substitutionmodel.SubstitutionModel;
-import beast.evolution.tree.Node;
 import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 
