@@ -106,7 +106,7 @@ public class PathSamplingOperator extends Operator {
 		}
 		
 		kappaEstimate = (double) transitionNr / (double) transversionNr;
-		//System.out.println("Kappa estimate:" + kappaEstimate);
+		System.out.println("Kappa estimate:" + kappaEstimate);
 		
 		System.out.println("away from A:" + awayFromA + " to A:" + toA);
 	}
