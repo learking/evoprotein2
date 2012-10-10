@@ -12,7 +12,12 @@ public class SolventAccessibility extends Plugin {
 	}
 	
 	public void parseSolventAccessibility(){
-		
+		// for now, mock up a table
+		solventCategories = mockUpSolventCategories(10);
+	}
+	
+	public int numOfCategories() {
+		return solventCategories.length;
 	}
 	
 	// needs to be tested
