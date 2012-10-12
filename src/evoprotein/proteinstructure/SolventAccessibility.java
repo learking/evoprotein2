@@ -16,8 +16,14 @@ public class SolventAccessibility extends Plugin {
 		solventCategories = mockUpSolventCategories(10);
 	}
 	
-	public int numOfCategories() {
+	// getters
+	
+	public int getNumOfCategories() {
 		return solventCategories.length;
+	}
+	
+	public double getProb(int category, int codonType){
+		return solventCategories[category][codonType];
 	}
 	
 	// needs to be tested

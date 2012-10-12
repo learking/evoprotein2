@@ -21,6 +21,15 @@ public class StructureEnv extends Plugin {
 		structEnv = mockUpMatrices(10);
 	}
 	
+	// getter
+	public int getStructEnvNum(){
+		return structEnv.size();
+	}
+	
+	public double getProb(int structEnvNumber, int firstCodonType, int secondCodonType){
+		return structEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
+	}
+	
 	// for testing purpose only
 	public List<double [][]> mockUpMatrices(int numberOfMatrices){
 		List<double [][]> matrices = new ArrayList<double [][]>();

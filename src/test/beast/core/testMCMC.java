@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import evoprotein.proteinstructure.SolventAccessibility;
+
 import beast.core.Distribution;
 import beast.core.Logger;
 import beast.core.MCMC;
@@ -48,6 +50,8 @@ public class testMCMC extends evoprotein2TestCase {
 	ArrayList<Plugin> log;
 	
 	PathSamplingOperator pathSamplingOperator;
+	
+	//SolventAccessibility solventAccessibility;
 	
     @Override
     protected void setUp() throws Exception {
