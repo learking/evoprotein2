@@ -23,6 +23,23 @@ public class MutableSequence {
 		return intSequence;
 	}
 	
+	// translate
+	public int[] toCodonArray() throws Exception {
+		int codonArrayLength = intSequence.length / 3;
+		if (intSequence.length % 3 == 0) {
+			int[] codonArray = new int[codonArrayLength];
+			// translate each codon
+			CodonUtil codonUtil = new CodonUtil();
+			for (int i = 0; i < intSequence.length - 2; i += 3) {
+				codonArray[i/3] = codonUtil.translate(this, i);
+			}
+			return codonArray;
+		}
+		else {
+			throw new Exception("Remainder is not ZERO!");
+		}
+	}
+	
 	/*
 	 * deep copy
 	 */

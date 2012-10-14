@@ -6,14 +6,11 @@ import beast.core.Input.Validate;
 import beast.evolution.tree.PathTree;
 import evoprotein.evolution.datatype.MutableSequence;
 
-public class SeqStructCompatibility extends Plugin {
-	
-	// required input: structureEnv
-	public Input<StructureEnv> m_pathTree = new Input<StructureEnv>("structenv", "Structure Env pre-calculated", Validate.REQUIRED);
+public class SeqStructCompatibility extends Plugin {	
 	// required input: inputStructure
-	
+	public Input<InputStructure> m_inputStructure = new Input<InputStructure>("inputStructure", "input Structure pre-calculated", Validate.REQUIRED);
+
 	public double calcSeqStructProb (MutableSequence seq) {	
-		
 		
 		return 1.0;
 	}

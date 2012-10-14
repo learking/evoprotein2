@@ -33,6 +33,7 @@ public class InputStructureTest extends TestCase {
         structEnv.initAndValidate();
         inputStructure = new InputStructure();
         inputStructure.initByName("structureEnv", structEnv, "solventAccessibility", solventAccessibility);
+        
     }
 	
 	@Test
