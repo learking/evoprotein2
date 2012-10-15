@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 public class testCodonUtil extends TestCase {
 
 	@Test
-	public void testCodonTranslation() {
+	public void testCodonTranslation() throws Exception {
 		MutableSequence mutableSeq = new MutableSequence(9);
 		int [] intSeq = new int [] {1,1,1,0,2,0,3,3,3};
 		mutableSeq.setSequence(intSeq);

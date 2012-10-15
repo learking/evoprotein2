@@ -1,5 +1,7 @@
 package evoprotein.evolution.datatype;
 
+import java.util.HashSet;
+
 import beast.core.Description;
 
 
@@ -22,8 +24,12 @@ public class CodonUtil {
 		CCA, CCG, CCC, CCT,
 		CTA, CTG, CTC, CTT,
 		
-		TAA, TAG, TAC, TAT, 
-		TGA, TGG, TGC, TGT,
+		// Stop codons: TAA, TAG, TGA are excluded for now
+		
+		//TAA, TAG, TAC, TAT,
+		TAC, TAT,
+		//TGA, TGG, TGC, TGT,
+		TGG, TGC, TGT,
 		TCA, TCG, TCC, TCT,
 		TTA, TTG, TTC, TTT,
 	}
@@ -33,12 +39,36 @@ public class CodonUtil {
 	//  0   1  2   3
 	}
 	
-	public int translate(MutableSequence seq, int startSite) {
+	HashSet<String> codonHashSet;
+	
+	public CodonUtil(){
+		codonHashSet = getCodonHashSet();
+	}
+	
+	public int translate(MutableSequence seq, int startSite) throws Exception {
 		String first = Nucleotide.values()[seq.getSequence()[startSite]].toString();
 		String second = Nucleotide.values()[seq.getSequence()[startSite+1]].toString();
 		String third = Nucleotide.values()[seq.getSequence()[startSite+2]].toString();
 		String thisCodon = first + second + third;
-		return Codon.valueOf(thisCodon).ordinal();
+		if(containsCodon(thisCodon)){
+			return Codon.valueOf(thisCodon).ordinal();
+		}else{
+			throw new Exception("Encounter a stop codon!");
+		}
 	}
 	
+	public static HashSet<String> getCodonHashSet() {
+
+		  HashSet<String> codonHashSet = new HashSet<String>();
+
+		  for (Codon c : Codon.values()) {
+		      codonHashSet.add(c.name());
+		  }
+
+		  return codonHashSet;
+	}
+	
+	public boolean containsCodon(String codon){
+		return codonHashSet.contains(codon);
+	}
 }

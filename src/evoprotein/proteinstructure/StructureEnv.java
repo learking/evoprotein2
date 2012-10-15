@@ -27,7 +27,28 @@ public class StructureEnv extends Plugin {
 	}
 	
 	public double getProb(int structEnvNumber, int firstCodonType, int secondCodonType){
-		return structEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
+		double prob = structEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
+		double marginalProb = getFirstCodonMarginalProb(structEnvNumber, firstCodonType) * getSecondCodonMarginalProb(structEnvNumber, secondCodonType);
+		prob = prob / marginalProb;
+		return prob;
+	}
+	
+	public double getFirstCodonMarginalProb(int structEnvNumber, int firstCodonType){
+		double firstCodonMarginalProb = 0;
+		int rowNr = firstCodonType;
+		for (int i = 0 ; i < structEnv.get(0)[0].length ; i++) {
+			firstCodonMarginalProb += structEnv.get(structEnvNumber)[rowNr][i];
+		}
+		return firstCodonMarginalProb;
+	}
+	
+	public double getSecondCodonMarginalProb(int structEnvNumber, int secondCodonType){
+		double secondCodonMarginalProb = 0;
+		int colNr = secondCodonType;
+		for (int i = 0; i < structEnv.get(0).length ; i++) {
+			secondCodonMarginalProb += structEnv.get(structEnvNumber)[i][colNr];
+		}
+		return secondCodonMarginalProb;
 	}
 	
 	// for testing purpose only
