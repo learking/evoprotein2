@@ -23,6 +23,32 @@ public class MutableSequence {
 		return intSequence;
 	}
 	
+	public int[] getNucleoCounts(){
+		int[] nucleoCounts = new int[4];
+		// a c g t
+		for (int i = 0; i < intSequence.length ; i++) {
+	        switch (intSequence[i]) {
+	        case 0:  nucleoCounts[0]++;
+	        		 break;
+            case 1:  nucleoCounts[1]++;
+                     break;
+            case 2:  nucleoCounts[2]++;
+                     break;
+            case 3:  nucleoCounts[3]++;
+                     break;
+	        }
+		}
+		return nucleoCounts;
+	}
+	
+	public int getCodonNumber() throws Exception{
+		if(intSequence.length % 3 == 0){
+			return intSequence.length / 3 ;
+		}else{
+			throw new Exception("Remainder is not ZERO!");
+		}
+	}
+	
 	// translate
 	public int[] toCodonArray() throws Exception {
 		int codonArrayLength = intSequence.length / 3;
