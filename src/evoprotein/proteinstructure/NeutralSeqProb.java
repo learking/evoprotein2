@@ -18,6 +18,8 @@ public class NeutralSeqProb extends Plugin {
     public Input<Frequencies> frequenciesInput =
             new Input<Frequencies>("frequencies", "our substitution model equilibrium state frequencies", Validate.REQUIRED);
     
+    double logP;
+    
     Frequencies frequencies;
     double freqA;
     double freqC;
@@ -31,7 +33,7 @@ public class NeutralSeqProb extends Plugin {
     }
     
 	public double calcNeutralSeqProb(MutableSequence seq) throws Exception{
-		double logP = 0;
+		logP = 0;
 		double[]  freqs = frequencies.getFreqs();
         freqA = freqs[0];
         freqC = freqs[1];
@@ -44,6 +46,10 @@ public class NeutralSeqProb extends Plugin {
 		// a c g t
 		logP = nucleoCounts[0]*Math.log(freqA) + nucleoCounts[1]*Math.log(freqC) + nucleoCounts[2]*Math.log(freqG) + nucleoCounts[3]*Math.log(freqT) - codonNumber*Math.log(Y);
 		
+		return getLogP();
+	}
+	
+	public double getLogP(){
 		return logP;
 	}
 	

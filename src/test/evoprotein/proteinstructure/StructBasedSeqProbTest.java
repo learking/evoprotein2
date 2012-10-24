@@ -38,6 +38,7 @@ public class StructBasedSeqProbTest extends TestCase {
     	//double expectedLogP = 0;
     	System.out.println(sequenceStructCompatibility.calcSeqStructLogP(mutableSeq));
     	//assertEquals(expectedLogP, 1.0, BEASTTestCase.PRECISION);
+    	
     }
     
 }

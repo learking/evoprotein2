@@ -23,6 +23,10 @@ public class MutableSequence {
 		return intSequence;
 	}
 	
+	public int getNucleotide(int position){
+		return intSequence[position];
+	}
+	
 	public int[] getNucleoCounts(){
 		int[] nucleoCounts = new int[4];
 		// a c g t
