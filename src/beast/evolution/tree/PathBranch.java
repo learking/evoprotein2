@@ -8,6 +8,8 @@ import java.util.List;
 
 import beast.core.Description;
 
+import evoprotein.evolution.datatype.MutableSequence;
+import evoprotein.evolution.substitution.Substitution;
 import evoprotein.evolution.substitution.SubstitutionEvent;
 
 /**
@@ -44,6 +46,33 @@ public class PathBranch {
 	
 	public int getBeginNodeNr(){
 		return beginNodeNr;
+	}
+
+	public List<MutableSequence> getSeqPath(){
+		List<MutableSequence> seqPath = new ArrayList<MutableSequence>();
+		
+		List<Substitution> substitutions = new ArrayList<Substitution>();
+		
+		// combine all mutations for each site 
+		for (int site = 0; site < m_MutationPaths.size() ; site++) {
+			int currentNumOfSubst = m_MutationPaths.get(site).size();
+			if(currentNumOfSubst != 0){
+				// within this branch, set heights
+				double cumulativeHeight = 0;
+				for (int substIndex = 0; substIndex < currentNumOfSubst; substIndex++ ) {
+					cumulativeHeight += m_MutationPaths.get(site).get(substIndex).getTimeInterval();
+					substitutions.add(new Substitution(substIndex, m_MutationPaths.get(site).get(substIndex), cumulativeHeight));
+				}
+			}
+		}
+		
+		// sort mutations based on height
+		
+		
+		// create a list of mutable sequences
+		
+		
+		return seqPath;
 	}
 	
 	// setters

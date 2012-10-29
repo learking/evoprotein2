@@ -36,11 +36,41 @@ public class PathLikelihood extends Distribution {
     // a totally different calculation compared to PathTreeLikelihood
     @Override
     public double calculateLogP() throws Exception{
-    	// need to come up with a plan on paper first
-    	return 1.0;
+    	// if the first time calculating "oldLikelihood"
+    	int rootNr = m_pathTree.get().getRoot().getNr();
+    	int [] rootSeq = m_pathTree.get().getSequences().get(rootNr).getSequence();
+    	boolean firstTimeCalculation;
+    	int rootSeqTotal = 0;
+    	for(int i = 0 ; i < rootSeq.length ; i++){
+    		rootSeqTotal += rootSeq[0];
+    	}
+    	if(rootSeqTotal == 0){
+    		firstTimeCalculation = true;
+    	}
+    	else{
+    		firstTimeCalculation = false;
+    	}
+    	
+    	if(firstTimeCalculation){
+    		logP = -999999999;
+    	}else{
+        	logP = calcPathLogP();
+    	}
+		return logP;
     }
 	
-    
+    public double calcPathLogP(){
+    	
+    	// combine substitutions among all sites into a single sequence path
+    	
+    	// loop through all branches
+    	
+    	// deal with each branch separately
+    	
+    	// add them all up
+    	
+    	return 1.0;
+    }
     
 	@Override
 	public List<String> getArguments() {
