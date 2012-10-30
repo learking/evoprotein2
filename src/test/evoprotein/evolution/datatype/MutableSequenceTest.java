@@ -37,12 +37,21 @@ public class MutableSequenceTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testNucleoCounts(){
 		int [] expectedCounts = new int [] {2, 3, 1, 3};
 		int [] realCounts = mutableSeq.getNucleoCounts();
 		for (int i = 0; i < expectedCounts.length; i++ ) {
 			assertEquals(expectedCounts[i], realCounts[i]);
 		}
+	}
+	
+	@Test
+	public void testEquals(){
+		MutableSequence anotherSeq = new MutableSequence(9);
+		int [] intAnotherSeq = new int [] {1,1,1,0,2,0,3,3,3};
+		anotherSeq.setSequence(intAnotherSeq);
+		assertEquals(true, anotherSeq.equals(mutableSeq));
 	}
 	
 }

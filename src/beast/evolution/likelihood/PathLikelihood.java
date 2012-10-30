@@ -6,12 +6,15 @@ package beast.evolution.likelihood;
 import java.util.List;
 import java.util.Random;
 
+import evoprotein.evolution.datatype.MutableSequence;
+
 import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Input;
 import beast.core.State;
 import beast.core.Input.Validate;
 import beast.evolution.substitutionmodel.ProteinCodingDNASubstModel;
+import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 
 /**
@@ -54,22 +57,40 @@ public class PathLikelihood extends Distribution {
     	if(firstTimeCalculation){
     		logP = -999999999;
     	}else{
-        	logP = calcPathLogP();
+        	logP = calcTotalPathLogP();
     	}
 		return logP;
     }
 	
-    public double calcPathLogP(){
-    	
-    	// combine substitutions among all sites into a single sequence path
-    	
+    public double calcTotalPathLogP() throws Exception{
+    	logP = 0;
     	// loop through all branches
+    	for (int i=0 ; i< m_pathTree.get().getNodeCount(); i++){
+			if(m_pathTree.get().getNode(i).getHeight() != m_pathTree.get().getRoot().getHeight()){
+				PathBranch currentBranch = m_pathTree.get().getBranch(i);
+				
+				// sanity check
+				if (i != currentBranch.getEndNodeNr()){
+					throw new Exception("EndNode number does not match!");
+				}
+				
+				int endNodeNr = currentBranch.getEndNodeNr();
+				int beginNodeNr = currentBranch.getBeginNodeNr();
+				MutableSequence childSeq = m_pathTree.get().getSequences().get(endNodeNr);
+				MutableSequence parentSeq = m_pathTree.get().getSequences().get(beginNodeNr);
+				
+				// deal with each branch separately
+				logP += calcPathLogP(currentBranch, parentSeq, childSeq);
+		
+			}
+    	}
+    	return logP;
+    }
+    
+    double calcPathLogP(PathBranch currentBranch, MutableSequence parentSeq, MutableSequence childSeq){
+    	double pathLogP = 0;
     	
-    	// deal with each branch separately
-    	
-    	// add them all up
-    	
-    	return 1.0;
+    	return pathLogP;
     }
     
 	@Override

@@ -1,5 +1,9 @@
 package evoprotein.evolution.datatype;
 
+import java.util.Arrays;
+
+import evoprotein.evolution.substitution.Substitution;
+
 public class MutableSequence {
 	
 	int [] intSequence;
@@ -53,6 +57,21 @@ public class MutableSequence {
 		}
 	}
 	
+	public void substitute(Substitution substitution) throws Exception{
+		int site = substitution.getSite();
+		int stateBeforeChange = substitution.getStateBeforeChange();
+		if(stateBeforeChange == intSequence[site]){
+			intSequence[site] = substitution.getStateAfterChange();
+		}else{
+			System.out.println("state before change:" + stateBeforeChange + "seq site: " + intSequence[site]);
+			throw new Exception("state before substitution should be equal to unchanged seq at this site");
+		}
+	}
+	
+	public void mutate(int site, int newNucleotide) {
+		intSequence[site] = newNucleotide;
+	}
+	
 	// translate
 	public int[] toCodonArray() throws Exception {
 		int codonArrayLength = intSequence.length / 3;
@@ -77,5 +96,23 @@ public class MutableSequence {
 		MutableSequence mutableSequence = new MutableSequence(intSequence.length);
 		mutableSequence.setSequence(intSequence);
 		return mutableSequence;
+	}
+	
+	@Override
+	public boolean equals(Object aThat){
+		if (!(aThat instanceof MutableSequence)) return false;
+		
+		MutableSequence that = (MutableSequence) aThat;
+		
+		if(Arrays.equals(that.getSequence(), intSequence)){
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
+	
+	public String toString(){
+		return Arrays.toString(intSequence);
 	}
 }

@@ -37,13 +37,53 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	inputStructure = m_inputStructure.get();
     }
     
+    public double getSubstAwayRate(MutableSequence seqI) throws Exception{
+    	double awayRate = 0;
+    	MutableSequence tmpSeq;
+    	for (int site = 0 ; site < seqI.getSequence().length; site++) {
+    		// init tmpSeq when dealing with each site
+    		tmpSeq = seqI.copy();
+    		int originalNucleotide = seqI.getSequence()[site];
+    		int[] changableNucleotides = getChangableNucleotides(originalNucleotide);
+    		for (int i = 0; i < changableNucleotides.length; i++) {
+    			tmpSeq.mutate(site, changableNucleotides[i]);
+    			//System.out.println(tmpSeq.toString());
+    			awayRate += getSubstitutionRate(seqI, tmpSeq);
+    		}
+    	}
+    	return awayRate;
+    }
+    
+    int[] getChangableNucleotides(int originalNucleotide){
+    	int [] changableNucleotides;
+    	switch(originalNucleotide){
+    	case 0:
+    		changableNucleotides = new int[]{1,2,3};
+    		break;
+    	case 1:
+    		changableNucleotides = new int[]{0,2,3};
+    		break;
+    	case 2:
+    		changableNucleotides = new int[]{0,1,3};
+    		break;
+    	case 3:
+    		changableNucleotides = new int[]{0,1,2};
+    		break;
+    	default:
+    		changableNucleotides = new int[]{-1,-1,-1};
+    	}
+    	return changableNucleotides;
+    }
+    
 	public double getSubstitutionRate(MutableSequence seqI, MutableSequence seqJ) throws Exception{
 		double substitutionRate = 0;
 
 		// find where these two sequences differ (both location and value)
 		int differPosition = getDifferPosition(seqI, seqJ);
 		double logTAU = getLogTAU(seqI, seqJ, differPosition);
+		
 		substitutionRate = logTAU / (1 - 1/Math.exp(logTAU));
+		
 		if(isTransition(seqI.getNucleotide(differPosition), seqJ.getNucleotide(differPosition))){
 			// should be
 			//substitutionRate = substitutionRate * frequencies.getFreqs()[seqJ.getNucleotide(differPosition)];

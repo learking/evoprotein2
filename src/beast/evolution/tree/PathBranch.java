@@ -4,6 +4,7 @@
 package beast.evolution.tree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import beast.core.Description;
@@ -48,8 +49,7 @@ public class PathBranch {
 		return beginNodeNr;
 	}
 
-	public List<MutableSequence> getSeqPath(){
-		List<MutableSequence> seqPath = new ArrayList<MutableSequence>();
+	public SeqPath getSeqPath(MutableSequence parentSeq, MutableSequence childSeq) throws Exception{
 		
 		List<Substitution> substitutions = new ArrayList<Substitution>();
 		
@@ -61,17 +61,21 @@ public class PathBranch {
 				double cumulativeHeight = 0;
 				for (int substIndex = 0; substIndex < currentNumOfSubst; substIndex++ ) {
 					cumulativeHeight += m_MutationPaths.get(site).get(substIndex).getTimeInterval();
-					substitutions.add(new Substitution(substIndex, m_MutationPaths.get(site).get(substIndex), cumulativeHeight));
+					substitutions.add(new Substitution(site, m_MutationPaths.get(site).get(substIndex), cumulativeHeight));
 				}
 			}
 		}
 		
+		System.out.println("before sort:" + substitutions.toString());
 		// sort mutations based on height
-		
+		Collections.sort(substitutions);
+		System.out.println("after sort:" + substitutions.toString());
 		
 		// create a list of mutable sequences
+		// Given parent seq and substitutions, construct seq path
+		SeqPath seqPath =  new SeqPath(parentSeq, childSeq, substitutions);
 		
-		
+		//List<MutableSequence> seqPath = new ArrayList<MutableSequence>();
 		return seqPath;
 	}
 	
