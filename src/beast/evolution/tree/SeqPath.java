@@ -29,6 +29,13 @@ public class SeqPath {
 	}
 	
 	// getter
+	public List<MutableSequence> getSeqs(){
+		return seqPath;
+	}
+	
+	public double[] getTimes(){
+		return mutationTime;
+	}
 	
 	// setter
 	

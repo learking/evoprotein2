@@ -11,10 +11,8 @@ import beast.evolution.tree.Node;
 
 public class ProteinCodingDNASubstModel extends CalculationNode {
 
-	// determine inputs
-	
-	//
-    //public Input<RealParameter> kappa = new Input<RealParameter>("kappa", "kappa parameter in our model", Validate.REQUIRED);
+	// determine inputs	
+	public Input<RealParameter> kappa = new Input<RealParameter>("kappa", "kappa parameter in HKY model", Validate.REQUIRED);
 	
 	// for use in neutral model
 	public Input<Frequencies> frequenciesInput =
@@ -22,6 +20,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 	// for use in struct based model
 	public Input<InputStructure> m_inputStructure = new Input<InputStructure>("inputStructure", "input Structure pre-calculated", Validate.REQUIRED);
 
+	
 	// define variables here
     Frequencies frequencies;
     InputStructure inputStructure;
@@ -30,6 +29,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     double freqG;
     double freqT;
     double Y;
+    double scalingFactor;
 	// initAndValidate
     @Override
     public void initAndValidate(){
@@ -76,6 +76,8 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     }
     
 	public double getSubstitutionRate(MutableSequence seqI, MutableSequence seqJ) throws Exception{
+		scalingFactor = getScalingFactor();
+				
 		double substitutionRate = 0;
 
 		// find where these two sequences differ (both location and value)
@@ -85,16 +87,26 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 		substitutionRate = logTAU / (1 - 1/Math.exp(logTAU));
 		
 		if(isTransition(seqI.getNucleotide(differPosition), seqJ.getNucleotide(differPosition))){
-			// should be
-			//substitutionRate = substitutionRate * frequencies.getFreqs()[seqJ.getNucleotide(differPosition)];
-			substitutionRate = substitutionRate * frequencies.getFreqs()[seqJ.getNucleotide(differPosition)];
+			double k = kappa.get().getValue();
+			substitutionRate = scalingFactor * substitutionRate * frequencies.getFreqs()[seqJ.getNucleotide(differPosition)] * k;
 		}else{
-			substitutionRate = substitutionRate * frequencies.getFreqs()[seqJ.getNucleotide(differPosition)];
+			substitutionRate = scalingFactor * substitutionRate * frequencies.getFreqs()[seqJ.getNucleotide(differPosition)];
 		}
 		
 		return substitutionRate;
 	}
     
+	double getScalingFactor(){
+		double u;
+		double freqSquareSum = 0;
+		double[] freqs = frequencies.getFreqs();
+		for (int i = 0 ; i < freqs.length ; i++) {
+			freqSquareSum += freqs[i] * freqs[i];
+		}
+		u = 1.0 / (1.0 - freqSquareSum);
+		return u; 
+	}
+	
     int getDifferPosition(MutableSequence seqI, MutableSequence seqJ) throws Exception {
 		int[] seq_i = seqI.getSequence();
 		int[] seq_j = seqJ.getSequence();

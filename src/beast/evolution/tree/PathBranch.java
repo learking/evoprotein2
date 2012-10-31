@@ -31,7 +31,7 @@ public class PathBranch {
 		beginNodeNr = beginNodeNumber;
 		endNodeNr = endNodeNumber;
 		
-		for(int i=0; i<sequenceLength; i++){
+		for(int i = 0; i < sequenceLength; i++){
 			m_MutationPaths.add(new ArrayList<SubstitutionEvent>());
 		}
 	}
