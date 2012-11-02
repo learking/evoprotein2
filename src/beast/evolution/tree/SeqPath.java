@@ -22,9 +22,14 @@ public class SeqPath {
 			tmpSeq.substitute(substitutions.get(i));
 			seqPath.add(tmpSeq.copy());
 		}
-		
-		if(!(seqPath.get(seqPath.size()-1).equals(childSeq))){
-			throw new Exception("after last substitution, the seq should be the same as child seq");
+		if(seqPath.size() > 0){
+			if(!(seqPath.get(seqPath.size()-1).equals(childSeq))){
+				throw new Exception("after last substitution, the seq should be the same as child seq");
+			}
+		}else{
+			if(!parentSeq.equals(childSeq)){
+				throw new Exception("when no substitution along this branch, parent seq should be the same as child seq");
+			}
 		}
 	}
 	

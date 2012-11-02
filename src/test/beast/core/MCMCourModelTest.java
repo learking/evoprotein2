@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import evoprotein.proteinstructure.InputStructure;
+import evoprotein.proteinstructure.SolventAccessibility;
+import evoprotein.proteinstructure.StructureEnv;
 
 import test.beast.evoprotein2TestCase;
 
@@ -42,6 +44,8 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 	Tree tree;
 	PathTree pathTree;
 	
+	StructureEnv structureEnv;
+	SolventAccessibility solventAccessibility;
 	InputStructure inputStructure;
 	ProteinCodingDNASubstModel ourModel;
 	
@@ -55,6 +59,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 	
 	SiteModel proposalSiteModel;
 	
+	
 	PathLikelihood pathLikelihood;
 	Distribution likelihood;
 
@@ -67,7 +72,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-        data = getAlignment();
+        data = getDummyAlignment();
         
         tree = getTree(data);
 		
@@ -80,13 +85,17 @@ public class MCMCourModelTest extends evoprotein2TestCase {
         frequencies.initByName("data", data);
         
         //our model
+        solventAccessibility = new SolventAccessibility();
+        solventAccessibility.initAndValidate();
+        structureEnv = new StructureEnv();
+        structureEnv.initAndValidate();
         inputStructure = new InputStructure();
-        // inputStructure.initByName();
+        inputStructure.initByName("structureEnv", structureEnv, "solventAccessibility", solventAccessibility);
         ourModel = new ProteinCodingDNASubstModel();
-        // ourModel.initByName("kappa", kappa, "frequencies", frequencies, "inputStructure", );
+        ourModel.initByName("kappa", kappa, "frequencies", frequencies, "inputStructure", inputStructure);
         
         pathLikelihood = new PathLikelihood();
-        //pathLikelihood.initByName("PathTree", pathTree, "ourModel", ourModel);
+        pathLikelihood.initByName("PathTree", pathTree, "ourModel", ourModel);
         
         likelihood = (Distribution) pathLikelihood;
         
@@ -106,7 +115,6 @@ public class MCMCourModelTest extends evoprotein2TestCase {
         
         proposalSiteModel = new SiteModel();
         proposalSiteModel.initByName("gammaCategoryCount", 1, "substModel", proposalInstantHKY);
-        
         
         // operators
         pathSamplingOperator = new PathSamplingOperator();

@@ -26,11 +26,11 @@ public class evoprotein2TestCase extends TestCase {
     }
 
     static public Alignment getDummyAlignment() throws Exception {
-        Sequence Human = new Sequence("Human", "CCAAA");
-        Sequence Chimpanzee = new Sequence("Chimpanzee", "CCAAA");
-        Sequence Orangutan = new Sequence("Orangutan", "CTAAC");
-        Sequence Gibbon = new Sequence("Gibbon", "CTAAA");
-        Sequence Gorilla = new Sequence("Gorilla", "CTAAG");
+        Sequence Human = new Sequence("Human", "CCAAAC");
+        Sequence Chimpanzee = new Sequence("Chimpanzee", "CCAAAC");
+        Sequence Orangutan = new Sequence("Orangutan", "CTAACC");
+        Sequence Gibbon = new Sequence("Gibbon", "CTAAAC");
+        Sequence Gorilla = new Sequence("Gorilla", "CTAAGC");
 
         Alignment data = new Alignment();
         data.initByName("sequence", Human, "sequence", Chimpanzee, "sequence", Gorilla, "sequence", Orangutan, "sequence", Gibbon,

@@ -51,7 +51,7 @@ public class PathSamplingOperator extends Operator {
     	oldPathLogDensity = newPathLogDensity;
     	
     	// for debugging
-    	estimateParameters();
+    	//estimateParameters();
     }
     
 	public void estimateParameters() {
