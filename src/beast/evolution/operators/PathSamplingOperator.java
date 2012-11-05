@@ -10,6 +10,7 @@ import java.util.List;
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.evolution.substitution.SubstitutionEvent;
 
+import beast.core.Description;
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.Operator;
@@ -26,7 +27,7 @@ import beast.util.Randomizer;
  *
  */
 
-
+@Description("Used only during initialization stage of MCMC run")
 public class PathSamplingOperator extends Operator {
 	
 	public Input<PathTree> m_pathTree = new Input<PathTree>("pathtree", "pathtree on which this operation is performed", Validate.REQUIRED);
