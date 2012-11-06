@@ -4,9 +4,12 @@ package test.beast.evolution.operators;
 import org.junit.Before;
 import org.junit.Test;
 
+import test.beast.evoprotein2TestCase;
+
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.operators.OneSitePathSamplingOperator;
+import beast.evolution.operators.PathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;
@@ -15,7 +18,7 @@ import beast.evolution.tree.Tree;
 
 import junit.framework.TestCase;
 
-public class OneSitePathSamplingOperatorTest extends TestCase {
+public class OneSitePathSamplingOperatorTest extends evoprotein2TestCase {
 
 	Alignment data;
 	Tree tree;
@@ -28,6 +31,7 @@ public class OneSitePathSamplingOperatorTest extends TestCase {
 	
 	@Before
 	protected void setUp() throws Exception {
+		
 		super.setUp();
         data = getDummyAlignment();
         //data = getAlignment();
@@ -48,11 +52,14 @@ public class OneSitePathSamplingOperatorTest extends TestCase {
         siteModel = new SiteModel();
         siteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
         
+        oneSiteOperator = new OneSitePathSamplingOperator();
+        oneSiteOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", siteModel);
+        
 	}
 
 	@Test
 	public void testOneSiteOperator() {
-		fail("Not yet implemented");
+		System.out.println((int) 14.99);
 	}
 
 }
