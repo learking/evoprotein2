@@ -68,6 +68,14 @@ public class CodonUtil {
 		  return codonHashSet;
 	}
 	
+	public String int2Codon(int firstNucleotide, int secondNucleotide, int thirdNucleotide){
+		String first = Nucleotide.values()[firstNucleotide].toString();
+		String second = Nucleotide.values()[secondNucleotide].toString();
+		String third = Nucleotide.values()[thirdNucleotide].toString();
+		String thisCodon = first + second + third;
+		return thisCodon;
+	}
+	
 	public boolean containsCodon(String codon){
 		return codonHashSet.contains(codon);
 	}

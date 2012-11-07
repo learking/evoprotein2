@@ -2,9 +2,12 @@ package evoprotein.evolution.datatype;
 
 import java.util.Arrays;
 
+import evoprotein.evolution.datatype.CodonUtil.Nucleotide;
 import evoprotein.evolution.substitution.Substitution;
 
 public class MutableSequence {
+	
+	static CodonUtil codonUtil = new CodonUtil();
 	
 	int [] intSequence;
 	
@@ -77,8 +80,7 @@ public class MutableSequence {
 		int codonArrayLength = intSequence.length / 3;
 		if (intSequence.length % 3 == 0) {
 			int[] codonArray = new int[codonArrayLength];
-			// translate each codon
-			CodonUtil codonUtil = new CodonUtil();
+			
 			for (int i = 0; i < intSequence.length - 2; i += 3) {
 				codonArray[i/3] = codonUtil.translate(this, i);
 			}
@@ -87,6 +89,22 @@ public class MutableSequence {
 		else {
 			throw new Exception("Remainder is not ZERO!");
 		}
+	}
+	
+	public boolean existStopCodon() throws Exception{
+		boolean stopCodonFlag = false;
+		int stopCodonPosition = -1;
+		for (int startSite = 0; startSite < (this.getCodonNumber() * 3 - 2) ; startSite = startSite + 3) {
+
+			String thisCodon = codonUtil.int2Codon(this.getSequence()[startSite], this.getSequence()[startSite+1], this.getSequence()[startSite+2]);
+			if(!(codonUtil.containsCodon(thisCodon))){
+				stopCodonFlag = true;
+				stopCodonPosition = startSite;
+				System.err.println("Stop codon position:" + stopCodonPosition + "stop codon:" + thisCodon);
+				break;
+			}
+		}
+		return stopCodonFlag;
 	}
 	
 	/*

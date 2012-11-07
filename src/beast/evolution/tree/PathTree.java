@@ -47,6 +47,9 @@ public class PathTree extends Tree {
 		for(int i=0; i< leafNodeCount;i++){
 			String sequenceID = getNode(i).getID();
 			m_sequences.get(i).setSequence(getSequenceByID(sequenceID));
+			if(m_sequences.get(i).existStopCodon()){
+				throw new Exception("Stop codon encountered in leaf sequence!");
+			}
 		}
 	}
 	

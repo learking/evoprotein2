@@ -8,11 +8,9 @@ import org.junit.Test;
 import evoprotein.evolution.substitution.SubstitutionEvent;
 
 import test.beast.evoprotein2TestCase;
-import test.beast.core.testMCMC;
 
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
-import beast.evolution.likelihood.PathTreeLikelihood;
 import beast.evolution.operators.AllSitesPathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
@@ -35,7 +33,7 @@ public class AllSitesPathSamplingOperatorTest extends evoprotein2TestCase {
 	
 	@Test
 	public void testPathSamplingOperator() throws Exception {
-        data = getDummyAlignment();
+        data = getAlignment();
         //data = getAlignment();
 		
         tree = getTree(data);
