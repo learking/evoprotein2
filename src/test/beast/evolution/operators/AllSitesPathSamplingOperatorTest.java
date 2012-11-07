@@ -33,7 +33,7 @@ public class AllSitesPathSamplingOperatorTest extends evoprotein2TestCase {
 	
 	@Test
 	public void testPathSamplingOperator() throws Exception {
-        data = getAlignment();
+        data = getAlignmentWithNoStopCodon();
         //data = getAlignment();
 		
         tree = getTree(data);
