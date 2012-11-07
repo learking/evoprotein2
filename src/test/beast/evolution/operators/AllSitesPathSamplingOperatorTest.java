@@ -13,7 +13,7 @@ import test.beast.core.testMCMC;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.likelihood.PathTreeLikelihood;
-import beast.evolution.operators.PathSamplingOperator;
+import beast.evolution.operators.AllSitesPathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;
@@ -22,7 +22,7 @@ import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
 
-public class PathSamplingOperatorTest extends evoprotein2TestCase {
+public class AllSitesPathSamplingOperatorTest extends evoprotein2TestCase {
 	
 	Alignment data;
 	Tree tree;
@@ -31,7 +31,7 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 	RealParameter kappa;
 	Frequencies frequences;
 	SiteModel siteModel;
-	PathSamplingOperator pathSamplingOperator;
+	AllSitesPathSamplingOperator allSitesPathSamplingOperator;
 	
 	@Test
 	public void testPathSamplingOperator() throws Exception {
@@ -54,8 +54,8 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
         siteModel = new SiteModel();
         siteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
         
-        pathSamplingOperator = new PathSamplingOperator();
-        pathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", siteModel);
+        allSitesPathSamplingOperator = new AllSitesPathSamplingOperator();
+        allSitesPathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", siteModel);
         
         
 		int rootNr = pathTree.getRoot().getNr();
@@ -70,20 +70,20 @@ public class PathSamplingOperatorTest extends evoprotein2TestCase {
 		for (int iSample = 0; iSample < 3 ; iSample++){
 			// Pupko
 			for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
-				pathSamplingOperator.PupkoOneSite(pathTree, seqSite);
+				allSitesPathSamplingOperator.PupkoOneSite(pathTree, seqSite);
 			}
 			// pathSamplingOperator.setPathLogDenstiyToZero();
 			// Nielsen
 			for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
 				if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
-					pathSamplingOperator.NielsenSampleOneBranch(pathTree, branchNr);
+					allSitesPathSamplingOperator.NielsenSampleOneBranch(pathTree, branchNr);
 				}
 			}
-			System.err.println("HastingRatio:" + pathSamplingOperator.getPathLogDensity());
+			System.err.println("HastingRatio:" + allSitesPathSamplingOperator.getPathLogDensity());
 			
 			// function here to check the correctness of the above two methods:
 			checkPathSampling(pathTree, sudoRootNr, rootNr);
-			pathSamplingOperator.setPathLogDenstiyToZero();
+			allSitesPathSamplingOperator.setPathLogDenstiyToZero();
 			System.out.println("===============================================");
 		}
 		

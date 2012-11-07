@@ -23,7 +23,7 @@ import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.likelihood.PathLikelihood;
 import beast.evolution.likelihood.PathTreeLikelihood;
-import beast.evolution.operators.PathSamplingOperator;
+import beast.evolution.operators.AllSitesPathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;
@@ -66,7 +66,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 	Logger tmpLogger;
 	ArrayList<Plugin> log;
 	
-	PathSamplingOperator pathSamplingOperator;
+	AllSitesPathSamplingOperator allSitesPathSamplingOperator;
 
 	@Before
 	protected void setUp() throws Exception {
@@ -117,8 +117,8 @@ public class MCMCourModelTest extends evoprotein2TestCase {
         proposalSiteModel.initByName("gammaCategoryCount", 1, "substModel", proposalInstantHKY);
         
         // operators
-        pathSamplingOperator = new PathSamplingOperator();
-        pathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", proposalSiteModel);
+        allSitesPathSamplingOperator = new AllSitesPathSamplingOperator();
+        allSitesPathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", proposalSiteModel);
 		
 	}
 
@@ -127,7 +127,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 		// create  MCMC
 		MCMC mcmc = new MCMC();
 		// right now, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 1000, "distribution", likelihood, "logger", tmpLogger, "operator", pathSamplingOperator);
+		mcmc.initByName("chainLength", 1000, "distribution", likelihood, "logger", tmpLogger, "operator", allSitesPathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 	}

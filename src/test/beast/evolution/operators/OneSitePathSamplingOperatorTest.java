@@ -9,7 +9,6 @@ import test.beast.evoprotein2TestCase;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.operators.OneSitePathSamplingOperator;
-import beast.evolution.operators.PathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;
