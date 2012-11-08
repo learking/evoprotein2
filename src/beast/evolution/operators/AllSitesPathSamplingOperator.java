@@ -63,17 +63,9 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 	}
 	
 	public void pathSampling(PathTree pathTree){
-		int rootNr = pathTree.getRoot().getNr();
-		int sudoRootNr = 0;
-		for (Node childNode : pathTree.getRoot().getChildren()) {
-			if(!childNode.isLeaf()) {
-				sudoRootNr = childNode.getNr();
-			}
-		}
 		
-		for (int seqSite = 0; seqSite < seqLength; seqSite ++) {
-			PupkoOneSite(pathTree, seqSite);
-		}
+		// do it until internal seqs does not contain stop codon
+		PupkoAllSites(pathTree);
 		
 		// NielsenOneSite
 		// don't need to traverse tree (we can work on m_branches directly, since now we have internal states already)
@@ -81,6 +73,13 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 			if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
 				NielsenSampleOneBranch(pathTree, branchNr);
 			}
+		}
+		
+	}
+	
+	void PupkoAllSites(PathTree pathTree){
+		for (int seqSite = 0; seqSite < seqLength; seqSite ++) {
+			PupkoOneSite(pathTree, seqSite);
 		}
 	}
 	
