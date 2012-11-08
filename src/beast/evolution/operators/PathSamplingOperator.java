@@ -34,6 +34,7 @@ public abstract class PathSamplingOperator extends Operator {
     // assuming topology won't change in a single simulation
     int rootNr;
     int sudoRootNr;
+    List<Integer> internalNodesNr;
     
     SubstitutionModel.Base m_substitutionModel;
     double fHastingsRatio, newPathLogDensity, oldPathLogDensity;
@@ -47,6 +48,7 @@ public abstract class PathSamplingOperator extends Operator {
     	
     	rootNr = m_pathTree.get().getRoot().getNr();
     	sudoRootNr = getSudoRootNr();
+    	internalNodesNr = getInternalNodesNr();
     	
     	seqLength = m_pathTree.get().getSequences().get(0).getSequence().length;
     }
@@ -59,6 +61,16 @@ public abstract class PathSamplingOperator extends Operator {
 			}
 		}
 		return sudoRootNr;
+    }
+    
+    List<Integer> getInternalNodesNr(){
+    	List<Integer> internalNodes = new ArrayList<Integer>();
+		for (int internalNodeIndex = m_pathTree.get().getLeafNodeCount(); internalNodeIndex < m_pathTree.get().getNodeCount(); internalNodeIndex++) {
+			internalNodes.add(internalNodeIndex);
+		}
+		// remove the root number from internalNodeNum
+		internalNodes.remove(internalNodes.indexOf(rootNr));
+    	return internalNodes;
     }
     
 	public void PupkoOneSite(PathTree pathTree, int seqSite){		
@@ -81,8 +93,8 @@ public abstract class PathSamplingOperator extends Operator {
 			internalNodeIndices.add(internalNodeIndex);
 		}
 		// remove the root number from internalNodeNum
-		internalNodeIndices.remove(internalNodeIndices.indexOf(pathTree.getRoot().getNr()));
-
+		internalNodeIndices.remove(internalNodeIndices.indexOf(rootNr));
+		
 		while(internalNodeIndices.size() > 0 ){
 			for (int i = 0; i < internalNodeIndices.size(); i++) {
 				int currentNodeNr = internalNodeIndices.get(i);
@@ -379,10 +391,5 @@ public abstract class PathSamplingOperator extends Operator {
 		return sampledFirstTime;
 	}
 	
-	// checkers
-	public boolean existStopCodonInternalNodes(){
-		
-		return true;
-	}
 	
 }

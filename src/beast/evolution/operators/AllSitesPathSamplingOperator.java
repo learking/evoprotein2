@@ -6,6 +6,7 @@ package beast.evolution.operators;
 import java.util.ArrayList;
 import java.util.List;
 
+import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.evolution.substitution.SubstitutionEvent;
 
 import beast.core.Description;
@@ -67,6 +68,10 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 		// do it until internal seqs does not contain stop codon
 		PupkoAllSites(pathTree);
 		
+		if(existStopCodonInternalNodes(pathTree)){
+			System.out.println("there shouldn't be any stop codon any more!");
+		}
+		
 		// NielsenOneSite
 		// don't need to traverse tree (we can work on m_branches directly, since now we have internal states already)
 		for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
@@ -78,10 +83,29 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 	}
 	
 	void PupkoAllSites(PathTree pathTree){
+		/*
 		for (int seqSite = 0; seqSite < seqLength; seqSite ++) {
 			PupkoOneSite(pathTree, seqSite);
 		}
+		while(existStopCodonInternalNodes(pathTree)){
+			for (int seqSite = 0; seqSite < seqLength; seqSite ++) {
+				PupkoOneSite(pathTree, seqSite);
+			}
+		}
+		*/
+		// go codon by codon, make sure no stop codon appears
+		for (int startSite = 0; startSite < (seqLength - 2) ; startSite = startSite + 2) {
+			PupkoOneSite(pathTree, startSite);
+			PupkoOneSite(pathTree, startSite + 1);
+			PupkoOneSite(pathTree, startSite + 2);
+			while (existStopCodonThisSite(pathTree, startSite)) {
+				PupkoOneSite(pathTree, startSite);
+				PupkoOneSite(pathTree, startSite + 1);
+				PupkoOneSite(pathTree, startSite + 2);
+			}
+		}
 	}
+	
 	
 	public double NielsenSampleOneBranch(PathTree pathTree, int branchNr) {
 
@@ -214,6 +238,42 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 		return 0;
 	}
 	
+	// checkers
+	boolean existStopCodonInternalNodes(PathTree pathTree){
+		boolean stopCodonFlag = false;
+		for (Integer internalNodeIndex : internalNodesNr) {
+			MutableSequence currentSeq = pathTree.getSequences().get(internalNodeIndex.intValue());
+			if(currentSeq.existStopCodon()){
+				stopCodonFlag = true;
+				break;
+			}
+		}
+		return stopCodonFlag;
+	}
+	
+	boolean existStopCodonThisSite(PathTree pathTree, int startSite){
+		boolean stopCodonFlag = false;
+		for (Integer internalNodeIndex : internalNodesNr) {
+			MutableSequence currentSeq = pathTree.getSequences().get(internalNodeIndex.intValue());
+			if(currentSeq.getNucleotide(startSite) == 3){
+				if(currentSeq.getNucleotide(startSite + 1) == 0){
+					if(currentSeq.getNucleotide(startSite + 2) == 0){
+						stopCodonFlag = true;
+						break;						
+					}
+					if(currentSeq.getNucleotide(startSite + 2) == 2){
+						stopCodonFlag = true;
+						break;						
+					}					
+				}
+				if((currentSeq.getNucleotide(startSite + 1) == 2) && (currentSeq.getNucleotide(startSite + 2) == 0)){
+					stopCodonFlag = true;
+					break;						
+				}
+			}
+		}
+		return stopCodonFlag;
+	}
 	
 	//for debugging only
 	public double getPathLogDensity() {

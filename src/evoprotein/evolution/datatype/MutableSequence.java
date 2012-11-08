@@ -91,10 +91,10 @@ public class MutableSequence {
 		}
 	}
 	
-	public boolean existStopCodon() throws Exception{
+	public boolean existStopCodon(){
 		boolean stopCodonFlag = false;
 		int stopCodonPosition = -1;
-		for (int startSite = 0; startSite < (this.getCodonNumber() * 3 - 2) ; startSite = startSite + 3) {
+		for (int startSite = 0; startSite < (intSequence.length - 2) ; startSite = startSite + 3) {
 
 			String thisCodon = codonUtil.int2Codon(this.getSequence()[startSite], this.getSequence()[startSite+1], this.getSequence()[startSite+2]);
 			if(!(codonUtil.containsCodon(thisCodon))){
