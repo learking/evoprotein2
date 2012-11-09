@@ -13,6 +13,7 @@ import beast.core.Description;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
+import beast.evolution.tree.SeqPath;
 import beast.util.Randomizer;
 
 /**
@@ -80,25 +81,17 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 			}
 		}
 		
+		System.out.println("=====================================================================");
+		
 	}
 	
 	void PupkoAllSites(PathTree pathTree){
-		/*
-		for (int seqSite = 0; seqSite < seqLength; seqSite ++) {
-			PupkoOneSite(pathTree, seqSite);
-		}
-		while(existStopCodonInternalNodes(pathTree)){
-			for (int seqSite = 0; seqSite < seqLength; seqSite ++) {
-				PupkoOneSite(pathTree, seqSite);
-			}
-		}
-		*/
 		// go codon by codon, make sure no stop codon appears
 		for (int startSite = 0; startSite < (seqLength - 2) ; startSite = startSite + 3) {
 			PupkoOneSite(pathTree, startSite);
 			PupkoOneSite(pathTree, startSite + 1);
 			PupkoOneSite(pathTree, startSite + 2);
-			while (existStopCodonThisSite(pathTree, startSite)) {
+			while (existStopCodonThisSiteInternalNodes(pathTree, startSite)) {
 				PupkoOneSite(pathTree, startSite);
 				PupkoOneSite(pathTree, startSite + 1);
 				PupkoOneSite(pathTree, startSite + 2);
@@ -107,12 +100,18 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 	}
 	
 	
-	public double NielsenSampleOneBranch(PathTree pathTree, int branchNr) {
+	public void NielsenSampleOneBranch(PathTree pathTree, int branchNr) {
 
 		PathBranch thisBranch = pathTree.getBranch(branchNr);
+		
+		int endNodeNr = thisBranch.getEndNodeNr();
+		int beginNodeNr = thisBranch.getBeginNodeNr();
+		MutableSequence childSeq = pathTree.getSequences().get(endNodeNr);
+		MutableSequence parentSeq = pathTree.getSequences().get(beginNodeNr);
+		
 		double thisBranchLength = pathTree.getNode(thisBranch.getEndNodeNr()).getLength();
 		
-		
+		// do it once, first
 		for(int seqSite = 0; seqSite < seqLength; seqSite++){
 			int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[seqSite];
 			int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[seqSite];
@@ -120,15 +119,18 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 		}
 		
 		/*
-		System.out.println("branch:" + branchNr);
-		int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[0];
-		int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[0];
-		NielsenSampleOneBranchOneSite(thisBranch, 0, thisBranchLength, parentNucleoState, childNucleoState);
+		while(existStopCodonThisSiteThisBranch(thisBranch, parentSeq, childSeq)){
+			System.out.println("this branch contains stop codon, try it again!");
+			for(int seqSite = 0; seqSite < seqLength; seqSite++){
+				int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[seqSite];
+				int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[seqSite];
+				NielsenSampleOneBranchOneSite(thisBranch, seqSite, thisBranchLength, parentNucleoState, childNucleoState);
+			}			
+		}
 		*/
-		return 0;
 	}
 	
-	public double NielsenSampleOneBranchOneSite(PathBranch thisBranch, int seqSite, double thisBranchLength, int parentNucleoState, int childNucleoState){
+	public void NielsenSampleOneBranchOneSite(PathBranch thisBranch, int seqSite, double thisBranchLength, int parentNucleoState, int childNucleoState){
 		
 		final int childState = childNucleoState;
 		final int parentState = parentNucleoState;
@@ -235,7 +237,7 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 		}
 		*/
 		addToPathLogDensity(calculateOneSiteLogP(childState, parentState, totalTime, substitutionEvents));
-		return 0;
+
 	}
 	
 	// checkers
@@ -251,29 +253,6 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 		return stopCodonFlag;
 	}
 	
-	boolean existStopCodonThisSite(PathTree pathTree, int startSite){
-		boolean stopCodonFlag = false;
-		for (Integer internalNodeIndex : internalNodesNr) {
-			MutableSequence currentSeq = pathTree.getSequences().get(internalNodeIndex.intValue());
-			if(currentSeq.getNucleotide(startSite) == 3){
-				if(currentSeq.getNucleotide(startSite + 1) == 0){
-					if(currentSeq.getNucleotide(startSite + 2) == 0){
-						stopCodonFlag = true;
-						break;						
-					}
-					if(currentSeq.getNucleotide(startSite + 2) == 2){
-						stopCodonFlag = true;
-						break;						
-					}					
-				}
-				if((currentSeq.getNucleotide(startSite + 1) == 2) && (currentSeq.getNucleotide(startSite + 2) == 0)){
-					stopCodonFlag = true;
-					break;						
-				}
-			}
-		}
-		return stopCodonFlag;
-	}
 	
 	//for debugging only
 	public double getPathLogDensity() {

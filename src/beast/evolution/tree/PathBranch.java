@@ -79,6 +79,32 @@ public class PathBranch {
 		return seqPath;
 	}
 	
+	// focus 
+	public CodonPath getCodonPath(int siteNr, MutableSequence parentSeq, MutableSequence childSeq){
+		List<Substitution> substitutions = new ArrayList<Substitution>();
+		
+		// a start site 
+		
+		// combine all mutations for each site 
+		for (int site = 0; site < m_MutationPaths.size() ; site++) {
+			int currentNumOfSubst = m_MutationPaths.get(site).size();
+			if(currentNumOfSubst != 0){
+				// within this branch, set heights
+				double cumulativeHeight = 0;
+				for (int substIndex = 0; substIndex < currentNumOfSubst; substIndex++ ) {
+					cumulativeHeight += m_MutationPaths.get(site).get(substIndex).getTimeInterval();
+					substitutions.add(new Substitution(site, m_MutationPaths.get(site).get(substIndex), cumulativeHeight));
+				}
+			}
+		}
+
+		Collections.sort(substitutions);
+		
+		CodonPath codonPath = new CodonPath(siteNr, parentSeq, childSeq , substitutions);
+		
+		return codonPath; 
+	}
+	
 	// setters
 	public void setMutationPath(int mutationPathIndex, List<SubstitutionEvent> newMutationPath) {
 		m_MutationPaths.get(mutationPathIndex).clear();

@@ -16,7 +16,9 @@ import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.substitutionmodel.SubstitutionModel;
 import beast.evolution.tree.Node;
+import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
+import beast.evolution.tree.SeqPath;
 import beast.util.Randomizer;
 
 /**
@@ -391,5 +393,48 @@ public abstract class PathSamplingOperator extends Operator {
 		return sampledFirstTime;
 	}
 	
+	// checkers
+	boolean existStopCodonThisSiteInternalNodes(PathTree pathTree, int startSite){
+		boolean stopCodonFlag = false;
+		for (Integer internalNodeIndex : internalNodesNr) {
+			MutableSequence currentSeq = pathTree.getSequences().get(internalNodeIndex.intValue());
+			if(currentSeq.getNucleotide(startSite) == 3){
+				if(currentSeq.getNucleotide(startSite + 1) == 0){
+					if(currentSeq.getNucleotide(startSite + 2) == 0){
+						stopCodonFlag = true;
+						break;						
+					}
+					if(currentSeq.getNucleotide(startSite + 2) == 2){
+						stopCodonFlag = true;
+						break;						
+					}					
+				}
+				if((currentSeq.getNucleotide(startSite + 1) == 2) && (currentSeq.getNucleotide(startSite + 2) == 0)){
+					stopCodonFlag = true;
+					break;						
+				}
+			}
+		}
+		return stopCodonFlag;
+	}
+	
+	boolean existStopCodonThisSiteThisBranch(PathBranch thisBranch, int siteNr, MutableSequence parentSeq, MutableSequence childSeq){
+		boolean stopCodonFlag = false;
+    	SeqPath currentSeqPath;
+		try {
+			currentSeqPath = thisBranch.getSeqPath(parentSeq, childSeq);
+			List<MutableSequence> currentSeqs = currentSeqPath.getSeqs();
+			for (MutableSequence seq : currentSeqs) {
+				if(seq.existStopCodon()){
+					stopCodonFlag = true;
+					break;
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return stopCodonFlag;
+	}
 	
 }
