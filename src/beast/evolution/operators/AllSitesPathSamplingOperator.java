@@ -94,7 +94,7 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 		}
 		*/
 		// go codon by codon, make sure no stop codon appears
-		for (int startSite = 0; startSite < (seqLength - 2) ; startSite = startSite + 2) {
+		for (int startSite = 0; startSite < (seqLength - 2) ; startSite = startSite + 3) {
 			PupkoOneSite(pathTree, startSite);
 			PupkoOneSite(pathTree, startSite + 1);
 			PupkoOneSite(pathTree, startSite + 2);
