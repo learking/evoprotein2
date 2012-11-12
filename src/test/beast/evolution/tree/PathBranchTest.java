@@ -54,6 +54,10 @@ public class PathBranchTest extends TestCase {
 	public void testGetSeqPath() throws Exception{
 		SeqPath seqPath = pathBranch.getSeqPath(parentSeq, childSeq);
 		System.out.println(seqPath.toString());
+		System.out.println("=================");
+		SeqPath codonSeqPath = pathBranch.getCodonSeqPath(1, parentSeq.getCodonSeq(0), childSeq.getCodonSeq(0));
+		System.out.println(codonSeqPath.toString());
+		
 	}
 
 }

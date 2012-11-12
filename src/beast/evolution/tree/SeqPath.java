@@ -44,6 +44,21 @@ public class SeqPath {
 	
 	// setter
 	
+	
+	// checker
+	public boolean existStopCodon() {
+		boolean stopCodonFlag = false;
+	
+		for (MutableSequence tmpSeq : seqPath) {
+		 if(tmpSeq.existStopCodon()) {
+			stopCodonFlag = true;
+			break;
+		 }
+		}
+		
+		return stopCodonFlag;
+	}
+	
 	// toString
 	public String toString(){
 		String seqPathString = "";

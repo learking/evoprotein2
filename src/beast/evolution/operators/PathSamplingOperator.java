@@ -418,23 +418,9 @@ public abstract class PathSamplingOperator extends Operator {
 		return stopCodonFlag;
 	}
 	
-	boolean existStopCodonThisSiteThisBranch(PathBranch thisBranch, int siteNr, MutableSequence parentSeq, MutableSequence childSeq){
-		boolean stopCodonFlag = false;
-    	SeqPath currentSeqPath;
-		try {
-			currentSeqPath = thisBranch.getSeqPath(parentSeq, childSeq);
-			List<MutableSequence> currentSeqs = currentSeqPath.getSeqs();
-			for (MutableSequence seq : currentSeqs) {
-				if(seq.existStopCodon()){
-					stopCodonFlag = true;
-					break;
-				}
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return stopCodonFlag;
+	boolean existStopCodonThisSiteThisBranch(PathBranch thisBranch, int siteNr, MutableSequence parentSeq, MutableSequence childSeq) throws Exception{
+		SeqPath codonSeqPath = thisBranch.getCodonSeqPath(siteNr, parentSeq, childSeq);
+		return codonSeqPath.existStopCodon();
 	}
 	
 }

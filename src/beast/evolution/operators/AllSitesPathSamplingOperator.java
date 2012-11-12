@@ -118,16 +118,24 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 			NielsenSampleOneBranchOneSite(thisBranch, seqSite, thisBranchLength, parentNucleoState, childNucleoState);
 		}
 		
-		/*
-		while(existStopCodonThisSiteThisBranch(thisBranch, parentSeq, childSeq)){
-			System.out.println("this branch contains stop codon, try it again!");
-			for(int seqSite = 0; seqSite < seqLength; seqSite++){
-				int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[seqSite];
-				int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[seqSite];
-				NielsenSampleOneBranchOneSite(thisBranch, seqSite, thisBranchLength, parentNucleoState, childNucleoState);
-			}			
+		for (int startSite = 0; startSite < (seqLength - 2) ; startSite = startSite + 3) {
+			for(int i = 0; i < 3; i++) {
+				int currentSite = startSite + i;
+				int parentNucleoState = parentSeq.getSequence()[currentSite];
+				int childNucleoState = childSeq.getSequence()[currentSite];
+				NielsenSampleOneBranchOneSite(thisBranch, currentSite, thisBranchLength, parentNucleoState, childNucleoState);
+			}
+			while (existStopCodonThisSiteInternalNodes(pathTree, startSite)) {
+				for(int i = 0; i < 3; i++) {
+					int currentSite = startSite + i;
+					int parentNucleoState = parentSeq.getSequence()[currentSite];
+					int childNucleoState = childSeq.getSequence()[currentSite];
+					NielsenSampleOneBranchOneSite(thisBranch, currentSite, thisBranchLength, parentNucleoState, childNucleoState);
+				}
+			}
+			
 		}
-		*/
+		
 	}
 	
 	public void NielsenSampleOneBranchOneSite(PathBranch thisBranch, int seqSite, double thisBranchLength, int parentNucleoState, int childNucleoState){

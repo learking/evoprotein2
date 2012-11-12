@@ -80,29 +80,34 @@ public class PathBranch {
 	}
 	
 	// focus 
-	public CodonPath getCodonPath(int siteNr, MutableSequence parentSeq, MutableSequence childSeq){
+	public SeqPath getCodonSeqPath(int siteNr, MutableSequence parentSeq, MutableSequence childSeq) throws Exception{
 		List<Substitution> substitutions = new ArrayList<Substitution>();
 		
-		// a start site 
+		int startSite = siteNr - ( siteNr % 3 );
 		
-		// combine all mutations for each site 
-		for (int site = 0; site < m_MutationPaths.size() ; site++) {
+		//System.out.println("start site:" + startSite);
+		
+		
+		// combine all mutations for the three sites belonging to this triplet 
+		for (int site = startSite; site < (startSite + 3) ; site++) {
 			int currentNumOfSubst = m_MutationPaths.get(site).size();
 			if(currentNumOfSubst != 0){
 				// within this branch, set heights
 				double cumulativeHeight = 0;
 				for (int substIndex = 0; substIndex < currentNumOfSubst; substIndex++ ) {
 					cumulativeHeight += m_MutationPaths.get(site).get(substIndex).getTimeInterval();
-					substitutions.add(new Substitution(site, m_MutationPaths.get(site).get(substIndex), cumulativeHeight));
+					// site - startSite: since we are creating codonSeq below
+					substitutions.add(new Substitution((site - startSite), m_MutationPaths.get(site).get(substIndex), cumulativeHeight));
 				}
 			}
 		}
-
+	
 		Collections.sort(substitutions);
+		//System.out.println(parentSeq.toString() + childSeq.toString());
+
+		SeqPath codonSeqPath = new SeqPath(parentSeq.getCodonSeq(startSite) , childSeq.getCodonSeq(startSite) , substitutions);
+		return codonSeqPath; 
 		
-		CodonPath codonPath = new CodonPath(siteNr, parentSeq, childSeq , substitutions);
-		
-		return codonPath; 
 	}
 	
 	// setters

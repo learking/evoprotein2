@@ -60,6 +60,13 @@ public class MutableSequence {
 		}
 	}
 	
+	public MutableSequence getCodonSeq(int startSite) {
+		MutableSequence codonSeq = new MutableSequence(3);
+		//  +2 or +3 ? to be tested
+		codonSeq.setSequence(new int [] {intSequence[startSite], intSequence[ startSite + 1 ], intSequence[ startSite + 2 ]});
+		return codonSeq;
+	}
+	
 	public void substitute(Substitution substitution) throws Exception{
 		int site = substitution.getSite();
 		int stateBeforeChange = substitution.getStateBeforeChange();
