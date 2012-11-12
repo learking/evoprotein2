@@ -72,7 +72,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-        data = getDummyAlignment();
+        data = getAlignmentWithNoStopCodon();
         
         tree = getTree(data);
 		

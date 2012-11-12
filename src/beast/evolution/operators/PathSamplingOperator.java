@@ -39,7 +39,8 @@ public abstract class PathSamplingOperator extends Operator {
     List<Integer> internalNodesNr;
     
     SubstitutionModel.Base m_substitutionModel;
-    double fHastingsRatio, newPathLogDensity, oldPathLogDensity;
+    double fHastingsRatio, newPathLogDensity;
+    double oldPathLogDensity = Double.NEGATIVE_INFINITY;
 
     // lambda parameter for nextExponential()
     final double lambda = 1.0;
@@ -74,6 +75,20 @@ public abstract class PathSamplingOperator extends Operator {
 		internalNodes.remove(internalNodes.indexOf(rootNr));
     	return internalNodes;
     }
+    
+	void PupkoAllSites(PathTree pathTree){
+		// go codon by codon, make sure no stop codon appears
+		for (int startSite = 0; startSite < (seqLength - 2) ; startSite = startSite + 3) {
+			PupkoOneSite(pathTree, startSite);
+			PupkoOneSite(pathTree, startSite + 1);
+			PupkoOneSite(pathTree, startSite + 2);
+			while (existStopCodonThisSiteInternalNodes(pathTree, startSite)) {
+				PupkoOneSite(pathTree, startSite);
+				PupkoOneSite(pathTree, startSite + 1);
+				PupkoOneSite(pathTree, startSite + 2);
+			}
+		}
+	}
     
 	public void PupkoOneSite(PathTree pathTree, int seqSite){		
 		
@@ -140,6 +155,154 @@ public abstract class PathSamplingOperator extends Operator {
 		// let the root have the same sequence as the sudoRoot
 		MutableSequence newRootSeq = pathTree.getSequences().get(sudoRootNr).copy();
 		pathTree.getSequences().get(rootNr).setSequence(newRootSeq.getSequence());
+	}
+	
+	public void NielsenSampleOneBranch(PathTree pathTree, int branchNr) {
+
+		PathBranch thisBranch = pathTree.getBranch(branchNr);
+		
+		int endNodeNr = thisBranch.getEndNodeNr();
+		int beginNodeNr = thisBranch.getBeginNodeNr();
+		MutableSequence childSeq = pathTree.getSequences().get(endNodeNr);
+		MutableSequence parentSeq = pathTree.getSequences().get(beginNodeNr);
+		
+		double thisBranchLength = pathTree.getNode(thisBranch.getEndNodeNr()).getLength();
+		
+		// do it once, first
+		for(int seqSite = 0; seqSite < seqLength; seqSite++){
+			int parentNucleoState = pathTree.getSequences().get(thisBranch.getBeginNodeNr()).getSequence()[seqSite];
+			int childNucleoState = pathTree.getSequences().get(thisBranch.getEndNodeNr()).getSequence()[seqSite];
+			NielsenSampleOneBranchOneSite(thisBranch, seqSite, thisBranchLength, parentNucleoState, childNucleoState);
+		}
+		
+		for (int startSite = 0; startSite < (seqLength - 2) ; startSite = startSite + 3) {
+			for(int i = 0; i < 3; i++) {
+				int currentSite = startSite + i;
+				int parentNucleoState = parentSeq.getSequence()[currentSite];
+				int childNucleoState = childSeq.getSequence()[currentSite];
+				NielsenSampleOneBranchOneSite(thisBranch, currentSite, thisBranchLength, parentNucleoState, childNucleoState);
+			}
+			while (existStopCodonThisSiteInternalNodes(pathTree, startSite)) {
+				for(int i = 0; i < 3; i++) {
+					int currentSite = startSite + i;
+					int parentNucleoState = parentSeq.getSequence()[currentSite];
+					int childNucleoState = childSeq.getSequence()[currentSite];
+					NielsenSampleOneBranchOneSite(thisBranch, currentSite, thisBranchLength, parentNucleoState, childNucleoState);
+				}
+			}
+			
+		}
+		
+	}
+	
+	public void NielsenSampleOneBranchOneSite(PathBranch thisBranch, int seqSite, double thisBranchLength, int parentNucleoState, int childNucleoState){
+		
+		final int childState = childNucleoState;
+		final int parentState = parentNucleoState;
+		final double totalTime = thisBranchLength;
+
+		List<SubstitutionEvent> substitutionEvents = new ArrayList<SubstitutionEvent>();
+		
+		// CDFs for sampling another different nucleotide
+		final double [][] differentCDFs = getDifferentNucleoCDF();
+		
+		// parameters used in the calculation
+		int lastNucleotide = -1;
+		double currentTime = 0;
+		int currentState = parentState;
+		int beginNucleotide = -1;
+		int endNucleotide = -1;
+		double timeInterval = 0;
+		
+		if(parentState == childState){
+			while(lastNucleotide != childState){
+				// initialize stuff
+				substitutionEvents.clear();			
+				currentTime = 0;
+				currentState = parentState;
+				
+				while(currentTime < totalTime){
+					timeInterval = Randomizer.nextExponential(lambda);
+					if(currentTime + timeInterval >= totalTime){
+						currentTime = totalTime;
+						lastNucleotide = currentState;
+					}else{
+						currentTime += timeInterval;
+						beginNucleotide = currentState;
+						currentState = Randomizer.randomChoice(differentCDFs[currentState]);
+						endNucleotide = currentState;
+						// create new substitutionevent and add it to events
+						// System.out.println("begin:" + beginNucleotide + " end:" + endNucleotide);
+						substitutionEvents.add(new SubstitutionEvent(beginNucleotide, endNucleotide, timeInterval));
+					}
+				}
+			}
+
+			// copy substitutionEvents to ...
+			if(substitutionEvents.size() != 0){
+				thisBranch.setMutationPath(seqSite, substitutionEvents);
+			}else{
+				thisBranch.getMutationPath(seqSite).clear();
+			}
+			
+		}
+		else{
+			while (lastNucleotide != childState) {
+				// initialize stuff
+				substitutionEvents.clear();			
+				currentTime = 0;
+				currentState = parentState;
+				
+				boolean firstSample = true;
+				while (currentTime < totalTime) {
+					if (firstSample) {
+						timeInterval = sampleFirstSubstitutionTime(totalTime);
+						currentTime = currentTime + timeInterval;
+						
+						beginNucleotide = currentState;
+						currentState = Randomizer.randomChoice(differentCDFs[currentState]);
+						endNucleotide = currentState;
+						substitutionEvents.add(new SubstitutionEvent(beginNucleotide, endNucleotide, timeInterval));
+						
+						firstSample = false;
+					} else {
+						timeInterval = Randomizer.nextExponential(lambda);
+						if (currentTime + timeInterval >= totalTime) {
+							currentTime = totalTime;
+							lastNucleotide = currentState;
+						} else {
+							currentTime += timeInterval;
+							
+							beginNucleotide = currentState;
+							currentState = Randomizer.randomChoice(differentCDFs[currentState]);
+							endNucleotide = currentState;
+							substitutionEvents.add(new SubstitutionEvent(beginNucleotide, endNucleotide, timeInterval));
+						}
+					}
+				}
+			}
+			
+			// copy substitutionEvents to ...
+			if(substitutionEvents.size() != 0){
+				thisBranch.setMutationPath(seqSite, substitutionEvents);
+			}else{
+				System.err.print("Error: expecting at least one substitution at this site on this branch!");
+			}
+		}
+
+		
+		/*
+		if(childState == parentState) {
+			if(substitutionEvents.size() > 0) {
+				System.out.println("begin: " + parentState + " child: " + childState);
+				for (SubstitutionEvent substEvent : substitutionEvents) {
+					System.out.println(substEvent.toString());
+				}
+			}
+		}
+		*/
+		addToPathLogDensity(calculateOneSiteLogP(childState, parentState, totalTime, substitutionEvents));
+
 	}
 	
 	public void setLeafpMatrix(double [] pMatrix, double branchLength, int nucleotideState){
@@ -421,6 +584,18 @@ public abstract class PathSamplingOperator extends Operator {
 	boolean existStopCodonThisSiteThisBranch(PathBranch thisBranch, int siteNr, MutableSequence parentSeq, MutableSequence childSeq) throws Exception{
 		SeqPath codonSeqPath = thisBranch.getCodonSeqPath(siteNr, parentSeq, childSeq);
 		return codonSeqPath.existStopCodon();
+	}
+	
+	boolean existStopCodonInternalNodes(PathTree pathTree){
+		boolean stopCodonFlag = false;
+		for (Integer internalNodeIndex : internalNodesNr) {
+			MutableSequence currentSeq = pathTree.getSequences().get(internalNodeIndex.intValue());
+			if(currentSeq.existStopCodon()){
+				stopCodonFlag = true;
+				break;
+			}
+		}
+		return stopCodonFlag;
 	}
 	
 }
