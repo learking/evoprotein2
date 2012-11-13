@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import evoprotein.proteinstructure.SolventAccessibility;
-
 import beast.core.Distribution;
 import beast.core.Logger;
 import beast.core.MCMC;

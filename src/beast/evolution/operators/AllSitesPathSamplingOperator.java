@@ -65,9 +65,15 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 		
 		// NielsenOneSite
 		// don't need to traverse tree (we can work on m_branches directly, since now we have internal states already)
+		
 		for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
 			if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
-				NielsenSampleOneBranch(pathTree, branchNr);
+				try {
+					NielsenSampleOneBranch(pathTree, branchNr);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		System.err.println("Nielsen part done!");

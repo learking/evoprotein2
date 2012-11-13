@@ -157,7 +157,7 @@ public abstract class PathSamplingOperator extends Operator {
 		pathTree.getSequences().get(rootNr).setSequence(newRootSeq.getSequence());
 	}
 	
-	public void NielsenSampleOneBranch(PathTree pathTree, int branchNr) {
+	public void NielsenSampleOneBranch(PathTree pathTree, int branchNr) throws Exception {
 
 		PathBranch thisBranch = pathTree.getBranch(branchNr);
 		
@@ -182,7 +182,7 @@ public abstract class PathSamplingOperator extends Operator {
 				int childNucleoState = childSeq.getSequence()[currentSite];
 				NielsenSampleOneBranchOneSite(thisBranch, currentSite, thisBranchLength, parentNucleoState, childNucleoState);
 			}
-			while (existStopCodonThisSiteInternalNodes(pathTree, startSite)) {
+			while (existStopCodonThisSiteThisBranch(thisBranch, startSite, parentSeq, childSeq)) {
 				for(int i = 0; i < 3; i++) {
 					int currentSite = startSite + i;
 					int parentNucleoState = parentSeq.getSequence()[currentSite];
@@ -557,7 +557,8 @@ public abstract class PathSamplingOperator extends Operator {
 	}
 	
 	// checkers
-	boolean existStopCodonThisSiteInternalNodes(PathTree pathTree, int startSite){
+	boolean existStopCodonThisSiteInternalNodes(PathTree pathTree, int siteNr){
+		int startSite = siteNr - ( siteNr % 3 );
 		boolean stopCodonFlag = false;
 		for (Integer internalNodeIndex : internalNodesNr) {
 			MutableSequence currentSeq = pathTree.getSequences().get(internalNodeIndex.intValue());

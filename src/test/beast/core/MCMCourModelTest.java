@@ -22,16 +22,14 @@ import beast.core.Plugin;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.likelihood.PathLikelihood;
-import beast.evolution.likelihood.PathTreeLikelihood;
 import beast.evolution.operators.AllSitesPathSamplingOperator;
+import beast.evolution.operators.OneSitePathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;
 import beast.evolution.substitutionmodel.ProteinCodingDNASubstModel;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
-
-import junit.framework.TestCase;
 
 /**
  * @author kuangyu
@@ -66,7 +64,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 	Logger tmpLogger;
 	ArrayList<Plugin> log;
 	
-	AllSitesPathSamplingOperator allSitesPathSamplingOperator;
+	OneSitePathSamplingOperator oneSitePathSamplingOperator;
 
 	@Before
 	protected void setUp() throws Exception {
@@ -117,8 +115,8 @@ public class MCMCourModelTest extends evoprotein2TestCase {
         proposalSiteModel.initByName("gammaCategoryCount", 1, "substModel", proposalInstantHKY);
         
         // operators
-        allSitesPathSamplingOperator = new AllSitesPathSamplingOperator();
-        allSitesPathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", proposalSiteModel);
+        oneSitePathSamplingOperator = new OneSitePathSamplingOperator();
+        oneSitePathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", proposalSiteModel);
 		
 	}
 
@@ -127,7 +125,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 		// create  MCMC
 		MCMC mcmc = new MCMC();
 		// right now, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 2, "distribution", likelihood, "logger", tmpLogger, "operator", allSitesPathSamplingOperator);
+		mcmc.initByName("chainLength", 3, "distribution", likelihood, "logger", tmpLogger, "operator", oneSitePathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 	}
