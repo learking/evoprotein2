@@ -107,7 +107,7 @@ public class MutableSequence {
 			if(!(codonUtil.containsCodon(thisCodon))){
 				stopCodonFlag = true;
 				stopCodonPosition = startSite;
-				System.err.println("Stop codon position:" + stopCodonPosition + "stop codon:" + thisCodon);
+				//System.err.println("Stop codon position:" + stopCodonPosition + "stop codon:" + thisCodon);
 				break;
 			}
 		}

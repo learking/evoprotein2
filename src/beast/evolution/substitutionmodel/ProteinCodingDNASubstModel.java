@@ -48,7 +48,9 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     		for (int i = 0; i < changableNucleotides.length; i++) {
     			tmpSeq.mutate(site, changableNucleotides[i]);
     			//System.out.println(tmpSeq.toString());
-    			awayRate += getSubstitutionRate(seqI, tmpSeq);
+    			if(!tmpSeq.existStopCodon()) {
+    				awayRate += getSubstitutionRate(seqI, tmpSeq);
+    			}
     		}
     	}
     	return awayRate;
@@ -155,6 +157,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	
     	double interactionRatio = 0;
     	
+    	// here, m refers to a codon position, it should in
 		for (int m = 0; m < codonPosition; m++) {
 			interactionRatio += Math.log(inputStructure.getInteractionProb(m, codonPosition, codonArrayJ[m], codonArrayJ[codonPosition])) - Math.log(inputStructure.getInteractionProb(m, codonPosition, codonArrayI[m], codonArrayI[codonPosition]));
 		}

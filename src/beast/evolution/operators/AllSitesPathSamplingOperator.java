@@ -61,6 +61,8 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 			System.out.println("there shouldn't be any stop codon any more!");
 		}
 		
+		System.err.println("Pupko part done!");
+		
 		// NielsenOneSite
 		// don't need to traverse tree (we can work on m_branches directly, since now we have internal states already)
 		for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
@@ -68,6 +70,7 @@ public class AllSitesPathSamplingOperator extends PathSamplingOperator {
 				NielsenSampleOneBranch(pathTree, branchNr);
 			}
 		}
+		System.err.println("Nielsen part done!");
 		
 	}
 	

@@ -66,10 +66,10 @@ public class PathBranch {
 			}
 		}
 		
-		System.out.println("before sort:" + substitutions.toString());
+		// System.out.println("before sort:" + substitutions.toString());
 		// sort mutations based on height
 		Collections.sort(substitutions);
-		System.out.println("after sort:" + substitutions.toString());
+		// System.out.println("after sort:" + substitutions.toString());
 		
 		// create a list of mutable sequences
 		// Given parent seq and substitutions, construct seq path

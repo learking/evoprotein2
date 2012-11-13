@@ -20,7 +20,7 @@ public class InputStructure extends Plugin {
 	// initiate and validate
 	public void initAndValidate(){
 		// need to initiate AA seq length
-		AAseqLength = 100;
+		AAseqLength = 1000;
 
 		parseInputStructure();
 	}

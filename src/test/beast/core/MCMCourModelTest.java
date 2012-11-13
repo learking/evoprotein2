@@ -127,7 +127,7 @@ public class MCMCourModelTest extends evoprotein2TestCase {
 		// create  MCMC
 		MCMC mcmc = new MCMC();
 		// right now, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 1000, "distribution", likelihood, "logger", tmpLogger, "operator", allSitesPathSamplingOperator);
+		mcmc.initByName("chainLength", 2, "distribution", likelihood, "logger", tmpLogger, "operator", allSitesPathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 	}
