@@ -84,7 +84,7 @@ public class PathLikelihood extends Distribution {
 				
 				// deal with each branch separately
 				logP += calcPathLogP(currentBranch, parentSeq, childSeq);
-		
+				
 			}
     	}
     	return logP;
@@ -97,18 +97,24 @@ public class PathLikelihood extends Distribution {
     	double currentBranchLength = pathTree.getNode(childNodeNr).getLength();
     	
     	SeqPath currentSeqPath = currentBranch.getSeqPath(parentSeq, childSeq);
+    	if(currentSeqPath.existStopCodon()){
+    		throw new Exception("There cannot be any stop codon along the path at this point of time!");
+    	}
     	List<MutableSequence> currentSeqs = currentSeqPath.getSeqs();
     	double[] currentTimes = currentSeqPath.getTimes();
     	
     	if(currentTimes.length != 0){
     		// substitutions in between
+    		System.err.println("substitutions number:" + currentTimes.length);
     		for(int i = 0 ; i < currentTimes.length ; i++){
+    			System.out.println("start:" + System.currentTimeMillis());
     			if(i == 0){
     				// first substitution
     				pathLogP += - ourModel.getSubstAwayRate(parentSeq) * currentTimes[i] + Math.log(ourModel.getSubstitutionRate(parentSeq, currentSeqs.get(i)));
     			}else{
     				pathLogP += - ourModel.getSubstAwayRate(currentSeqs.get(i - 1)) * (currentTimes[i] - currentTimes[i -1]) + Math.log(ourModel.getSubstitutionRate(currentSeqs.get(i - 1), currentSeqs.get(i)));
     			}
+    			System.out.println("end:" + System.currentTimeMillis());
     		}
     		
     		// last substitution
@@ -127,6 +133,7 @@ public class PathLikelihood extends Distribution {
     			throw new Exception("begin and end seq differ, while no substituiton found");
     		}
     	}
+		System.err.println("one branch done!");
     	return pathLogP;
     }
     

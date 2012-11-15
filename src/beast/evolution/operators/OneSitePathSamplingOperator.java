@@ -31,6 +31,7 @@ public class OneSitePathSamplingOperator extends Operator{
 	public Input<PathTree> m_pathTree = new Input<PathTree>("pathtree", "pathtree on which this operation is performed", Validate.REQUIRED);
     public Input<SiteModel.Base> m_pSiteModel = new Input<SiteModel.Base>("siteModel", "site model for leafs in the beast.tree", Validate.REQUIRED);
     
+    int randomSite;
     int seqLength;
     // assuming topology won't change in a single simulation
     int rootNr;
@@ -46,6 +47,13 @@ public class OneSitePathSamplingOperator extends Operator{
     final double lambda = 1.0;
     
     boolean firstTimeFlag = true;
+    
+    @Override
+    public void accept(){
+    	//System.out.println("Hasting ratio:" + fHastingsRatio);
+    	super.accept();
+    	oldSitesProb[randomSite] = newSiteProb;
+    }
     
     @Override
     public void initAndValidate() throws Exception {
@@ -88,30 +96,22 @@ public class OneSitePathSamplingOperator extends Operator{
 		PathTree pathTree = m_pathTree.get(this);
 		
 		if(firstTimeFlag){
-			firstTimeFlag = false;
-			
+			firstTimeFlag = false;		
 			// let MCMC accept it
 			fHastingsRatio = sampleAllSites(pathTree);
 		}else{
 			// after first time:
 			// step 1: sample path for one site only
-			int randomSite = (int) (Randomizer.nextDouble() * seqLength);
-			fHastingsRatio = sampleOneSite(pathTree, randomSite);
-			
-			/*
-			if(){
+			randomSite = (int) (Randomizer.nextDouble() * seqLength);
+			newSiteProb = sampleOneSite(pathTree, randomSite);
+
+			if(existStopCodonThisTriplet(pathTree, randomSite)){
 				fHastingsRatio = Double.NEGATIVE_INFINITY;
+				System.out.println("Stop codon! fHastingsRatio set to negative infinity!");
 			}else{
-				// calculate fHastingsRatio
+				fHastingsRatio = oldSitesProb[randomSite] - newSiteProb;
 			}
-			*/
 			
-			// if encounter stop codon: reject directly
-			
-			// if no stop codon: calculate hastingRatio in normal fashion
-			
-			//pathSampling(pathTree);	
-			// step 2: get hastingsRatio (assuming oldPathLogDensity is still valid (for now) !!!)
 		}
 		
 		// change the tree and set the tree to be dirty
@@ -449,17 +449,6 @@ public class OneSitePathSamplingOperator extends Operator{
 			}
 		}
 
-		
-		/*
-		if(childState == parentState) {
-			if(substitutionEvents.size() > 0) {
-				System.out.println("begin: " + parentState + " child: " + childState);
-				for (SubstitutionEvent substEvent : substitutionEvents) {
-					System.out.println(substEvent.toString());
-				}
-			}
-		}
-		*/
 		nielsenOneBranchOneSiteLogP += calculateOneBranchOneSiteLogP(childState, parentState, totalTime, substitutionEvents);
 
 		return nielsenOneBranchOneSiteLogP;
@@ -635,7 +624,10 @@ public class OneSitePathSamplingOperator extends Operator{
 						MutableSequence childSeq = pathTree.getSequences().get(endNodeNr);
 						MutableSequence parentSeq = pathTree.getSequences().get(beginNodeNr);
 						SeqPath codonSeqPath = thisBranch.getCodonSeqPath(siteNr, parentSeq, childSeq);
-						stopCodonFlag = codonSeqPath.existStopCodon();
+						if(codonSeqPath.existStopCodon()){
+							stopCodonFlag = true;
+							break;
+						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

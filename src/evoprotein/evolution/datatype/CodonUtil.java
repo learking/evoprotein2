@@ -53,6 +53,7 @@ public class CodonUtil {
 		if(containsCodon(thisCodon)){
 			return Codon.valueOf(thisCodon).ordinal();
 		}else{
+			System.out.println("wrong seq:" + seq.toString());
 			throw new Exception("Encounter a stop codon!");
 		}
 	}

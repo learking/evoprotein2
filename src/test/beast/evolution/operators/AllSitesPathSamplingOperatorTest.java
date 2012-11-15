@@ -1,41 +1,62 @@
+/**
+ * 
+ */
 package test.beast.evolution.operators;
 
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.Test;
 
-import evoprotein.evolution.substitution.SubstitutionEvent;
-
-import test.beast.evoprotein2TestCase;
-
+import beast.core.Distribution;
+import beast.core.Logger;
+import beast.core.MCMC;
+import beast.core.Plugin;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
+import beast.evolution.likelihood.PathTreeLikelihood;
 import beast.evolution.operators.AllSitesPathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;
-import beast.evolution.tree.Node;
-import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
 
+import test.beast.evoprotein2TestCase;
+
+/**
+ * @author kuangyu
+ *
+ */
 public class AllSitesPathSamplingOperatorTest extends evoprotein2TestCase {
-	
+
 	Alignment data;
 	Tree tree;
 	PathTree pathTree;
 	InstantHKY instantHKY;
+	InstantHKY proposalInstantHKY;
 	RealParameter kappa;
-	Frequencies frequences;
+	RealParameter proposalKappa;
+	Frequencies frequencies;
+	Frequencies proposalFrequencies;
 	SiteModel siteModel;
+	SiteModel proposalSiteModel;
+	PathTreeLikelihood pathTreeLikelihood;
+	Distribution likelihood;
+
+	Logger tmpLogger;
+	ArrayList<Plugin> log;
+	
 	AllSitesPathSamplingOperator allSitesPathSamplingOperator;
 	
-	@Test
-	public void testPathSamplingOperator() throws Exception {
-        data = getAlignmentWithNoStopCodon();
-        //data = getAlignment();
-		
+	//SolventAccessibility solventAccessibility;
+	
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        
+        data = getAlignment();
+        
         tree = getTree(data);
 		
         pathTree = new PathTree();
@@ -43,86 +64,67 @@ public class AllSitesPathSamplingOperatorTest extends evoprotein2TestCase {
         
 		kappa = getKappa("1.5");
         
-        frequences = new Frequencies();
-        frequences.initByName("data", data);
+        frequencies = new Frequencies();
+        frequencies.initByName("data", data);
         
         instantHKY = new InstantHKY();
-        instantHKY.initByName("kappa", kappa, "frequencies", frequences);
+        instantHKY.initByName("kappa", kappa, "frequencies", frequencies);
         
         siteModel = new SiteModel();
         siteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
         
-        allSitesPathSamplingOperator = new AllSitesPathSamplingOperator();
-        allSitesPathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", siteModel);
+        pathTreeLikelihood = new PathTreeLikelihood();
+        pathTreeLikelihood.initByName("PathTree", pathTree, "siteModel", siteModel);
+        
+        likelihood = (Distribution) pathTreeLikelihood;
         
         
-		int rootNr = pathTree.getRoot().getNr();
-		int sudoRootNr = 0;
-		for (Node childNode : pathTree.getRoot().getChildren()) {
-			if(!childNode.isLeaf()) {
-				sudoRootNr = childNode.getNr();
-			}
-		}
+        //log = new ArrayList<Plugin>();
+        //log.add((Plugin)likelihood);
+        //log.add((Plugin) kappa);
+        //logger = new ArrayList<Logger>();
+        //tmpLogger = new Logger();
+        //tmpLogger.initByName("log", log);
         
-		// simulate multiple runs inside MCMC
-		for (int iSample = 0; iSample < 3 ; iSample++){
-			// Pupko
-			for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite ++) {
-				allSitesPathSamplingOperator.PupkoOneSite(pathTree, seqSite);
-			}
-			// pathSamplingOperator.setPathLogDenstiyToZero();
-			// Nielsen
-			for (int branchNr = 0; branchNr < pathTree.getBranches().size(); branchNr++) {
-				if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
-					allSitesPathSamplingOperator.NielsenSampleOneBranch(pathTree, branchNr);
-				}
-			}
-			System.err.println("HastingRatio:" + allSitesPathSamplingOperator.getPathLogDensity());
-			
-			// function here to check the correctness of the above two methods:
-			checkPathSampling(pathTree, sudoRootNr, rootNr);
-			allSitesPathSamplingOperator.setPathLogDenstiyToZero();
-			System.out.println("===============================================");
-		}
+        
+        //logger.add(tmpLogger);
+        
+        // loggers
+        tmpLogger = new Logger();
+        tmpLogger.initByName("fileName", "testMCMC.log", "logEvery", 1, "model", likelihood, "log", likelihood, "log", kappa);
+        
+        // duplicate everything about the model so that it is independent of the model used in the pathTreeLikelihood calculation
 		
+		proposalKappa = getKappa("1.5");
+        
+        proposalFrequencies = new Frequencies();
+        proposalFrequencies.initByName("data", data);
+        
+        proposalInstantHKY = new InstantHKY();
+        proposalInstantHKY.initByName("kappa", proposalKappa, "frequencies", proposalFrequencies);
+        
+        proposalSiteModel = new SiteModel();
+        proposalSiteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
+        
+        
+        // operators
+        allSitesPathSamplingOperator = new AllSitesPathSamplingOperator();
+        allSitesPathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", proposalSiteModel);
+
+    }
+
+	@Test
+	public void testMCMCrun() throws Exception {
+		
+		// create  MCMC
+		MCMC mcmc = new MCMC();
+		//mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", operatorsInput);
+		
+		// rightnow, use empty logger for debugging purpose
+		mcmc.initByName("chainLength", 2, "distribution", likelihood, "logger", tmpLogger, "operator", allSitesPathSamplingOperator);
+		// run MCMC
+		mcmc.run();
 	}
 
-	public void checkPathSampling(PathTree pathTree, int sudoRootNr, int rootNr) throws Exception{
-		// for each branch (except sudoRoot and root ended branches)
-		for (int branchNr = 0; branchNr < pathTree.getBranches().size() ; branchNr++) {
-			if ((branchNr != sudoRootNr) && (branchNr != rootNr)){
-				// for each site within branch
-				PathBranch currentBranch = pathTree.getBranch(branchNr);
-				int beginNodeNr = currentBranch.getBeginNodeNr();
-				int endNodeNr = currentBranch.getEndNodeNr();
-				int [] beginSeq = pathTree.getSequences().get(beginNodeNr).getSequence();
-				int [] endSeq = pathTree.getSequences().get(endNodeNr).getSequence();
-				for (int seqSite = 0; seqSite < pathTree.getSequences().get(0).getSequence().length; seqSite++){
-					// check whether begin-end fit or last-nucleo-end fit
-					List<SubstitutionEvent> eventsAtThisSite = currentBranch.getMutationPath(seqSite);
-					int beginNucleotide = beginSeq[seqSite];
-					int endNucleotide = endSeq[seqSite];
-					if(eventsAtThisSite.size() == 0){
-						if(beginNucleotide != endNucleotide){
-							throw new Exception("begin != end");
-						}
-					}
-					else{
-						int lastNucleotide = eventsAtThisSite.get(eventsAtThisSite.size() - 1).getCurrentNucleotide();
-						if(lastNucleotide != endNucleotide){
-							System.out.println("last:" + lastNucleotide + " end:" + endNucleotide + 
-									" begin:" + beginNucleotide + " branchNr:" + branchNr + " seqSite:" + seqSite
-									+ "events:");
-							for (SubstitutionEvent tmpEvent : eventsAtThisSite){
-								System.out.print(tmpEvent.toString());
-							}
-							throw new Exception("last != end");
-						}
-					}
-				}
-			}
-		}
-		
-	}
 	
 }

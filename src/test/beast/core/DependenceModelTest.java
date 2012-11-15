@@ -1,10 +1,17 @@
-package test.beast.evolution.operators;
+/**
+ * 
+ */
+package test.beast.core;
 
 
 import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import evoprotein.proteinstructure.InputStructure;
+import evoprotein.proteinstructure.SolventAccessibility;
+import evoprotein.proteinstructure.StructureEnv;
 
 import test.beast.evoprotein2TestCase;
 
@@ -14,16 +21,22 @@ import beast.core.MCMC;
 import beast.core.Plugin;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
-import beast.evolution.likelihood.PathTreeLikelihood;
+import beast.evolution.likelihood.PathLikelihood;
+import beast.evolution.operators.AllSitesPathSamplingOperator;
 import beast.evolution.operators.OneSitePathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.InstantHKY;
+import beast.evolution.substitutionmodel.ProteinCodingDNASubstModel;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.Tree;
 
-public class OneSitePathSamplingOperatorTest extends evoprotein2TestCase {
-
+/**
+ * @author kuangyu
+ *
+ */
+public class DependenceModelTest extends evoprotein2TestCase {
+	
 	Alignment data;
 	
 	Tree tree;
@@ -45,18 +58,21 @@ public class OneSitePathSamplingOperatorTest extends evoprotein2TestCase {
 	ArrayList<Plugin> log;
 	
 	OneSitePathSamplingOperator oneSitePathSamplingOperator;
+
+	// different from OneSitePathSamplingOperatorTest
+	StructureEnv structureEnv;
+	SolventAccessibility solventAccessibility;
+	InputStructure inputStructure;
+	ProteinCodingDNASubstModel ourModel;
+	PathLikelihood pathLikelihood;
 	
-	// different from DependenceModelTest
-	InstantHKY instantHKY;
-	SiteModel siteModel;
-	PathTreeLikelihood pathTreeLikelihood;
-	
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        
-        data = getAlignment();
-        
+	@Before
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+        data = getAlignmentWithNoStopCodon();
+        //data = getDummyAlignment();
+		
         tree = getTree(data);
 		
         pathTree = new PathTree();
@@ -67,16 +83,20 @@ public class OneSitePathSamplingOperatorTest extends evoprotein2TestCase {
         frequencies = new Frequencies();
         frequencies.initByName("data", data);
         
-        instantHKY = new InstantHKY();
-        instantHKY.initByName("kappa", kappa, "frequencies", frequencies);
+        //our model
+        solventAccessibility = new SolventAccessibility();
+        solventAccessibility.initAndValidate();
+        structureEnv = new StructureEnv();
+        structureEnv.initAndValidate();
+        inputStructure = new InputStructure();
+        inputStructure.initByName("structureEnv", structureEnv, "solventAccessibility", solventAccessibility);
+        ourModel = new ProteinCodingDNASubstModel();
+        ourModel.initByName("kappa", kappa, "frequencies", frequencies, "inputStructure", inputStructure);
         
-        siteModel = new SiteModel();
-        siteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
+        pathLikelihood = new PathLikelihood();
+        pathLikelihood.initByName("PathTree", pathTree, "ourModel", ourModel);
         
-        pathTreeLikelihood = new PathTreeLikelihood();
-        pathTreeLikelihood.initByName("PathTree", pathTree, "siteModel", siteModel);
-        
-        likelihood = (Distribution) pathTreeLikelihood;
+        likelihood = (Distribution) pathLikelihood;
         
         // loggers
         tmpLogger = new Logger();
@@ -93,24 +113,20 @@ public class OneSitePathSamplingOperatorTest extends evoprotein2TestCase {
         proposalInstantHKY.initByName("kappa", proposalKappa, "frequencies", proposalFrequencies);
         
         proposalSiteModel = new SiteModel();
-        proposalSiteModel.initByName("gammaCategoryCount", 1, "substModel", instantHKY);
-        
+        proposalSiteModel.initByName("gammaCategoryCount", 1, "substModel", proposalInstantHKY);
         
         // operators
         oneSitePathSamplingOperator = new OneSitePathSamplingOperator();
         oneSitePathSamplingOperator.initByName("weight", 1.0, "pathtree", pathTree, "siteModel", proposalSiteModel);
-
-    }
+		
+	}
 
 	@Test
-	public void testMCMCrun() throws Exception {
-		
+	public void testMCMCourModelRun() throws Exception {
 		// create  MCMC
 		MCMC mcmc = new MCMC();
-		//mcmc.initByName("chainLength", 100, "distribution", likelihood, "logger", logger, "operator", operatorsInput);
-		
-		// rightnow, use empty logger for debugging purpose
-		mcmc.initByName("chainLength", 200, "distribution", likelihood, "logger", tmpLogger, "operator", oneSitePathSamplingOperator);
+		// right now, use empty logger for debugging purpose
+		mcmc.initByName("chainLength", 3, "distribution", likelihood, "logger", tmpLogger, "operator", oneSitePathSamplingOperator);
 		// run MCMC
 		mcmc.run();
 	}

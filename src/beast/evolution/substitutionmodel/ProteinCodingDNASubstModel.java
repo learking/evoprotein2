@@ -38,6 +38,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     }
     
     public double getSubstAwayRate(MutableSequence seqI) throws Exception{
+		System.out.println("Rate away start:" + System.currentTimeMillis());
     	double awayRate = 0;
     	MutableSequence tmpSeq;
     	for (int site = 0 ; site < seqI.getSequence().length; site++) {
@@ -53,6 +54,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     			}
     		}
     	}
+		System.out.println("Rate away end:" + System.currentTimeMillis());
     	return awayRate;
     }
     
@@ -78,6 +80,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     }
     
 	public double getSubstitutionRate(MutableSequence seqI, MutableSequence seqJ) throws Exception{
+		
 		scalingFactor = getScalingFactor();
 				
 		double substitutionRate = 0;
@@ -94,7 +97,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 		}else{
 			substitutionRate = scalingFactor * substitutionRate * frequencies.getFreqs()[seqJ.getNucleotide(differPosition)];
 		}
-		
+
 		return substitutionRate;
 	}
     
