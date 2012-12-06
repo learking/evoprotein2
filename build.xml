@@ -1,0 +1,63 @@
+<!-- Build Evoprotein2 -->
+<project basedir="." default="build_jar_all_EVOPROTEIN" name="BUILD_EVOPROTEIN">
+	<description>
+	    Build Evoprotein2. 
+	</description>
+
+	<!-- set global properties for this build -->
+	<property name="srcEVOPROTEIN" location="src" />
+	<property name="buildEVOPROTEIN" location="build" />
+	<property name="libEVOPROTEIN" location="lib" />
+	<property name="release_dir" value="release" />
+	<property name="distEVOPROTEIN" location="${buildEVOPROTEIN}/dist" />
+	<property name="beast2path" location="../beast2" />
+	<property name="libBeast2" location="${beast2path}/lib" />
+	<property name="srcBeast2" location="${beast2path}/src" />
+	<property name="beast2classpath" location="${beast2path}/build" />
+	<property name="Add_on_dir" value="${release_dir}/add-on" />
+
+    <import file="${beast2path}/build.xml" />
+
+	<property name="main_class_BEAST" value="beast.app.BeastMCMC" />
+	<property name="report" value="${buildEVOPROTEIN}/junitreport"/>
+
+	<path id="classpath">
+        <pathelement path="${buildEVOPROTEIN}"/>
+		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
+        <pathelement path="${beast2classpath}"/>
+	</path>
+
+	<!-- start -->
+	<target name="initEVOPROTEIN">
+		<echo message="${ant.project.name}: ${ant.file}" />
+	</target>
+
+	<target name="cleanEVOPROTEIN">
+    	<delete dir="${buildEVOPROTEIN}" />
+	</target>	
+
+
+	<!-- compile Java source code -->
+	<target name="compile-allEVOPROTEIN" depends="initEVOPROTEIN,compile-all">
+
+
+	    <!-- Capture the path as a delimited property using the refid attribute -->
+	    <property name="myclasspath" refid="classpath"/>
+	    <!-- Emit the property to the ant console -->
+	    <echo message="Classpath = ${myclasspath}"/>
+
+		<mkdir dir="${buildEVOPROTEIN}" />
+
+		<!-- Compile the java code from ${srcEVOPROTEIN} into ${buildEVOPROTEIN} /bin -->
+		<javac srcdir="${srcEVOPROTEIN}" destdir="${buildEVOPROTEIN}" classpathref="classpath" 
+		       fork="true"
+		       memoryinitialsize="256m"
+		       memorymaximumsize="256m">
+			<include name="beast/**/**" />
+			<!-- compile JUnit test classes -->
+			<include name="test/beast/**" />
+		</javac>
+		<echo message="Successfully compiled." />
+	</target>
+
+</project>
