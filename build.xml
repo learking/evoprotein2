@@ -1,5 +1,8 @@
 <!-- Build Evoprotein2 -->
+<!--
 <project basedir="." default="build_jar_all_EVOPROTEIN" name="BUILD_EVOPROTEIN">
+-->
+<project basedir="." default="build_all_EVOPROTEIN" name="BUILD_EVOPROTEIN">
 	<description>
 	    Build Evoprotein2. 
 	</description>
@@ -36,6 +39,10 @@
     	<delete dir="${buildEVOPROTEIN}" />
 	</target>	
 
+	<!-- clean previous build, and then compile Java source code, and Juint test -->
+	<target name="build_all_EVOPROTEIN" depends="cleanEVOPROTEIN,compile-allEVOPROTEIN,junitEVOPROTEIN"
+        description="Clean and Build all run-time stuff">
+	</target>
 
 	<!-- compile Java source code -->
 	<target name="compile-allEVOPROTEIN" depends="initEVOPROTEIN,compile-all">
@@ -53,11 +60,32 @@
 		       fork="true"
 		       memoryinitialsize="256m"
 		       memorymaximumsize="256m">
+			<include name="evoprotein/**/**" />
 			<include name="beast/**/**" />
 			<!-- compile JUnit test classes -->
-			<include name="test/beast/**" />
+			<include name="test/**/**" />
 		</javac>
 		<echo message="Successfully compiled." />
+	</target>
+
+	<!-- JUnit test -->
+	<target name="junitEVOPROTEIN">
+		<mkdir dir="${report}" />
+		<junit printsummary="yes">
+			<classpath>
+				<path refid="classpath" />
+				<path location="${buildEVOPROTEIN}" />
+			</classpath>
+
+			<formatter type="xml" />
+
+			<batchtest fork="yes" todir="${report}">
+				<fileset dir="${srcEVOPROTEIN}">
+                    <include name="test/**/*Test.java"/>                                         
+				</fileset>
+			</batchtest>
+		</junit>
+		<echo message="JUnit test finished." />
 	</target>
 
 </project>
