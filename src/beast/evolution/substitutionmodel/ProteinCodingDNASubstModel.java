@@ -38,7 +38,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     }
     
     public double getSubstAwayRate(MutableSequence seqI) throws Exception{
-		System.out.println("Rate away start:" + System.currentTimeMillis());
+		//System.out.println("Rate away start:" + System.currentTimeMillis());
     	double awayRate = 0;
     	MutableSequence tmpSeq;
     	for (int site = 0 ; site < seqI.getSequence().length; site++) {
@@ -54,7 +54,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     			}
     		}
     	}
-		System.out.println("Rate away end:" + System.currentTimeMillis());
+		//System.out.println("Rate away end:" + System.currentTimeMillis());
     	return awayRate;
     }
     

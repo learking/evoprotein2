@@ -1,0 +1,35 @@
+<beast version='2.0'
+       namespace='beast.evolution.alignment:beast.core:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood'>
+
+    <data id="alignment" dataType="nucleotide">
+        <sequence taxon="Human">
+		CCAAAC
+	    </sequence>
+        <sequence taxon="Chimpanzee">
+		CCAAAC
+	    </sequence>
+        <sequence taxon="Gorilla">
+		CTAAGC
+	    </sequence>
+        <sequence taxon="Orangutan">
+		CTAACC
+	    </sequence>
+        <sequence taxon="Gibbon">
+		CTAAAC
+	    </sequence>
+    </data>       
+    
+    <tree id='tree' spec='beast.util.TreeParser' newick='(((Human: 0.07, Chimpanzee: 0.07): 0.43, (Orangutan: 0.4, Gibbon: 0.4): 0.1):0.0 , Gorilla: 0.5)'>
+    	<taxa idref="alignment" />
+    </tree>
+    
+    <input spec='beast.evolution.tree.PathTree' id='pathtree'>
+    	<initial idref="tree" />
+    	<alignment idref="alignment" />
+    </input>
+    
+    <parameter id="kappa" value="1.5" lower="0.0"/>
+       
+    
+       
+</beast>
