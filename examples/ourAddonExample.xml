@@ -30,6 +30,52 @@
     
     <parameter id="kappa" value="1.5" lower="0.0"/>
        
+    <input spec='evoprotein.proteinstructure.SolventAccessibility' id='solventAccessibility' />
+    <input spec='evoprotein.proteinstructure.StructureEnv' id='structureEnv' />
     
+    <input spec='evoprotein.proteinstructure.InputStructure' id='inputStructure'>
+    	<structureEnv idref="structureEnv" />
+    	<solventAccessibility idref="solventAccessibility" />
+    </input>    
+       
+    <input spec='beast.evolution.substitutionmodel.ProteinCodingDNASubstModel' id='ourModel'>
+    	<kappa idref="kappa" /> 
+        <frequencies id='frequencies' spec='Frequencies'>
+            <data idref='alignment'/>
+        </frequencies>
+    	<inputStructure idref="inputStructure" />    
+    </input>
+       
+    <input spec='beast.evolution.likelihood.PathLikelihood' id="pathLikelihood">
+        <PathTree idref="pathtree"/>
+        <ourModel idref="ourModel"/>
+    </input>
+      
+    <parameter id="proposalKappa" value="1.5" lower="0.0"/>
+       
+    <input spec='beast.evolution.substitutionmodel.InstantHKY' id='proposalInstantHKY'>
+        <kappa idref='proposalKappa'/>
+        <frequencies id='proposalFrequencies' spec='Frequencies'>
+            <data idref='alignment'/>
+        </frequencies>
+    </input>
+       
+    <input spec='SiteModel' id="proposalSiteModel" gammaCategoryCount='1'>
+        <substModel idref='proposalInstantHKY'/>
+    </input>
+       
+    <run spec="MCMC" id="mcmc" chainLength="3">
+		
+		<distribution id='likelihood' idref="pathLikelihood"/>
+
+        <operator id='oneSitePathSamplingOperator' spec='beast.evolution.operators.OneSitePathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@proposalSiteModel"/>
+        
+        <logger logEvery="1" fileName="testMCMC.log">
+	        <model idref='likelihood'/>
+            <log idref="likelihood"/>
+            <log idref='kappa'/>
+        </logger>
+
+    </run>
        
 </beast>
