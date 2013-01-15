@@ -9,29 +9,29 @@ import beast.core.Description;
 public class CodonUtil {
 	
 	public static enum Codon {
-		AAA, AAG, AAC, AAT, 
-		AGA, AGG, AGC, AGT,
-		ACA, ACG, ACC, ACT,
-		ATA, ATG, ATC, ATT,
-		
-		GAA, GAG, GAC, GAT, 
-		GGA, GGG, GGC, GGT,
-		GCA, GCG, GCC, GCT,
-		GTA, GTG, GTC, GTT,
-		
-		CAA, CAG, CAC, CAT, 
-		CGA, CGG, CGC, CGT,
-		CCA, CCG, CCC, CCT,
-		CTA, CTG, CTC, CTT,
-		
 		// Stop codons: TAA, TAG, TGA are excluded for now
 		
+		TTT, TTC, TTA, TTG,
+		TCT, TCC, TCA, TCG,
 		//TAA, TAG, TAC, TAT,
-		TAC, TAT,
+		TAT, TAC,
 		//TGA, TGG, TGC, TGT,
-		TGG, TGC, TGT,
-		TCA, TCG, TCC, TCT,
-		TTA, TTG, TTC, TTT,
+		TGT, TGC,      TGG,
+		
+		CTT, CTC, CTA, CTG,
+		CCT, CCC, CCA, CCG,
+		CAT, CAC, CAA, CAG, 
+		CGT, CGC, CGA, CGG,
+		
+		ATT, ATC, ATA, ATG,
+		ACT, ACC, ACA, ACG,
+		AAT, AAC, AAA, AAG, 
+		AGT, AGC, AGA, AGG,
+		
+		GTT, GTC, GTA, GTG,
+		GCT, GCC, GCA, GCG,
+		GAT, GAC, GAA, GAG, 
+		GGT, GGC, GGA, GGG,
 	}
 	
 	public enum Nucleotide {
@@ -80,4 +80,6 @@ public class CodonUtil {
 	public boolean containsCodon(String codon){
 		return codonHashSet.contains(codon);
 	}
+	
+	
 }
