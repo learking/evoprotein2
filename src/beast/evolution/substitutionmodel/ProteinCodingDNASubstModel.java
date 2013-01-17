@@ -169,6 +169,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 		}
     	
     	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
+    	//System.out.println(interactionRatio);
     	return structBasedSeqProbRatio;
     }
     
