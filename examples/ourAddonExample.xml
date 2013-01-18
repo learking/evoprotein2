@@ -76,6 +76,10 @@
             <log idref='kappa'/>
         </logger>
 
+        <logger logEvery="1" fileName="test.substitutions">
+            <log idref="pathtree"/>
+        </logger>
+
     </run>
        
 </beast>

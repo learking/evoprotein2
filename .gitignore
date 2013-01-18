@@ -45,6 +45,7 @@ Thumbs.db
 #######################
 *.trees
 *.state
+*.substitutions
 
 # BEAST2 compiled code #
 ########################

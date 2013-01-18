@@ -1,5 +1,6 @@
 package beast.evolution.tree;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -170,6 +171,20 @@ public class PathTree extends Tree {
     	// tmp
     	// showSequences();
     	// System.out.println("#############################################################################");
+    }
+    
+    /**
+     * Loggable implementation
+     */    
+    
+    public void log(int nSample, PrintStream out) {
+        PathTree pathtree = (PathTree) getCurrent();
+		for (int i = 0; i < m_nodes.length; i++) {
+			out.print(i + ":");
+			// doing recalculation again here (need to find a way to store/pre-calculate)
+			//out.print(pathtree.getBranch(i).);
+			out.print(",");
+		}
     }
     
     // tmp

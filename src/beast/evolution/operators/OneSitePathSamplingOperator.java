@@ -50,7 +50,7 @@ public class OneSitePathSamplingOperator extends Operator{
     
     @Override
     public void accept(){
-    	//System.out.println("Hasting ratio:" + fHastingsRatio);
+    	System.out.println("Hasting ratio:" + fHastingsRatio);
     	super.accept();
     	oldSitesProb[randomSite] = newSiteProb;
     }
@@ -109,12 +109,16 @@ public class OneSitePathSamplingOperator extends Operator{
 				fHastingsRatio = Double.NEGATIVE_INFINITY;
 				System.out.println("Stop codon! fHastingsRatio set to negative infinity!");
 			}else{
+				System.out.println("oldSite Prob:" + oldSitesProb[randomSite] );
+				System.out.println("newSite Prob:" + newSiteProb);
 				fHastingsRatio = oldSitesProb[randomSite] - newSiteProb;
 			}
 			
 		}
 		
 		// change the tree and set the tree to be dirty
+		System.out.println("proposal Hasting ratio:" + fHastingsRatio);
+		
 		pathTree.setSomethingIsDirty(true);
 		return fHastingsRatio;
 	}

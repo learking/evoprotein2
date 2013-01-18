@@ -62,6 +62,7 @@ public class PathLikelihood extends Distribution {
     	}else{
         	logP = calcTotalPathLogP();
     	}
+    	System.out.println("Pathlikelihood:" + logP);
 		return logP;
     }
 	
