@@ -50,7 +50,7 @@ public class OneSitePathSamplingOperator extends Operator{
     
     @Override
     public void accept(){
-    	System.out.println("Hasting ratio:" + fHastingsRatio);
+    	//System.out.println("Hasting ratio:" + fHastingsRatio);
     	super.accept();
     	oldSitesProb[randomSite] = newSiteProb;
     }
@@ -89,6 +89,8 @@ public class OneSitePathSamplingOperator extends Operator{
     
 	@Override
 	public double proposal() {
+		System.out.println("#####################################################################################");
+
 		// reset fHastingsRatio
 		fHastingsRatio = 0;
 		
@@ -103,29 +105,35 @@ public class OneSitePathSamplingOperator extends Operator{
 			// after first time:
 			// step 1: sample path for one site only
 			randomSite = (int) (Randomizer.nextDouble() * seqLength);
+			System.out.println("************************************************************************************");
 			newSiteProb = sampleOneSite(pathTree, randomSite);
-
+			System.out.println("************************************************************************************");
+			
 			if(existStopCodonThisTriplet(pathTree, randomSite)){
 				fHastingsRatio = Double.NEGATIVE_INFINITY;
 				System.out.println("Stop codon! fHastingsRatio set to negative infinity!");
 			}else{
+				System.out.println("site number:" + randomSite);
 				System.out.println("oldSite Prob:" + oldSitesProb[randomSite] );
 				System.out.println("newSite Prob:" + newSiteProb);
 				fHastingsRatio = oldSitesProb[randomSite] - newSiteProb;
 			}
-			
 		}
 		
 		// change the tree and set the tree to be dirty
 		System.out.println("proposal Hasting ratio:" + fHastingsRatio);
 		
 		pathTree.setSomethingIsDirty(true);
+		System.out.println("#####################################################################################");
 		return fHastingsRatio;
 	}
 
 	double sampleOneSite(PathTree pathTree, int siteNr){
 		double siteProb = 0;
-		siteProb += PupkoOneSite(pathTree, siteNr) + NielsenOneSite(pathTree, siteNr);
+		siteProb += PupkoOneSite(pathTree, siteNr);
+		System.out.println("====================================================================================");
+		siteProb += NielsenOneSite(pathTree, siteNr);
+		System.out.println("====================================================================================");
 		return siteProb;
 	}
 		
@@ -345,7 +353,7 @@ public class OneSitePathSamplingOperator extends Operator{
 					MutableSequence parentSeq = pathTree.getSequences().get(beginNodeNr);
 					int parentNucleoState = parentSeq.getSequence()[siteNr];
 					int childNucleoState = childSeq.getSequence()[siteNr];
-					
+					System.out.println("branch nr:" + branchNr + " parent nucleo:" + parentNucleoState + " child nucleo:" + childNucleoState);
 					nielsenLogP += NielsenSampleOneBranchOneSite(thisBranch, siteNr, thisBranchLength, parentNucleoState, childNucleoState);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -401,6 +409,7 @@ public class OneSitePathSamplingOperator extends Operator{
 				}
 			}
 
+			System.out.println("# of subs:" + substitutionEvents.size());
 			// copy substitutionEvents to ...
 			if(substitutionEvents.size() != 0){
 				thisBranch.setMutationPath(seqSite, substitutionEvents);
