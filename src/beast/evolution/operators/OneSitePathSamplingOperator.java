@@ -33,9 +33,9 @@ public class OneSitePathSamplingOperator extends Operator{
     
     int randomSite;
     int seqLength;
-    // assuming topology won't change in a single simulation
     int rootNr;
     int sudoRootNr;
+
     List<Integer> internalNodesNr;
     
     SubstitutionModel.Base m_substitutionModel;
@@ -60,21 +60,11 @@ public class OneSitePathSamplingOperator extends Operator{
     	m_substitutionModel = m_pSiteModel.get().m_pSubstModel.get();
     	
     	rootNr = m_pathTree.get().getRoot().getNr();
-    	sudoRootNr = getSudoRootNr();
+    	sudoRootNr = m_pathTree.get().getSudoRootNr();
     	internalNodesNr = getInternalNodesNr();
     	
     	seqLength = m_pathTree.get().getSequences().get(0).getSequence().length;
     	oldSitesProb = new double[seqLength];
-    }
-    
-    int getSudoRootNr(){
-		int sudoRootNr = 0;
-		for (Node childNode : m_pathTree.get().getRoot().getChildren()) {
-			if(!childNode.isLeaf()) {
-				sudoRootNr = childNode.getNr();
-			}
-		}
-		return sudoRootNr;
     }
     
     List<Integer> getInternalNodesNr(){

@@ -110,6 +110,15 @@ public class PathBranch {
 		
 	}
 	
+	// getter for testing purpose
+	public int getTotalNumSubstitutions(){
+		int totalNumSubstitutions = 0;
+		for (int i = 0; i < m_MutationPaths.size(); i++) {
+			totalNumSubstitutions += m_MutationPaths.get(i).size();
+		}
+		return totalNumSubstitutions;
+	}
+	
 	// setters
 	public void setMutationPath(int mutationPathIndex, List<SubstitutionEvent> newMutationPath) {
 		m_MutationPaths.get(mutationPathIndex).clear();

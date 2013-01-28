@@ -44,6 +44,16 @@ public class PathTree extends Tree {
 			initLeafSequences();
 	}
 	
+    public int getSudoRootNr(){
+		int sudoRootNr = 0;
+		for (Node childNode : getRoot().getChildren()) {
+			if(!childNode.isLeaf()) {
+				sudoRootNr = childNode.getNr();
+			}
+		}
+		return sudoRootNr;
+    }
+	
 	private void initLeafSequences() throws Exception{
 		for(int i=0; i< leafNodeCount;i++){
 			String sequenceID = getNode(i).getID();
@@ -178,12 +188,14 @@ public class PathTree extends Tree {
      */    
     
     public void log(int nSample, PrintStream out) {
-        PathTree pathtree = (PathTree) getCurrent();
-		for (int i = 0; i < m_nodes.length; i++) {
-			out.print(i + ":");
-			// doing recalculation again here (need to find a way to store/pre-calculate)
-			//out.print(pathtree.getBranch(i).);
-			out.print(",");
+        PathTree thisTree = (PathTree) getCurrent();
+        // for each (meaningful) branch
+        int rootNr = getRoot().getNr();
+        int sudoRootNr = getSudoRootNr();
+		for (int branchNr = 0; branchNr < getBranches().size(); branchNr++) {
+			if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
+				out.print(branchNr + ":" + thisTree.getBranch(branchNr).getTotalNumSubstitutions() + ",");
+			}
 		}
     }
     
