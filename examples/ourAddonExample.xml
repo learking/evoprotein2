@@ -69,17 +69,17 @@
 		<distribution id='likelihood' idref="pathLikelihood"/>
 
         <operator id='oneSitePathSamplingOperator' spec='beast.evolution.operators.OneSitePathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@proposalSiteModel"/>
-        
+
         <logger logEvery="1" fileName="testMCMC.log">
 	        <model idref='likelihood'/>
             <log idref="likelihood"/>
             <log idref='kappa'/>
         </logger>
-
+        
         <logger logEvery="1" fileName="test.substitutions">
             <log idref="pathtree"/>
         </logger>
-
+		
     </run>
        
 </beast>
