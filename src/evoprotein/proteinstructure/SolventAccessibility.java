@@ -22,7 +22,7 @@ public class SolventAccessibility extends Plugin {
 		return solventCategories.length;
 	}
 	
-	public double getProb(int category, int codonType){
+	public double getLogProb(int category, int codonType){
 		return solventCategories[category][codonType];
 	}
 	
@@ -30,6 +30,8 @@ public class SolventAccessibility extends Plugin {
 	public double [][] mockUpSolventCategories(int numOfCategories){
 		int rowNumber = numOfCategories; 
 		double [][] mockupmatrix = new double [numOfCategories][61];
+		// log version of mockupmatrix
+		double [][] mockupLogMatrix = new double [numOfCategories][61];
 		
 		for (int rowNr = 0; rowNr < rowNumber; rowNr++) {
 				mockupmatrix[rowNr] = new double[]{0.00983798,0.01745548,0.00222048,0.01443315,
@@ -50,7 +52,14 @@ public class SolventAccessibility extends Plugin {
 						0.01205015,0.02138052,0.00271978,0.01767859};
 		}
 		
-		return mockupmatrix;
+		// transform matrix to LogMatrix
+		for (int rowNr = 0; rowNr < rowNumber; rowNr++) {
+			for (int colNr = 0; colNr < 61; colNr++) {
+				mockupLogMatrix[rowNr][colNr] = Math.log(mockupmatrix[rowNr][colNr]);
+			}
+		}
+		
+		return mockupLogMatrix;
 	}
 	
 }

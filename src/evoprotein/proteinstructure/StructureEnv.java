@@ -26,6 +26,7 @@ public class StructureEnv extends Plugin {
 		return structEnv.size();
 	}
 	
+	// needs efficiency boost (pre-calculation can do the trick)
 	public double getProb(int structEnvNumber, int firstCodonType, int secondCodonType){
 		double prob = structEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
 		double marginalProb = getFirstCodonMarginalProb(structEnvNumber, firstCodonType) * getSecondCodonMarginalProb(structEnvNumber, secondCodonType);

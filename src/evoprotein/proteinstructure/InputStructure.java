@@ -51,11 +51,12 @@ public class InputStructure extends Plugin {
 	
 	// getters
 	
-	public double getFirstOrderProb(int codonPosition, int codonType) {
+	public double getFirstOrderLogProb(int codonPosition, int codonType) {
 		int firstOrderTermCategory = firstOrderTerms[codonPosition];
-		return solventAccessibility.get().getProb(firstOrderTermCategory, codonType); 
+		return solventAccessibility.get().getLogProb(firstOrderTermCategory, codonType); 
 	}
 	
+	// needs efficiency boost
 	public double getInteractionProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType){
 		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
 		return structureEnv.get().getProb(structEnvNumber, firstCodonType, secondCodonType);

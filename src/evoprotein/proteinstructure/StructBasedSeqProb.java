@@ -30,7 +30,7 @@ public class StructBasedSeqProb extends Plugin {
 	public double calcFirstOrderLogP(int[] codonArray){
 		double firstOrderLogP = 0;
 		for (int i = 0 ; i < codonArray.length; i++) {
-			firstOrderLogP += Math.log(inputStructure.getFirstOrderProb(i, codonArray[i]));
+			firstOrderLogP += inputStructure.getFirstOrderLogProb(i, codonArray[i]);
 		}
 		return firstOrderLogP;
 	}

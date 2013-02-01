@@ -1,5 +1,6 @@
 package beast.evolution.substitutionmodel;
 
+import evoprotein.evolution.datatype.CodonUtil;
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.proteinstructure.InputStructure;
 import beast.core.CalculationNode;
@@ -20,6 +21,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 	// for use in struct based model
 	public Input<InputStructure> m_inputStructure = new Input<InputStructure>("inputStructure", "input Structure pre-calculated", Validate.REQUIRED);
 
+	static CodonUtil codonUtil = new CodonUtil();
 	
 	// define variables here
     Frequencies frequencies;
@@ -87,6 +89,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 
 		// find where these two sequences differ (both location and value)
 		int differPosition = getDifferPosition(seqI, seqJ);
+
 		double logTAU = getLogTAU(seqI, seqJ, differPosition);
 		
 		substitutionRate = logTAU / (1 - 1/Math.exp(logTAU));
@@ -112,7 +115,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 		return u; 
 	}
 	
-    int getDifferPosition(MutableSequence seqI, MutableSequence seqJ) throws Exception {
+    int getDifferPosition(MutableSequence seqI, MutableSequence seqJ) {
 		int[] seq_i = seqI.getSequence();
 		int[] seq_j = seqJ.getSequence();
     	int differPosition = -1;
@@ -123,12 +126,15 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     			differPosition = nucleoPosition;
     		}
     	}
+    	return differPosition;
+    	/*
     	if(numOfDifferences == 1){
     		return differPosition;
     	}
     	else{
     		throw new Exception("");
     	}
+    	*/
     }
     
     boolean isTransition(int firstNucleotide, int secondNucleotide){
@@ -143,29 +149,42 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     double getLogTAU(MutableSequence seqI, MutableSequence seqJ, int differPosition) throws Exception{
     	double logTAU;
     	double neutralSeqProbRatio = Math.log(frequencies.getFreqs()[seqJ.getSequence()[differPosition]] / frequencies.getFreqs()[seqI.getSequence()[differPosition]]);
-    	double structBasedSeqProbRatio = getStructBasedSeqProbRatio(seqI, seqJ, differPosition);
+
+    	int codonDifferPosition = differPosition / 3;
+    	int differCodon = getDifferCodon(seqJ, codonDifferPosition);
+    	double structBasedSeqProbRatio = getStructBasedSeqProbRatio(seqI, differCodon, codonDifferPosition);
+
     	logTAU = structBasedSeqProbRatio - neutralSeqProbRatio;
     	return logTAU;
     }
     
-    double getStructBasedSeqProbRatio(MutableSequence seqI, MutableSequence seqJ, int differPosition) throws Exception{
+    int getDifferCodon(MutableSequence seqJ, int codonDifferPosition){
+    	int differCodon = -1;
+    	try {
+			 differCodon = codonUtil.translate(seqJ, codonDifferPosition * 3);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return differCodon;
+    }
+    
+    double getStructBasedSeqProbRatio(MutableSequence seqI, int differCodon, int codonDifferPosition) throws Exception{
     	double structBasedSeqProbRatio = 0;
     	
     	int[] codonArrayI = seqI.toCodonArray();
-    	int[] codonArrayJ = seqJ.toCodonArray();
+    	//int[] codonArrayJ = seqJ.toCodonArray();
     	
-    	int codonPosition = differPosition / 3;
-    	
-    	double firstOrderRatio = Math.log(inputStructure.getFirstOrderProb(codonPosition, codonArrayJ[codonPosition])) - Math.log(inputStructure.getFirstOrderProb(codonPosition, codonArrayI[codonPosition]));
+    	double firstOrderRatio = inputStructure.getFirstOrderLogProb(codonDifferPosition, differCodon) - inputStructure.getFirstOrderLogProb(codonDifferPosition, codonArrayI[codonDifferPosition]);
     	
     	double interactionRatio = 0;
     	
     	// here, m refers to a codon position, it should in
-		for (int m = 0; m < codonPosition; m++) {
-			interactionRatio += Math.log(inputStructure.getInteractionProb(m, codonPosition, codonArrayJ[m], codonArrayJ[codonPosition])) - Math.log(inputStructure.getInteractionProb(m, codonPosition, codonArrayI[m], codonArrayI[codonPosition]));
+		for (int m = 0; m < codonDifferPosition; m++) {
+			interactionRatio += Math.log(inputStructure.getInteractionProb(m, codonDifferPosition, codonArrayI[m], differCodon)) - Math.log(inputStructure.getInteractionProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]));
 		}
-		for (int n = codonPosition + 1 ; n < codonArrayI.length; n++) {
-			interactionRatio += Math.log(inputStructure.getInteractionProb(codonPosition, n, codonArrayJ[codonPosition], codonArrayJ[n])) - Math.log(inputStructure.getInteractionProb(codonPosition, n, codonArrayI[codonPosition], codonArrayI[n]));
+		for (int n = codonDifferPosition + 1 ; n < codonArrayI.length; n++) {
+			interactionRatio += Math.log(inputStructure.getInteractionProb(codonDifferPosition, n, differCodon, codonArrayI[n])) - Math.log(inputStructure.getInteractionProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n]));
 		}
     	
     	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
