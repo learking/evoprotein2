@@ -10,6 +10,8 @@ import beast.util.Randomizer;
 public class StructureEnv extends Plugin {
 	
 	List<double [][]> structEnv;
+	// first row represents row marginal, second row represents column marginal
+	List<double [][]> marginalProbMatrices;
 	
 	// initiate and validate
 	public void initAndValidate(){
@@ -19,9 +21,48 @@ public class StructureEnv extends Plugin {
 	public void parseStructureEnv(){
 		// for now, generate matrices
 		structEnv = mockUpMatrices(10);
+		marginalProbMatrices = getMarginalProbMatrices();
 	}
 	
 	// getter
+	List<double [][]> getMarginalProbMatrices () {
+		List<double [][]> marginalMatrices = new ArrayList<double [][]>();
+		for (int envNum = 0; envNum < structEnv.size(); envNum++) {
+			marginalMatrices.add(getMarginalProbMatrix(structEnv.get(envNum)));
+		}
+		return marginalMatrices;
+	}
+	
+	public double [][] getMarginalProbMatrix(double[][] structEnvMatrix){
+		int structEnvMatrixDim = structEnvMatrix.length;
+		// create [2][61] matrix
+		double [][] marginalMatrix = new double [2][structEnvMatrixDim];
+		// calculate row & col marginal
+		for (int rowNr = 0 ; rowNr < structEnvMatrixDim; rowNr++) {
+			marginalMatrix[0][rowNr] = getRowSum(rowNr, structEnvMatrix);
+			int colNr = rowNr;
+			marginalMatrix[1][colNr] = getColSum(colNr, structEnvMatrix);
+		}
+		// return result
+		return marginalMatrix;
+	}
+	
+	double getRowSum (int rowNr, double[][] structEnvMatrix) {
+		double rowSum = 0;
+		for (int colNr = 0; colNr < structEnvMatrix[0].length; colNr++) {
+			rowSum += structEnvMatrix[rowNr][colNr];
+		}
+		return rowSum;
+	}
+	
+	double getColSum (int colNr, double[][] structEnvMatrix) {
+		double colSum = 0;
+		for (int rowNr = 0; rowNr < structEnvMatrix.length; rowNr++) {
+			colSum += structEnvMatrix[rowNr][colNr];
+		}
+		return colSum;
+	}
+	
 	public int getStructEnvNum(){
 		return structEnv.size();
 	}
@@ -33,7 +74,16 @@ public class StructureEnv extends Plugin {
 		prob = prob / marginalProb;
 		return prob;
 	}
+
+	public double getFirstCodonMarginalProb(int structEnvNumber, int firstCodonType){
+		return marginalProbMatrices.get(structEnvNumber)[0][firstCodonType];
+	}
 	
+	public double getSecondCodonMarginalProb(int structEnvNumber, int secondCodonType){
+		return marginalProbMatrices.get(structEnvNumber)[1][secondCodonType];
+	}
+	
+	/*
 	public double getFirstCodonMarginalProb(int structEnvNumber, int firstCodonType){
 		double firstCodonMarginalProb = 0;
 		int rowNr = firstCodonType;
@@ -51,6 +101,7 @@ public class StructureEnv extends Plugin {
 		}
 		return secondCodonMarginalProb;
 	}
+	*/
 	
 	// for testing purpose only
 	public List<double [][]> mockUpMatrices(int numberOfMatrices){

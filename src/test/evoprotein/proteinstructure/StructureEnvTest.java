@@ -24,4 +24,18 @@ public class StructureEnvTest extends TestCase {
 		assertEquals(matrixSum, 1.0, BEASTTestCase.PRECISION);
 	}
 
+	@Test
+	public void testMarginalProbCalculation(){
+		StructureEnv structureEnv = new StructureEnv();
+		double [][] mockupmatrix = structureEnv.mockUpMatrix();
+		double [][] marginalMatrix = structureEnv.getMarginalProbMatrix(mockupmatrix);
+		double rowTotal = 0;
+		double colTotal = 0;
+		for (int i = 0; i < marginalMatrix[0].length; i++) {
+			rowTotal += marginalMatrix[0][i];
+			colTotal += marginalMatrix[1][i];
+		}
+		assertEquals(colTotal, 1.0, BEASTTestCase.PRECISION);
+	}
+	
 }

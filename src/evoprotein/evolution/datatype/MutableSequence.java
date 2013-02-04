@@ -83,19 +83,18 @@ public class MutableSequence {
 	}
 	
 	// translate
-	public int[] toCodonArray() throws Exception {
+	public int[] toCodonArray() {
 		int codonArrayLength = intSequence.length / 3;
+		int[] codonArray = new int[codonArrayLength];
 		if (intSequence.length % 3 == 0) {
-			int[] codonArray = new int[codonArrayLength];
-			
 			for (int i = 0; i < intSequence.length - 2; i += 3) {
 				codonArray[i/3] = codonUtil.translate(this, i);
 			}
-			return codonArray;
 		}
 		else {
-			throw new Exception("Remainder is not ZERO!");
+			System.err.println("seqence is not multiple of 3!");
 		}
+		return codonArray;
 	}
 	
 	public boolean existStopCodon(){

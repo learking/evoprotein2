@@ -160,12 +160,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     
     int getDifferCodon(MutableSequence seqJ, int codonDifferPosition){
     	int differCodon = -1;
-    	try {
-			 differCodon = codonUtil.translate(seqJ, codonDifferPosition * 3);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	differCodon = codonUtil.translate(seqJ, codonDifferPosition * 3);
     	return differCodon;
     }
     

@@ -34,10 +34,29 @@ public class CodonUtil {
 		GGT, GGC, GGA, GGG,
 	}
 	
-	public enum Nucleotide {
+	public static enum Nucleotide {
 		A , C, G , T
 	//  0   1  2   3
 	}
+	
+	/*
+	public static int[][][] m_nucleotide2codonMap = new int[][][]{
+		{
+			{39},{38},{40},{37}
+		},
+		{
+			{23},{},{},{}			
+		},
+		{
+			{},{},{},{}
+		},
+		{
+			{},{},{},{}
+		}
+	};
+	*/
+	
+	
 	
 	HashSet<String> codonHashSet;
 	
@@ -45,17 +64,16 @@ public class CodonUtil {
 		codonHashSet = getCodonHashSet();
 	}
 	
-	public int translate(MutableSequence seq, int startSite) throws Exception {
+	public int translate(MutableSequence seq, int startSite) {
 		String first = Nucleotide.values()[seq.getSequence()[startSite]].toString();
 		String second = Nucleotide.values()[seq.getSequence()[startSite+1]].toString();
 		String third = Nucleotide.values()[seq.getSequence()[startSite+2]].toString();
 		String thisCodon = first + second + third;
-		if(containsCodon(thisCodon)){
-			return Codon.valueOf(thisCodon).ordinal();
-		}else{
-			System.out.println("wrong seq:" + seq.toString());
-			throw new Exception("Encounter a stop codon!");
-		}
+		return Codon.valueOf(thisCodon).ordinal();
+	}
+	
+	int translateOneCodon(int[] codonSeq){
+		return -1;
 	}
 	
 	public static HashSet<String> getCodonHashSet() {

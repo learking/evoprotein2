@@ -22,7 +22,7 @@ import beast.core.Plugin;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.likelihood.PathLikelihood;
-import beast.evolution.operators.AllSitesPathSamplingOperator;
+
 import beast.evolution.operators.OneSitePathSamplingOperator;
 import beast.evolution.sitemodel.SiteModel;
 import beast.evolution.substitutionmodel.Frequencies;
