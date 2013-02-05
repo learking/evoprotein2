@@ -98,9 +98,11 @@ public class PathLikelihood extends Distribution {
     	double currentBranchLength = pathTree.getNode(childNodeNr).getLength();
     	
     	SeqPath currentSeqPath = currentBranch.getSeqPath(parentSeq, childSeq);
+    	/*
     	if(currentSeqPath.existStopCodon()){
     		throw new Exception("There cannot be any stop codon along the path at this point of time!");
     	}
+    	*/
     	List<MutableSequence> currentSeqs = currentSeqPath.getSeqs();
     	double[] currentTimes = currentSeqPath.getTimes();
     	
@@ -111,9 +113,9 @@ public class PathLikelihood extends Distribution {
     			//System.out.println("start:" + System.currentTimeMillis());
     			if(i == 0){
     				// first substitution
-    				pathLogP += - ourModel.getSubstAwayRate(parentSeq) * currentTimes[i] + Math.log(ourModel.getSubstitutionRate(parentSeq, currentSeqs.get(i)));
+    				pathLogP += - ourModel.getSubstAwayRate(parentSeq) * currentTimes[i] + Math.log(ourModel.getSubstitutionRate(parentSeq, currentSeqs.get(i), parentSeq.toCodonArray()));
     			}else{
-    				pathLogP += - ourModel.getSubstAwayRate(currentSeqs.get(i - 1)) * (currentTimes[i] - currentTimes[i -1]) + Math.log(ourModel.getSubstitutionRate(currentSeqs.get(i - 1), currentSeqs.get(i)));
+    				pathLogP += - ourModel.getSubstAwayRate(currentSeqs.get(i - 1)) * (currentTimes[i] - currentTimes[i -1]) + Math.log(ourModel.getSubstitutionRate(currentSeqs.get(i - 1), currentSeqs.get(i), currentSeqs.get(i - 1).toCodonArray()));
     			}
     			//System.out.println("end:" + System.currentTimeMillis());
     		}

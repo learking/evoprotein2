@@ -96,14 +96,14 @@ public class MutableSequence {
 		}
 		return codonArray;
 	}
-	
+
 	public boolean existStopCodon(){
 		boolean stopCodonFlag = false;
 		int stopCodonPosition = -1;
 		for (int startSite = 0; startSite < (intSequence.length - 2) ; startSite = startSite + 3) {
 
-			String thisCodon = codonUtil.int2Codon(this.getSequence()[startSite], this.getSequence()[startSite+1], this.getSequence()[startSite+2]);
-			if(!(codonUtil.containsCodon(thisCodon))){
+			int thisCodon = codonUtil.translate(this, startSite);
+			if(thisCodon == -1){
 				stopCodonFlag = true;
 				stopCodonPosition = startSite;
 				//System.err.println("Stop codon position:" + stopCodonPosition + "stop codon:" + thisCodon);
@@ -112,6 +112,7 @@ public class MutableSequence {
 		}
 		return stopCodonFlag;
 	}
+
 	
 	/*
 	 * deep copy

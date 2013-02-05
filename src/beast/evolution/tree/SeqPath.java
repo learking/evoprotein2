@@ -46,6 +46,7 @@ public class SeqPath {
 	
 	
 	// checker
+
 	public boolean existStopCodon() {
 		boolean stopCodonFlag = false;
 	
@@ -58,6 +59,7 @@ public class SeqPath {
 		
 		return stopCodonFlag;
 	}
+
 	
 	// toString
 	public String toString(){
