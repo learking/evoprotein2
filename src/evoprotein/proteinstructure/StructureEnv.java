@@ -10,8 +10,13 @@ import beast.util.Randomizer;
 public class StructureEnv extends Plugin {
 	
 	List<double [][]> structEnv;
+	
 	// first row represents row marginal, second row represents column marginal
 	List<double [][]> marginalProbMatrices;
+	
+	// tmp, used to test whether pre-compute log would speed up my application
+	List<double [][]> logStructEnv;
+	List<double [][]> marginalLogProbMatrices;
 	
 	// initiate and validate
 	public void initAndValidate(){
@@ -22,6 +27,43 @@ public class StructureEnv extends Plugin {
 		// for now, generate matrices
 		structEnv = mockUpMatrices(10);
 		marginalProbMatrices = getMarginalProbMatrices();
+		
+		// tmp, used to test whether pre-compute log would speed up my application
+		logStructEnv = calculateLogStructEnv(structEnv);
+		marginalLogProbMatrices = calculateMarginalLogProbMatrices(marginalProbMatrices);
+	}
+	
+	List<double [][]> calculateLogStructEnv(List<double [][]> structEnv){
+		List<double [][]> logStructEnv  = new ArrayList<double [][]>();
+		// take each env and pre-compute log value for each matrix
+		for (int envNum = 0; envNum < structEnv.size(); envNum++) {
+			logStructEnv.add(getLogMatrix(structEnv.get(envNum)));
+		}
+		return logStructEnv;
+	}
+	
+	List<double [][]>  calculateMarginalLogProbMatrices(List<double [][]> marginalProbMatrices){
+		List<double [][]> marginalLogProbMatrices  = new ArrayList<double [][]>();
+		
+		for (int envNum = 0; envNum < marginalProbMatrices.size(); envNum++) {
+			marginalLogProbMatrices.add(getLogMatrix(marginalProbMatrices.get(envNum)));
+		}
+		
+		return marginalLogProbMatrices;
+	}
+	
+	double [][] getLogMatrix(double [][] matrix){
+		int rowDim = matrix.length;
+		int colDim = matrix[0].length;
+		double [][] logMatrix = new double[rowDim][colDim];
+		
+		for(int i = 0; i < rowDim; i++){
+			for (int j = 0 ;j< colDim; j++){
+				logMatrix[i][j] = Math.log(matrix[i][j]);
+			}
+		}
+		
+		return logMatrix;
 	}
 	
 	// getter
@@ -75,12 +117,27 @@ public class StructureEnv extends Plugin {
 		return prob;
 	}
 
+	public double getLogProb(int structEnvNumber, int firstCodonType, int secondCodonType){
+		double logProb = logStructEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
+		double marginalLogProb = getFirstCodonMarginalLogProb(structEnvNumber, firstCodonType) + getSecondCodonMarginalLogProb(structEnvNumber, secondCodonType);
+		logProb = logProb - marginalLogProb;
+		return logProb;
+	}
+	
 	public double getFirstCodonMarginalProb(int structEnvNumber, int firstCodonType){
 		return marginalProbMatrices.get(structEnvNumber)[0][firstCodonType];
 	}
 	
 	public double getSecondCodonMarginalProb(int structEnvNumber, int secondCodonType){
 		return marginalProbMatrices.get(structEnvNumber)[1][secondCodonType];
+	}
+	
+	public double getFirstCodonMarginalLogProb(int structEnvNumber, int firstCodonType){
+		return marginalLogProbMatrices.get(structEnvNumber)[0][firstCodonType];
+	}
+	
+	public double getSecondCodonMarginalLogProb(int structEnvNumber, int secondCodonType){
+		return marginalLogProbMatrices.get(structEnvNumber)[1][secondCodonType];
 	}
 	
 	/*

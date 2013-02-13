@@ -39,7 +39,7 @@ public class StructBasedSeqProb extends Plugin {
 		double interactionLogP = 0;
 		for (int m = 0; m < codonArray.length - 1 ; m++) {
 			for (int n = m+1 ; n < codonArray.length ; n++) {
-				interactionLogP += Math.log(inputStructure.getInteractionProb(m, n, codonArray[m], codonArray[n]));
+				interactionLogP += inputStructure.getInteractionLogProb(m, n, codonArray[m], codonArray[n]);
 			}
 		}
 		return interactionLogP;

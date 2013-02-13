@@ -178,12 +178,15 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	double interactionRatio = 0;
     	
     	// here, m refers to a codon position, it should in
+    	
 		for (int m = 0; m < codonDifferPosition; m++) {
-			interactionRatio += Math.log(inputStructure.getInteractionProb(m, codonDifferPosition, codonArrayI[m], differCodon)) - Math.log(inputStructure.getInteractionProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]));
+			interactionRatio += inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon) - inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]);
 		}
+		
 		for (int n = codonDifferPosition + 1 ; n < codonArrayI.length; n++) {
-			interactionRatio += Math.log(inputStructure.getInteractionProb(codonDifferPosition, n, differCodon, codonArrayI[n])) - Math.log(inputStructure.getInteractionProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n]));
+			interactionRatio += inputStructure.getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n]) - inputStructure.getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n]);
 		}
+		
     	
     	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
     	//System.out.println(interactionRatio);

@@ -57,9 +57,9 @@ public class InputStructure extends Plugin {
 	}
 	
 	// needs efficiency boost
-	public double getInteractionProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType){
+	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType){
 		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
-		return structureEnv.get().getProb(structEnvNumber, firstCodonType, secondCodonType);
+		return structureEnv.get().getLogProb(structEnvNumber, firstCodonType, secondCodonType);
 	}
 	
 	// for test only
