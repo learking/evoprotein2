@@ -1,8 +1,6 @@
 <!-- Build Evoprotein2 -->
-<!--
+
 <project basedir="." default="build_jar_all_EVOPROTEIN" name="BUILD_EVOPROTEIN">
--->
-<project basedir="." default="build_all_EVOPROTEIN" name="BUILD_EVOPROTEIN">
 	<description>
 	    Build Evoprotein2. 
 	</description>
@@ -19,7 +17,7 @@
 	<property name="beast2classpath" location="${beast2path}/build" />
 	<property name="Add_on_dir" value="${release_dir}/add-on" />
 
-    <import file="${beast2path}/build.xml" />
+  <import file="${beast2path}/build.xml" />
 
 	<property name="main_class_BEAST" value="beast.app.BeastMCMC" />
 	<property name="report" value="${buildEVOPROTEIN}/junitreport"/>
@@ -36,7 +34,7 @@
 	</target>
 
 	<target name="cleanEVOPROTEIN">
-    	<delete dir="${buildEVOPROTEIN}" />
+    		<delete dir="${buildEVOPROTEIN}" />
 	</target>	
 
 	<!-- clean previous build, and then compile Java source code, and Juint test -->
@@ -44,6 +42,11 @@
         description="Clean and Build all run-time stuff">
 	</target>
 
+	<!-- clean previous build, compile Java source code, and Junit test, and make the beast.jar and beauti.jar -->
+	<target name="build_jar_all_EVOPROTEIN" depends="cleanEVOPROTEIN,compile-allEVOPROTEIN,junitEVOPROTEIN,dist_all_EVOPROTEIN"
+        description="Clean and Build all run-time stuff">
+	</target>
+	
 	<!-- compile Java source code -->
 	<target name="compile-allEVOPROTEIN" depends="initEVOPROTEIN,compile-all">
 
@@ -68,6 +71,33 @@
 		<echo message="Successfully compiled." />
 	</target>
 
+	<!-- make the beast.jar and beauti.jar -->
+	
+	<target name="dist_all_EVOPROTEIN" depends="compile-allEVOPROTEIN" description="create EVOPROTEIN jar">
+		
+		<mkdir dir="${distEVOPROTEIN}" />
+		
+		<jar jarfile="${distEVOPROTEIN}/EVOPROTEIN.src.jar">
+			
+			<fileset dir="${srcEVOPROTEIN}">
+				<include name="evoprotein/**/*.java" />
+			</fileset>
+			
+        </jar>
+		
+		<jar jarfile="${distEVOPROTEIN}/EVOPROTEIN.addon.jar">	
+			<manifest>
+				<attribute name="Built-By" value="${user.name}" />
+			</manifest>	
+			<fileset dir="${buildEVOPROTEIN}">
+				<include name="beast/**/*.class" />
+				<include name="evoprotein/**/*.class" />
+				<include name="**/*.properties" />
+			</fileset>
+		</jar>
+		
+	</target>
+	
 	<!-- JUnit test -->
 	<target name="junitEVOPROTEIN">
 		<mkdir dir="${report}" />
@@ -88,4 +118,6 @@
 		<echo message="JUnit test finished." />
 	</target>
 
+	
+	
 </project>
