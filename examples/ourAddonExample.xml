@@ -64,10 +64,11 @@
         <substModel idref='proposalInstantHKY'/>
     </input>
        
-    <run spec="MCMC" id="mcmc" chainLength="3">
+    <run spec="MCMC" id="mcmc" chainLength="50">
 		
 		<distribution id='likelihood' idref="pathLikelihood"/>
 
+		<operator id='kappaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@kappa"/>
         <operator id='oneSitePathSamplingOperator' spec='beast.evolution.operators.OneSitePathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@proposalSiteModel"/>
 
         <logger logEvery="1" fileName="testMCMC.log">
@@ -76,7 +77,7 @@
             <log idref='kappa'/>
         </logger>
         
-        <logger logEvery="1" fileName="test.substitutions">
+        <logger logEvery="1" fileName="test.substitutions" mode="compound">
             <log idref="pathtree"/>
         </logger>
 		

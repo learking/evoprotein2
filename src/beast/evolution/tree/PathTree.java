@@ -26,18 +26,22 @@ public class PathTree extends Tree {
 	List<PathBranch> m_branches = new ArrayList<PathBranch>();
 	List<PathBranch> m_storedbranches = new ArrayList<PathBranch>();
 	
+	int nucleoSequenceLength;
+	int codonSequenceLength;
+	
 	@Override
 	public void initAndValidate() throws Exception {
 			super.initAndValidate();
 			
-			int sequenceLength = m_alignment.get().getSiteCount();
+			nucleoSequenceLength = m_alignment.get().getSiteCount();
+			codonSequenceLength = nucleoSequenceLength / 3;
 			for(int i=0; i<nodeCount; i++) {
-				m_sequences.add(new MutableSequence(sequenceLength));
+				m_sequences.add(new MutableSequence(nucleoSequenceLength));
 				if(m_nodes[i].isRoot()){
 					m_branches.add(new PathBranch());
 				}
 				else{
-					m_branches.add(new PathBranch(sequenceLength, m_nodes[i].getParent().getNr(), i));
+					m_branches.add(new PathBranch(nucleoSequenceLength, m_nodes[i].getParent().getNr(), i));
 				}
 			}
 			
@@ -186,6 +190,8 @@ public class PathTree extends Tree {
     /**
      * Loggable implementation
      */    
+    public  void init(PrintStream out) throws Exception {
+    }
     
     public void log(int nSample, PrintStream out) {
         PathTree thisTree = (PathTree) getCurrent();
@@ -194,9 +200,13 @@ public class PathTree extends Tree {
         int sudoRootNr = getSudoRootNr();
 		for (int branchNr = 0; branchNr < getBranches().size(); branchNr++) {
 			if((branchNr != rootNr) && (branchNr != sudoRootNr)) {
-				out.print(branchNr + ":" + thisTree.getBranch(branchNr).getTotalNumSubstitutions() + ",");
+				double thisBranchLength = (double) thisTree.getBranch(branchNr).getTotalNumSubstitutions() / (double) nucleoSequenceLength;
+				out.print(thisBranchLength + "\t");
 			}
 		}
+    }
+    
+    public void close(PrintStream out) {
     }
     
     // tmp
