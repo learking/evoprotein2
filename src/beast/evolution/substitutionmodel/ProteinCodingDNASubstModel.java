@@ -32,11 +32,14 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     double freqT;
     double Y;
     double scalingFactor;
+    int interactionRange;
+    
 	// initAndValidate
     @Override
     public void initAndValidate(){
     	frequencies = frequenciesInput.get();
     	inputStructure = m_inputStructure.get();
+    	interactionRange = 10;
     }
     
     public double getSubstAwayRate(MutableSequence seqI) throws Exception{
@@ -80,7 +83,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     		break;
     	default:
     		changableNucleotides = new int[]{-1,-1,-1};
-    	}
+    	} 
     	return changableNucleotides;
     }
     
@@ -167,11 +170,10 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	return differCodon;
     }
     
+    // full interaction version of getStructBasedSeqProbRatio
+    /*
     double getStructBasedSeqProbRatio(int[] codonArrayI, int differCodon, int codonDifferPosition) throws Exception{
     	double structBasedSeqProbRatio = 0;
-    	
-    	//int[] codonArrayI = seqI.toCodonArray();
-    	//int[] codonArrayJ = seqJ.toCodonArray();
     	
     	double firstOrderRatio = inputStructure.getFirstOrderLogProb(codonDifferPosition, differCodon) - inputStructure.getFirstOrderLogProb(codonDifferPosition, codonArrayI[codonDifferPosition]);
     	
@@ -185,12 +187,55 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 		
 		for (int n = codonDifferPosition + 1 ; n < codonArrayI.length; n++) {
 			interactionRatio += inputStructure.getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n]) - inputStructure.getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n]);
-		}
-		
+		}	
     	
     	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
     	//System.out.println(interactionRatio);
     	return structBasedSeqProbRatio;
+    }
+    */
+    
+    // range 10 version of getStructBasedSeqProbRatio
+    double getStructBasedSeqProbRatio(int[] codonArrayI, int differCodon, int codonDifferPosition) throws Exception{
+    	double structBasedSeqProbRatio = 0;
+    	
+    	double firstOrderRatio = inputStructure.getFirstOrderLogProb(codonDifferPosition, differCodon) - inputStructure.getFirstOrderLogProb(codonDifferPosition, codonArrayI[codonDifferPosition]);
+    	
+    	double interactionRatio = 0;
+    	
+    	// here, m refers to a codon position, it should in
+    	
+		for (int m = getInteractionRangeLeftBound(codonDifferPosition); m < codonDifferPosition; m++) {
+			interactionRatio += inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon) - inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]);
+		}
+		
+		for (int n = codonDifferPosition + 1 ; n < getInteractionRangeRightBound(codonDifferPosition, codonArrayI.length); n++) {
+			interactionRatio += inputStructure.getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n]) - inputStructure.getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n]);
+		}	
+    	
+    	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
+    	//System.out.println(interactionRatio);
+    	return structBasedSeqProbRatio;
+    }
+    
+    int getInteractionRangeLeftBound(int codonDifferPosition){
+    	int leftBound = -1;
+    	if (codonDifferPosition <= interactionRange) {
+    		leftBound = 0;
+    	}else{
+    		leftBound = codonDifferPosition - interactionRange;
+    	}
+    	return leftBound;
+    }
+
+    int getInteractionRangeRightBound(int codonDifferPosition, int codonArrayLength){
+    	int rightBound = -1;
+    	if (codonDifferPosition + interactionRange + 1 >= codonArrayLength) {
+    		rightBound = codonArrayLength;
+    	}else{
+    		rightBound = codonDifferPosition + interactionRange + 1;
+    	}
+    	return rightBound;
     }
     
 }

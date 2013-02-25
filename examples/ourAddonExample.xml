@@ -64,7 +64,7 @@
         <substModel idref='proposalInstantHKY'/>
     </input>
        
-    <run spec="MCMC" id="mcmc" chainLength="50">
+    <run spec="MCMC" id="mcmc" chainLength="100">
 		
 		<distribution id='likelihood' idref="pathLikelihood"/>
 
