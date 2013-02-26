@@ -46,10 +46,15 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 		//System.out.println("Rate away start:" + System.currentTimeMillis());
     	double awayRate = 0;
     	int[] codonArrayI = seqI.toCodonArray();
-    	MutableSequence tmpSeq;
+    	
+    	//MutableSequence tmpSeq;
+    	int[] originalNucleoSeq = seqI.getSequence();
+    	MutableSequence tmpSeq = new MutableSequence(originalNucleoSeq.length);
+    	
     	for (int site = 0 ; site < seqI.getSequence().length; site++) {
     		// init tmpSeq when dealing with each site
-    		tmpSeq = seqI.copy();
+    		//tmpSeq = seqI.copy();
+    		tmpSeq.setSequence(originalNucleoSeq);
     		int originalNucleotide = seqI.getSequence()[site];
     		int[] changableNucleotides = getChangableNucleotides(originalNucleotide);
     		for (int i = 0; i < changableNucleotides.length; i++) {
