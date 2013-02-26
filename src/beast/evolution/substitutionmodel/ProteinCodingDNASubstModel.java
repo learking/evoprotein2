@@ -56,9 +56,9 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     			tmpSeq.mutate(site, changableNucleotides[i]);
     			//System.out.println(tmpSeq.toString());
     			int mutatedCodonStartSite = site - (site%3);
-    			if(codonUtil.translate(tmpSeq, mutatedCodonStartSite) != -1) {
-    				
-    				awayRate += getSubstitutionRate(seqI, tmpSeq, codonArrayI);
+    			int differCodon = codonUtil.translate(tmpSeq, mutatedCodonStartSite);
+    			if(differCodon != -1) {  				
+    				awayRate += getSubstitutionRate(seqI, tmpSeq, codonArrayI, site, differCodon);
     			}
     		}
     	}
@@ -87,16 +87,16 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	return changableNucleotides;
     }
     
-	public double getSubstitutionRate(MutableSequence seqI, MutableSequence seqJ, int[] codonArrayI) throws Exception{
+	public double getSubstitutionRate(MutableSequence seqI, MutableSequence seqJ, int[] codonArrayI, int differPosition, int differCodon) throws Exception{
 		
 		scalingFactor = getScalingFactor();
 				
 		double substitutionRate = 0;
 
 		// find where these two sequences differ (both location and value)
-		int differPosition = getDifferPosition(seqI, seqJ);
+		//int differPosition = getDifferPosition(seqI, seqJ);
 
-		double logTAU = getLogTAU(seqI, seqJ, differPosition, codonArrayI);
+		double logTAU = getLogTAU(seqI, seqJ, codonArrayI, differPosition, differCodon);
 		
 		substitutionRate = logTAU / (1 - 1/Math.exp(logTAU));
 		
@@ -120,28 +120,6 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 		u = 1.0 / (1.0 - freqSquareSum);
 		return u; 
 	}
-	
-    int getDifferPosition(MutableSequence seqI, MutableSequence seqJ) {
-		int[] seq_i = seqI.getSequence();
-		int[] seq_j = seqJ.getSequence();
-    	int differPosition = -1;
-    	int numOfDifferences = 0;
-    	for (int nucleoPosition = 0; nucleoPosition < seq_i.length; nucleoPosition++) {
-    		if(seq_i[nucleoPosition] != seq_j[nucleoPosition]){
-    			numOfDifferences++;
-    			differPosition = nucleoPosition;
-    		}
-    	}
-    	return differPosition;
-    	/*
-    	if(numOfDifferences == 1){
-    		return differPosition;
-    	}
-    	else{
-    		throw new Exception("");
-    	}
-    	*/
-    }
     
     boolean isTransition(int firstNucleotide, int secondNucleotide){
     	int sum = firstNucleotide + secondNucleotide;
@@ -152,12 +130,12 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	}
     }
     
-    double getLogTAU(MutableSequence seqI, MutableSequence seqJ, int differPosition, int[] codonArrayI) throws Exception{
+    double getLogTAU(MutableSequence seqI, MutableSequence seqJ, int[] codonArrayI, int differPosition, int differCodon) throws Exception{
     	double logTAU;
     	double neutralSeqProbRatio = Math.log(frequencies.getFreqs()[seqJ.getSequence()[differPosition]] / frequencies.getFreqs()[seqI.getSequence()[differPosition]]);
 
     	int codonDifferPosition = differPosition / 3;
-    	int differCodon = getDifferCodon(seqJ, codonDifferPosition);
+    	//int differCodon = getDifferCodon(seqJ, codonDifferPosition);
     	double structBasedSeqProbRatio = getStructBasedSeqProbRatio(codonArrayI, differCodon, codonDifferPosition);
 
     	logTAU = structBasedSeqProbRatio - neutralSeqProbRatio;

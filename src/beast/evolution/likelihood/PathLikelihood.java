@@ -6,6 +6,7 @@ package beast.evolution.likelihood;
 import java.util.List;
 import java.util.Random;
 
+import evoprotein.evolution.datatype.CodonUtil;
 import evoprotein.evolution.datatype.MutableSequence;
 
 import beast.core.Description;
@@ -28,6 +29,8 @@ public class PathLikelihood extends Distribution {
 	// inputs
     public Input<PathTree> m_pathTree = new Input<PathTree>("PathTree", "PathTree with sequence data in the all nodes", Validate.REQUIRED);
     public Input<ProteinCodingDNASubstModel> m_ourModel = new Input<ProteinCodingDNASubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
+    
+	static CodonUtil codonUtil = new CodonUtil();
     
     PathTree pathTree;
     ProteinCodingDNASubstModel ourModel;
@@ -113,9 +116,17 @@ public class PathLikelihood extends Distribution {
     			//System.out.println("start:" + System.currentTimeMillis());
     			if(i == 0){
     				// first substitution
-    				pathLogP += - ourModel.getSubstAwayRate(parentSeq) * currentTimes[i] + Math.log(ourModel.getSubstitutionRate(parentSeq, currentSeqs.get(i), parentSeq.toCodonArray()));
+    				int differPosition = getDifferPosition(parentSeq, currentSeqs.get(i));
+    				int startSite = differPosition - (differPosition%3);
+    				int differCodon = codonUtil.translate(currentSeqs.get(i), startSite);
+    				
+    				pathLogP += - ourModel.getSubstAwayRate(parentSeq) * currentTimes[i] + Math.log(ourModel.getSubstitutionRate(parentSeq, currentSeqs.get(i), parentSeq.toCodonArray(), differPosition, differCodon));
     			}else{
-    				pathLogP += - ourModel.getSubstAwayRate(currentSeqs.get(i - 1)) * (currentTimes[i] - currentTimes[i -1]) + Math.log(ourModel.getSubstitutionRate(currentSeqs.get(i - 1), currentSeqs.get(i), currentSeqs.get(i - 1).toCodonArray()));
+    				int differPosition = getDifferPosition(currentSeqs.get(i - 1), currentSeqs.get(i));
+    				int startSite = differPosition - (differPosition%3);
+    				int differCodon = codonUtil.translate(currentSeqs.get(i), startSite);
+    				
+    				pathLogP += - ourModel.getSubstAwayRate(currentSeqs.get(i - 1)) * (currentTimes[i] - currentTimes[i -1]) + Math.log(ourModel.getSubstitutionRate(currentSeqs.get(i - 1), currentSeqs.get(i), currentSeqs.get(i - 1).toCodonArray(), differPosition, differCodon));
     			}
     			//System.out.println("end:" + System.currentTimeMillis());
     		}
@@ -138,6 +149,28 @@ public class PathLikelihood extends Distribution {
     	}
 		//System.err.println("one branch done!");
     	return pathLogP;
+    }
+    
+    int getDifferPosition(MutableSequence seqI, MutableSequence seqJ) {
+		int[] seq_i = seqI.getSequence();
+		int[] seq_j = seqJ.getSequence();
+    	int differPosition = -1;
+    	//int numOfDifferences = 0;
+    	for (int nucleoPosition = 0; nucleoPosition < seq_i.length; nucleoPosition++) {
+    		if(seq_i[nucleoPosition] != seq_j[nucleoPosition]){
+    			//numOfDifferences++;
+    			differPosition = nucleoPosition;
+    		}
+    	}
+    	return differPosition;
+    	/*
+    	if(numOfDifferences == 1){
+    		return differPosition;
+    	}
+    	else{
+    		throw new Exception("");
+    	}
+    	*/
     }
     
     @Override
