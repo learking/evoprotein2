@@ -38,4 +38,10 @@ public class StructureEnvTest extends TestCase {
 		assertEquals(colTotal, 1.0, BEASTTestCase.PRECISION);
 	}
 	
+	@Test
+	public void testLogProb(){
+		StructureEnv structureEnv = new StructureEnv();
+		structureEnv.parseStructureEnv();
+		System.out.println(structureEnv.getLogProb(9, 43, 34));
+	}
 }
