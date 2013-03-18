@@ -12,6 +12,7 @@ import test.beast.BEASTTestCase;
 import beast.core.parameter.RealParameter;
 import beast.evolution.substitutionmodel.Frequencies;
 import beast.evolution.substitutionmodel.ProteinCodingDNASubstModel;
+import evoprotein.evolution.datatype.CodonUtil;
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.proteinstructure.InputStructure;
 import evoprotein.proteinstructure.NeutralSeqProb;
@@ -31,6 +32,8 @@ public class ProteinCodingDNASubstModelTest extends TestCase {
 	RealParameter realParameter;
 	Frequencies frequencies;
 	
+	RealParameter kappa;
+	
 	SolventAccessibility solventAccessibility;
 	StructureEnv structEnv;
 	InputStructure inputStructure;
@@ -42,7 +45,9 @@ public class ProteinCodingDNASubstModelTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		Double[] freqs = new Double[] {0.1, 0.2, 0.3, 0.4};
+		kappa = new RealParameter(new Double[] {1.5});
+		
+		Double[] freqs = new Double[] {0.25318,	0.32894,0.31196,0.10592};
 		realParameter = new RealParameter(freqs);
 		
 		frequencies = new Frequencies();
@@ -73,7 +78,7 @@ public class ProteinCodingDNASubstModelTest extends TestCase {
         
 		// our Model
 		ourModel = new ProteinCodingDNASubstModel();
-		ourModel.initByName("frequencies", frequencies, "inputStructure", inputStructure);
+		ourModel.initByName("kappa", kappa, "frequencies", frequencies, "inputStructure", inputStructure);
 	}
 	
 	@Test
@@ -98,8 +103,9 @@ public class ProteinCodingDNASubstModelTest extends TestCase {
 		
 		double substitutionRate_expected = 0.2 * logTAU_expected / (1 - 1 / Math.exp(logTAU_expected));
 		
-		//double substitutionRate_ourResult = ourModel.getSubstitutionRate(seqI, seqJ, seqI.toCodonArray(), 7, 1);
-		
+		CodonUtil codonUtil = new CodonUtil();
+		double substitutionRate_ourResult = ourModel.getSubstitutionRate(seqI, seqJ, seqI.toCodonArray(), 7, codonUtil.translate(seqJ, 6));
+		System.out.println("subst rate for seq I and J:" + substitutionRate_ourResult);
 		//assertEquals(substitutionRate_expected, substitutionRate_ourResult, BEASTTestCase.PRECISION);
 	}
 

@@ -183,7 +183,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	double structBasedSeqProbRatio = 0;
     	
     	double firstOrderRatio = inputStructure.getFirstOrderLogProb(codonDifferPosition, differCodon) - inputStructure.getFirstOrderLogProb(codonDifferPosition, codonArrayI[codonDifferPosition]);
-    	
+    	System.out.println("first order:" + firstOrderRatio);
     	double interactionRatio = 0;
     	
     	// here, m refers to a codon position, it should in

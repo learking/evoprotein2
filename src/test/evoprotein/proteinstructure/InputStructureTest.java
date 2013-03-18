@@ -41,4 +41,10 @@ public class InputStructureTest extends TestCase {
 		assertEquals(structEnv.getStructEnvNum(), 10, BEASTTestCase.PRECISION);
 	}
 
+	@Test
+	public void testPrintTerms() {
+		inputStructure.showFirstOrderTerms();
+		System.out.println();
+		inputStructure.showInteractions();
+	}
 }
