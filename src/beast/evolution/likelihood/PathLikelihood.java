@@ -18,6 +18,7 @@ import beast.evolution.substitutionmodel.ProteinCodingDNASubstModel;
 import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.SeqPath;
+import beast.evolution.tree.Tree;
 
 /**
  * @author kuangyu
@@ -175,6 +176,13 @@ public class PathLikelihood extends Distribution {
     
     @Override
     protected boolean requiresRecalculation() {
+    	// check model's dirtiness first
+    	
+        if (ourModel.isDirtyCalculation()) {
+            //m_nHasDirt = Tree.IS_DIRTY;
+            return true;
+        }
+    	
     	// if tree is dirty, recalculate
     	return pathTree.somethingIsDirty();
     }

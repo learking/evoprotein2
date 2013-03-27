@@ -221,4 +221,15 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	return rightBound;
     }
     
+    /**
+     * CalculationNode implementations *
+     */
+    @Override
+    protected boolean requiresRecalculation() {
+    	// is this statement true???????????????
+        // we only get here if something is dirty
+        return true;
+    }
+
+    
 }
