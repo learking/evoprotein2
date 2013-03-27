@@ -44,11 +44,27 @@
     	<inputStructure idref="inputStructure" />    
     </input>
        
-    <distribution spec='beast.evolution.likelihood.PathLikelihood' id="pathLikelihood">
-        <PathTree idref="pathtree"/>
-        <ourModel idref="ourModel"/>
+       
+    <distribution id="posterior" ignore="false" spec="util.CompoundDistribution" useThreads="false">
+    	
+    	<distribution id="prior" ignore="false" spec="util.CompoundDistribution" useThreads="false">
+            <distribution id="KappaPrior.s:alignment" spec="beast.math.distributions.Prior" x="@kappa">
+                <distr id="LogNormalDistributionModel.0" meanInRealSpace="true" offset="0.0" spec="beast.math.distributions.LogNormalDistributionModel">
+                    <parameter dimension="1" estimate="false" id="RealParameter.0" minordimension="1" name="M" value="1.0"/>
+                    <parameter dimension="1" estimate="false" id="RealParameter.01" minordimension="1" name="S" value="1.25"/>
+                </distr>
+            </distribution>
+        </distribution>
+    	
+    	<distribution id="likelihood" ignore="false" spec="util.CompoundDistribution" useThreads="false">
+    		<distribution spec='beast.evolution.likelihood.PathLikelihood' id="pathLikelihood">
+        		<PathTree idref="pathtree"/>
+        		<ourModel idref="ourModel"/>
+    		</distribution>
+    	</distribution>    	
+    	
     </distribution>
-      
+          
     <parameter id="proposalKappa" value="1.5" lower="0.0"/>
     <parameter dimension="4" estimate="true" id="freqParameter.s:alignment" lower="0.0" minordimension="1" name="stateNode" upper="1.0" value="0.25"/>
        
@@ -64,19 +80,21 @@
     </input>
        
     <run spec="MCMC" id="mcmc" chainLength="10">
+    
+    	<distribution idref="posterior"/>
 		
-		<distribution id='likelihood' idref="pathLikelihood"/>
-		
-		<operator id='kappaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@kappa"/>
         <operator id='oneSitePathSamplingOperator' spec='beast.evolution.operators.OneSitePathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@proposalSiteModel"/>
+
+	    <operator degreesOfFreedom="1" id="KappaScaler.s:alignment" optimise="true" parameter="@kappa" rootOnly="false" scaleAll="false" scaleAllIndependently="false" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
 	    
 	    <operator autoOptimize="true" delta="0.01" id="FrequenciesExchanger.s:alignment" integer="false" spec="DeltaExchangeOperator" weight="1">
     	    <parameter idref="freqParameter.s:alignment"/>
     	</operator>
 
         <logger logEvery="1" fileName="testMCMC.log">
-	        <model idref='likelihood'/>
-            <log idref="likelihood"/>
+        	<distribution idref="posterior" name="log"/>
+        	<distribution idref="likelihood" name="log"/>
+        	<distribution idref="prior" name="log"/>
             <log idref='kappa'/>
             <parameter idref="freqParameter.s:alignment" name="log"/>
         </logger>
