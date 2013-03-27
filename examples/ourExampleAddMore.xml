@@ -1,0 +1,106 @@
+<beast version='2.0'
+       namespace='beast.evolution.alignment:beast.core:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood'>
+
+    <data id="alignment" dataType="nucleotide">
+        <sequence taxon="Human">
+		TCGATGCACGCCCTCACTCTCAAGACTCATTTGGTCACGCGGTTCGCTCCCGTGATGGGCACGAATGTCCTGTCCCGGTCACACGAGCACGCGCCTCAGGTGAACGTGGGGGGGCTACCGGTGGCCGCCTCGCATCTGGAGGCCGTAGCGCCTCGGTACATCGGGAAGGCTTTCTGGGTGCATGTCGAGTATCAGGGGCGTGACCGTATTGTGGTTCCCCACCGGGTGAAGCGACTCGCGCTGGGCTATAGTATGGTCTTGCCCGTTATCAAGATCAAGCCGACTCTCGACGAGTCCGGT		
+	    </sequence>
+        <sequence taxon="Chimpanzee">
+		TCGATGCTCGCCCTCACCCTCAAGGCTCATTTGGTTACGCGGTTCGCTCTCGTGATGGGGACGAATGTCCTGCCCCGGTCAGACGAGCACGGGCCGCACGTGAACGTTGGTGGGCTACCGGTTATAGCCTCCCATCTGGAGGCCGTGGCGCCTCGGTACATCGCCAAGGCTTTCTGGGTGCATGTCGAGTATCAGGGGCGTGACCGAATTGTGGTCCCCCTCCGGGTGAATCGGGTGGCCCTGGTCTATAGTATGTTTTTGCCGGTAATTAACATCGAGCCCACTCTTGACAAGTCCGGT		
+		</sequence>
+        <sequence taxon="Gorilla">
+		CCTGTTCTCGTGGCTGCGCAGAACGCGGTCTTGCCCTCTCGTCTCGTGGCCGCATTGCGCCCGCACGTTTTCTCCCGGTCGGAGGTGCTGTGCCTGCAGGCTAACGTCGTGCGGCTGGCCGCTGTCGCCTCCTTCCGCAACTACCTCGCCGCCAGGGACACCGCGGAGCACCTCTGGGCTCACGTGGGGCATGGGGGGCGGGCGCGTGCCGTCCTCCCCGACAGTCTCGACCAGGACGCCCTGGTCCGCGAGAGGGAGCTTCCGGTGCTCCCCGTCGTGACCAGTGCTGACGCGTGCGAG		
+		</sequence>
+        <sequence taxon="Orangutan">
+		CTTGAAACCATGTTCGCGCTGAAGACTTTTCTGCTCTCCCGTTTCATGTCCGCGATGCACCCGCAGGATTACTACCAGTCGAACGACCAGGGATTCCTGGTCGACGATGTGGGGCTTCACGCGATCGCGTCCCTGCTTGAGAACGAGACCGCCCAGGACACCGCCAAGGTCTTCTGGAGGCTTGTCGAGCACGATTTGCTTAGGCGTCCCCTGCTTCCGGCCAATATGCATCGGGTCGACTTGGTGCACAACATGGCGGTGCGCCCTCACCATATGGTGGCCACGGAGGACGAGTCCATC		
+		</sequence>
+        <sequence taxon="Gibbon">
+		GACGACATCATGCACCCCCTAAAGACCCTTCTGGTTTCGCGTCTCATGTCGGTTAGCGAGTACCATGCGTACTCCCGGTCGCACGACCGGGTTCTTCAGTACACCGACGACGAGCTTCCCGCCGGTGCCTTCCTCCTCGACGACGTGACCGCGAGGTACATGGCTAAGGCCTTCTGGGTGCTTGCGGAGTACCAGCGGCGCGACCCCGCGATGCTCCCGCACAACGCGCTCAAGGTGGCCCTGGCGCAGGAGATGGTCGTCCGTGCTTTCAATATGGTAATCGGCGACGAGGAGTTCGGA		
+		</sequence>
+    </data>       
+    
+    <tree id='tree' spec='beast.util.TreeParser' newick='(((Human: 0.07, Chimpanzee: 0.07): 0.43, (Orangutan: 0.4, Gibbon: 0.4): 0.1):0.0 , Gorilla: 0.5)'>
+    	<taxa idref="alignment" />
+    </tree>
+    
+    <input spec='beast.evolution.tree.PathTree' id='pathtree'>
+    	<initial idref="tree" />
+    	<alignment idref="alignment" />
+    </input>
+    
+    <parameter id="kappa" value="1.5" lower="0.0"/>
+       
+    <input spec='evoprotein.proteinstructure.SolventAccessibility' id='solventAccessibility' />
+    <input spec='evoprotein.proteinstructure.StructureEnv' id='structureEnv' />
+    
+    <input spec='evoprotein.proteinstructure.InputStructure' id='inputStructure'>
+    	<structureEnv idref="structureEnv" />
+    	<solventAccessibility idref="solventAccessibility" />
+    </input>    
+       
+    <input spec='beast.evolution.substitutionmodel.ProteinCodingDNASubstModel' id='ourModel'>
+    	<kappa idref="kappa" /> 
+        <frequencies estimate="true" frequencies="@freqParameter.s:alignment" id="estimatedFreqs.s:alignment" spec="Frequencies"/>
+    	<inputStructure idref="inputStructure" />    
+    </input>
+       
+    <distribution id="posterior" ignore="false" spec="util.CompoundDistribution" useThreads="false">
+    
+        <distribution id="prior" ignore="false" spec="util.CompoundDistribution" useThreads="false">
+            <distribution id="KappaPrior.s:alignment" spec="beast.math.distributions.Prior" x="@kappa">
+                <distr id="LogNormalDistributionModel.0" meanInRealSpace="true" offset="0.0" spec="beast.math.distributions.LogNormalDistributionModel">
+                    <parameter dimension="1" estimate="false" id="RealParameter.0" minordimension="1" name="M" value="1.0"/>
+                    <parameter dimension="1" estimate="false" id="RealParameter.01" minordimension="1" name="S" value="1.25"/>
+                </distr>
+            </distribution>
+        </distribution>
+    
+    	<distribution id="likelihood" ignore="false" spec="util.CompoundDistribution" useThreads="false">
+    		<distribution spec='beast.evolution.likelihood.PathLikelihood' id="pathLikelihood">
+        		<PathTree idref="pathtree"/>
+        		<ourModel idref="ourModel"/>
+    		</distribution>
+    	</distribution>
+
+    </distribution>
+      
+    <parameter id="proposalKappa" value="1.5" lower="0.0"/>
+    <parameter dimension="4" estimate="true" id="freqParameter.s:alignment" lower="0.0" minordimension="1" name="stateNode" upper="1.0" value="0.25"/>
+       
+    <input spec='beast.evolution.substitutionmodel.InstantHKY' id='proposalInstantHKY'>
+        <kappa idref='proposalKappa'/>
+        <frequencies id='proposalFrequencies' spec='Frequencies'>
+            <data idref='alignment'/>
+        </frequencies>
+    </input>
+       
+    <input spec='SiteModel' id="proposalSiteModel" gammaCategoryCount='1'>
+        <substModel idref='proposalInstantHKY'/>
+    </input>
+       
+    <run spec="MCMC" id="mcmc" chainLength="10">
+		
+		<distribution idref="posterior"/>
+		
+		<operator id='kappaScaler' spec='ScaleOperator' scaleFactor="0.5" weight="1" parameter="@kappa"/>
+        <operator id='oneSitePathSamplingOperator' spec='beast.evolution.operators.OneSitePathSamplingOperator' weight="1" pathtree="@pathtree" siteModel="@proposalSiteModel"/>
+
+	    <operator autoOptimize="true" delta="0.01" id="FrequenciesExchanger.s:alignment" integer="false" spec="DeltaExchangeOperator" weight="1">
+    	    <parameter idref="freqParameter.s:alignment"/>
+    	</operator>
+
+        <logger logEvery="1" fileName="testMCMC.log">
+	        <!--model idref='likelihood'/-->
+	        <distribution idref="posterior" name="log"/>
+        	<distribution idref="likelihood" name="log"/>
+            <log idref='kappa'/>
+            <parameter idref="freqParameter.s:alignment" name="log"/>
+        </logger>
+        
+        <logger logEvery="1" fileName="test.substitutions" mode="compound">
+            <log idref="pathtree"/>
+        </logger>
+		
+    </run>
+       
+</beast>
