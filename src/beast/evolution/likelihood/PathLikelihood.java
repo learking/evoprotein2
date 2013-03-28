@@ -72,7 +72,7 @@ public class PathLikelihood extends Distribution {
 	
     public double calcTotalPathLogP() throws Exception{
     	logP = 0;
-    	// loop through all branches
+    	// loop through all branches, except the one with length 0 (the beginning of the branch is rootSeq)
     	for (int i=0 ; i< pathTree.getNodeCount(); i++){
 			if(pathTree.getNode(i).getHeight() != pathTree.getRoot().getHeight()){
 				PathBranch currentBranch = pathTree.getBranch(i);
@@ -92,7 +92,17 @@ public class PathLikelihood extends Distribution {
 				
 			}
     	}
+    	
+    	// need to add rootSeq Stationary log prob back into the pathLikelihood
+    	logP += calcRootSeqLogP();
+    	
     	return logP;
+    }
+    
+    // calculate the Stationary log prob of rootSeq by 
+    double calcRootSeqLogP(){
+    	
+    	return 1.0;
     }
     
     double calcPathLogP(PathBranch currentBranch, MutableSequence parentSeq, MutableSequence childSeq) throws Exception{
