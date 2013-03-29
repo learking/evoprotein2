@@ -93,16 +93,13 @@ public class PathLikelihood extends Distribution {
 			}
     	}
     	
+    	// get root seq
+    	int rootNr = pathTree.getRoot().getNr();
+    	int [] rootCodonSeq = pathTree.getSequences().get(rootNr).toCodonArray();
     	// need to add rootSeq Stationary log prob back into the pathLikelihood
-    	logP += calcRootSeqLogP();
+    	logP += ourModel.getRootSeqLogP(rootCodonSeq);
     	
     	return logP;
-    }
-    
-    // calculate the Stationary log prob of rootSeq by 
-    double calcRootSeqLogP(){
-    	
-    	return 1.0;
     }
     
     double calcPathLogP(PathBranch currentBranch, MutableSequence parentSeq, MutableSequence childSeq) throws Exception{
