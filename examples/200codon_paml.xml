@@ -34,7 +34,10 @@
     <input spec='evoprotein.proteinstructure.StructureEnv' id='structureEnv' />
     
     <!-- while using my mac -->
-    <input spec='evoprotein.proteinstructure.InputStructure' id='inputStructure' firstOrderTerms='/Users/kwang2/Documents/workspace/evoprotein2/structureInfo/firstOrderTerms_200codon.dat' interactionTerms='/Users/kwang2/Documents/workspace/evoprotein2/structureInfo/interactionTerms_200codon.dat'>
+    <!--input spec='evoprotein.proteinstructure.InputStructure' id='inputStructure' firstOrderTerms='/Users/kwang2/Documents/workspace/evoprotein2/structureInfo/firstOrderTerms_200codon.txt' interactionTerms='/Users/kwang2/Documents/workspace/evoprotein2/structureInfo/interactionTerms_200codon.txt'-->
+    
+    <!-- while using desktop -->
+    <input spec='evoprotein.proteinstructure.InputStructure' id='inputStructure' firstOrderTerms='/home/kuangyu/workspace/evoprotein2/structureInfo/firstOrderTerms_200codon.txt' interactionTerms='/home/kuangyu/workspace/evoprotein2/structureInfo/interactionTerms_200codon.txt'>    
     	<structureEnv idref="structureEnv" />
     	<solventAccessibility idref="solventAccessibility" />
     </input>    
