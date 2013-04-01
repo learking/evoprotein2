@@ -33,9 +33,9 @@ public class InputStructureTest extends TestCase {
         solventAccessibility.initAndValidate();
         structEnv = new StructureEnv();
         structEnv.initAndValidate();
-        String interactionTermsFile = "/home/kuangyu/workspace/evoprotein2/src/evoprotein/proteinstructure/interactionTerms.dat";
+        //String interactionTermsFile = "/home/kuangyu/workspace/evoprotein2/src/evoprotein/proteinstructure/interactionTerms.dat";
         inputStructure = new InputStructure();
-        inputStructure.initByName("structureEnv", structEnv, "solventAccessibility", solventAccessibility,"interactionTerms", interactionTermsFile);
+        //inputStructure.initByName("structureEnv", structEnv, "solventAccessibility", solventAccessibility,"interactionTerms", interactionTermsFile);
         
     }
 	
@@ -43,18 +43,20 @@ public class InputStructureTest extends TestCase {
 	public void test() {
 		assertEquals(structEnv.getStructEnvNum(), 10, BEASTTestCase.PRECISION);
 	}
-/*
+
 	@Test
-	public void testPrintTerms() {
-		inputStructure.printFirstOrder();
+	public void testWriteTerms() throws IOException {
+		inputStructure.writeFirstOrder();
 		System.out.println();
-		inputStructure.printInteraction2EnvMap();
+		inputStructure.writeInteraction2EnvMap();
 	}
-	*/
 	
+	
+	/*
 	@Test
 	public void testParse() throws IOException{
 			inputStructure.parseInteractionTerm2EnvMap();
 	}
+	*/
 
 }
