@@ -30,6 +30,11 @@ public class SubstitutionEvent {
 		}
 	}
 	
+	// setter
+	public void adjustTimeInterval(double scaleFactor){
+		timeInterval = timeInterval * scaleFactor;
+	}
+	
 	// getters
 	public double getTimeInterval(){
 		return timeInterval;

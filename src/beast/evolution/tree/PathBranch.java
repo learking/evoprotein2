@@ -138,5 +138,20 @@ public class PathBranch {
 		}
 		return pathbranch;
 	}
+
+	public void adjustSubstitutionTimes(double scaleFactor) {
+		
+		for (int site = 0; site < m_MutationPaths.size() ; site++) {
+			int currentNumOfSubst = m_MutationPaths.get(site).size();
+			if(currentNumOfSubst != 0){
+				// within this branch, adjust interval length for each substitution
+				for (int substIndex = 0; substIndex < currentNumOfSubst; substIndex++ ) {
+					//substitutions.add(new Substitution(site, m_MutationPaths.get(site).get(substIndex), cumulativeHeight));
+					m_MutationPaths.get(site).get(substIndex).adjustTimeInterval(scaleFactor);
+				}
+			}
+		}
+
+	}
 	
 }
