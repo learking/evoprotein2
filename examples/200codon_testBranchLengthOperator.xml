@@ -96,6 +96,8 @@
     	</operator>
 		-->
 		
+		<operator id='branchLengthOperator' spec='beast.evolution.operators.BranchLengthOperator' weight="1" tree="@pathtree"/>
+		
         <logger logEvery="1" fileName="200codon_mcmc.log">
 	        <!--model idref='likelihood'/-->
 	        <distribution idref="posterior" name="log"/>

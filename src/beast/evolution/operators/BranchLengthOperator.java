@@ -51,7 +51,7 @@ public class BranchLengthOperator extends TreeOperator {
         final double fYoungest = Math.min(node.getLeft().getHeight(), node.getRight().getHeight());
         final double newValue = (Randomizer.nextDouble() * (fUpper - fLower)) + fLower;
         
-        // wrong! not only should we set new height for this node, but we should adjust substitution times for events along three branches affected!
+        // not only should we set new height for this node, but we should adjust substitution times for events along three branches affected!
         node.setHeight(newValue);
         final double thisNodeScaleFactor = (fUpper - newValue) / (fUpper - oldValue);
         final double eldestChildScaleFactor = (newValue - fLower)/(oldValue - fLower);
@@ -60,15 +60,17 @@ public class BranchLengthOperator extends TreeOperator {
         tree.getBranch(eldestChildNodeNr).adjustSubstitutionTimes(eldestChildScaleFactor);
         tree.getBranch(youngestChildNodeNr).adjustSubstitutionTimes(youngestChildScaleFactor);
         
+        /*
         System.out.println("changed node:" + node.getNr() + " num of subst:" + numSubstThisNode + " its eldestChild:" + eldestChildNodeNr + " num of subst:" 
         + numSubstEldest + " its youngest:" + youngestChildNodeNr + " num of subst:" + numSubstYoungest);
         System.out.println("fUpper:" + fUpper + " " + "fLower:" + fLower + " " + "fYoungest:" + fYoungest + " oldValue:" + oldValue + " newValue:" + newValue);
+        */
         
-        // wrong! should be the complex hastings ratio we discussed!
+        //the complex hastings ratio we discussed
         double logHastingsRatio = (double)numSubstThisNode * (Math.log(fUpper - newValue) - Math.log(fUpper - oldValue)) + 
         		(double)numSubstEldest * (Math.log(newValue - fLower) - Math.log(oldValue - fLower)) + 
         		(double)numSubstYoungest * (Math.log(newValue - fYoungest) - Math.log(oldValue - fYoungest));
-        System.out.println("Hastings ratio:" + logHastingsRatio);
+        //System.out.println("Hastings ratio:" + logHastingsRatio);
         return logHastingsRatio;
 	}
 

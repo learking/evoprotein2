@@ -204,6 +204,12 @@ public class PathTree extends Tree {
 				out.print(thisBranchLength + "\t");
 			}
 		}
+		
+        int[] dummy = new int[1];
+        String sNewick = thisTree.getRoot().toSortedNewick(dummy);
+        out.print(sNewick);
+        out.print(";");
+		
     }
     
     public void close(PrintStream out) {
@@ -222,6 +228,11 @@ public class PathTree extends Tree {
 		for(int i=leafNodeCount; i<nodeCount; i++){
 			m_sequences.get(i).setSequence(dummySeq);
 		}
+	}
+	
+	// tmp 
+	public void setDummySeq(int nodeNr, int [] dummySeq){
+		m_sequences.get(nodeNr).setSequence(dummySeq);
 	}
 	
 	// tmp
