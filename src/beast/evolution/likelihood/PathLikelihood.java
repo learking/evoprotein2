@@ -15,6 +15,7 @@ import beast.core.Input;
 import beast.core.State;
 import beast.core.Input.Validate;
 import beast.evolution.substitutionmodel.ProteinCodingDNASubstModel;
+import beast.evolution.substitutionmodel.TwoStructSubstModel;
 import beast.evolution.tree.PathBranch;
 import beast.evolution.tree.PathTree;
 import beast.evolution.tree.SeqPath;
@@ -29,12 +30,14 @@ public class PathLikelihood extends Distribution {
 	
 	// inputs
     public Input<PathTree> m_pathTree = new Input<PathTree>("PathTree", "PathTree with sequence data in the all nodes", Validate.REQUIRED);
-    public Input<ProteinCodingDNASubstModel> m_ourModel = new Input<ProteinCodingDNASubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
+    //public Input<ProteinCodingDNASubstModel> m_ourModel = new Input<ProteinCodingDNASubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
+    public Input<TwoStructSubstModel> m_ourModel = new Input<TwoStructSubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
     
 	static CodonUtil codonUtil = new CodonUtil();
     
     PathTree pathTree;
-    ProteinCodingDNASubstModel ourModel;
+    //ProteinCodingDNASubstModel ourModel;
+    TwoStructSubstModel ourModel;
     
 	// init
     @Override
