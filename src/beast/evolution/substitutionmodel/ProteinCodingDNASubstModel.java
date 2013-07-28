@@ -239,6 +239,7 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	return rootCodonSeqLogP;
     }
     
+    
     /**
      * CalculationNode implementations *
      */

@@ -106,6 +106,11 @@ public class InputTwoStruct extends Plugin {
 		return solventAccessibility.get().getLogProb(firstOrderTermCategory, codonType); 
 	}
 	
+	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType, int[][] interactionTerm2EnvMap) {
+		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
+		return structureEnv.get().getLogProb(structEnvNumber, firstCodonType, secondCodonType);
+	}
+	
 	/*
 	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType){
 		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
@@ -124,4 +129,29 @@ public class InputTwoStruct extends Plugin {
 		return firstOrderRatio;
 	}
 
+	public double getInteractionRatio(int[] codonArrayI, int leftBound, int rightBound, int codonDifferPosition, int differCodon, double fNow) {
+		double interactionRatio = 0;
+		double interactionStructARatio = 0;
+		double interactionStructBRatio = 0;
+
+		// calculate interaction ratio for both structs independently (or jointly?)
+		for (int m = leftBound; m < codonDifferPosition; m++) {
+			//interactionRatio += getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon) - getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]);
+			interactionStructARatio = getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon, interactionTermsStructA2EnvMap) 
+					- getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition], interactionTermsStructA2EnvMap);
+			
+			interactionStructBRatio = getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon, interactionTermsStructB2EnvMap) 
+					- getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition], interactionTermsStructB2EnvMap);
+		}	
+		for (int n = codonDifferPosition + 1 ; n < rightBound; n++) {
+			interactionStructARatio += getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n], interactionTermsStructA2EnvMap) 
+			- getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n], interactionTermsStructA2EnvMap);
+			
+			interactionStructBRatio += getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n], interactionTermsStructB2EnvMap) 
+			- getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n], interactionTermsStructB2EnvMap);
+		}	
+		
+		interactionRatio = fNow*interactionStructARatio + (1-fNow)*interactionStructBRatio;
+		return interactionRatio;
+	}
 }

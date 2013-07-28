@@ -203,16 +203,11 @@ public class TwoStructSubstModel extends CalculationNode {
     	//System.out.println("first order:" + firstOrderRatio);
 
     	//****************************************************************************************************************
-    	// how to design this part?
+    	// our new way to calculate interactionRatio
     	double interactionRatio = 0;   	
-    	// here, m refers to a codon position, it should in 	
-		for (int m = getInteractionRangeLeftBound(codonDifferPosition); m < codonDifferPosition; m++) {
-			interactionRatio += inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon) - inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]);
-		}
-		
-		for (int n = codonDifferPosition + 1 ; n < getInteractionRangeRightBound(codonDifferPosition, codonArrayI.length); n++) {
-			interactionRatio += inputStructure.getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n]) - inputStructure.getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n]);
-		}	
+    	int leftBound = getInteractionRangeLeftBound(codonDifferPosition);
+    	int rightBound = getInteractionRangeRightBound(codonDifferPosition, codonArrayI.length);
+    	interactionRatio = inputTwoStruct.getInteractionRatio(codonArrayI, leftBound, rightBound, codonDifferPosition, differCodon, fNow);
     	
     	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
     	//System.out.println(interactionRatio);
@@ -239,6 +234,7 @@ public class TwoStructSubstModel extends CalculationNode {
     	return rightBound;
     }
     
+    // ????? find original expression for rootSeqLogProb and then decide how to deal with it
     public double getRootSeqLogP(int[] rootCodonSeq) {
     	double rootCodonSeqLogP = 0.0;
     	
@@ -256,6 +252,7 @@ public class TwoStructSubstModel extends CalculationNode {
     	
     	return rootCodonSeqLogP;
     }
+    
     
     /**
      * CalculationNode implementations *
