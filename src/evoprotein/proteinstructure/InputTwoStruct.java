@@ -154,4 +154,27 @@ public class InputTwoStruct extends Plugin {
 		interactionRatio = fNow*interactionStructARatio + (1-fNow)*interactionStructBRatio;
 		return interactionRatio;
 	}
+	
+	public double getRootSeqLogP(int[] rootCodonSeq, double fNow){
+		double rootSeqLogP = 0;
+		
+    	for(int codonPosition = 0; codonPosition < rootCodonSeq.length; codonPosition++) {
+    		double firstOrderLogProbA = getFirstOrderLogProb(codonPosition, rootCodonSeq[codonPosition], firstOrderStructA);
+    		double firstOrderLogProbB = getFirstOrderLogProb(codonPosition, rootCodonSeq[codonPosition], firstOrderStructB);
+    		rootSeqLogP += fNow*firstOrderLogProbA + (1-fNow)*firstOrderLogProbB;
+    	}
+    	
+    	// deal with second order terms
+    	for(int firstCodonPosition = 0; firstCodonPosition < (rootCodonSeq.length-1); firstCodonPosition++) {
+    		for(int secondCodonPosition = (firstCodonPosition+1); secondCodonPosition < rootCodonSeq.length; secondCodonPosition++) {
+    			double interactionLogProb_A = getInteractionLogProb(firstCodonPosition, secondCodonPosition, rootCodonSeq[firstCodonPosition], rootCodonSeq[secondCodonPosition], interactionTermsStructA2EnvMap);
+    			double interactionLogProb_B = getInteractionLogProb(firstCodonPosition, secondCodonPosition, rootCodonSeq[firstCodonPosition], rootCodonSeq[secondCodonPosition], interactionTermsStructB2EnvMap);
+    			rootSeqLogP += fNow*interactionLogProb_A + (1-fNow)*interactionLogProb_B;
+    		
+    		}   		
+    	}
+		
+		return rootSeqLogP;
+	}
+
 }

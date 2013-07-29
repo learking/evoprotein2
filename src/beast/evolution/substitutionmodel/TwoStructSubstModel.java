@@ -236,19 +236,10 @@ public class TwoStructSubstModel extends CalculationNode {
     
     // ????? find original expression for rootSeqLogProb and then decide how to deal with it
     public double getRootSeqLogP(int[] rootCodonSeq) {
+    	double fNow = f.get().getValue();
     	double rootCodonSeqLogP = 0.0;
     	
-    	// deal with first order terms
-    	for(int codonPosition = 0; codonPosition < rootCodonSeq.length; codonPosition++) {
-    		rootCodonSeqLogP += inputStructure.getFirstOrderLogProb(codonPosition, rootCodonSeq[codonPosition]);
-    	}
-    	
-    	// deal with second order terms
-    	for(int firstCodonPosition = 0; firstCodonPosition < (rootCodonSeq.length-1); firstCodonPosition++) {
-    		for(int secondCodonPosition = (firstCodonPosition+1); secondCodonPosition < rootCodonSeq.length; secondCodonPosition++) {
-    			rootCodonSeqLogP += inputStructure.getInteractionLogProb(firstCodonPosition, secondCodonPosition, rootCodonSeq[firstCodonPosition], rootCodonSeq[secondCodonPosition]);
-    		}   		
-    	}
+    	rootCodonSeqLogP = inputTwoStruct.getRootSeqLogP(rootCodonSeq, fNow);
     	
     	return rootCodonSeqLogP;
     }
