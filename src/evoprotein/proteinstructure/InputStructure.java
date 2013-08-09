@@ -18,7 +18,7 @@ import beast.util.Randomizer;
 public class InputStructure extends Plugin {
 	
 	// for debugging only
-	int simulatedCodonNr = 500;
+	int simulatedCodonNr = 12;
 	
 	public Input<StructureEnv> structureEnv = new Input<StructureEnv>("structureEnv", "Structure Environment", Validate.REQUIRED);
 	public Input<SolventAccessibility> solventAccessibility = new Input<SolventAccessibility>("solventAccessibility", "solvent accessibility categories", Validate.REQUIRED);
@@ -130,8 +130,11 @@ public class InputStructure extends Plugin {
 	// for test only
 	
 	public void writeFirstOrder() throws IOException {
-		  FileWriter fstream = new FileWriter("/Users/kwang2/Desktop/firstOrderTerms.txt");
-		  BufferedWriter out = new BufferedWriter(fstream);
+		// mac
+		//FileWriter fstream = new FileWriter("/Users/kwang2/Desktop/firstOrderTerms.txt");
+		// linux
+		FileWriter fstream = new FileWriter("/home/kuangyu/Desktop/firstOrderTerms.txt");
+		BufferedWriter out = new BufferedWriter(fstream);
 		  
 			int [] firstOrder = new int [simulatedCodonNr];
 			double [] pdf = new double [10];
@@ -180,8 +183,11 @@ public class InputStructure extends Plugin {
 	}
 	
 	public void writeInteraction2EnvMap() throws IOException {
-		  FileWriter fstream = new FileWriter("/Users/kwang2/Desktop/interactionTerms.txt");
-		  BufferedWriter out = new BufferedWriter(fstream);
+		//mac
+		  //FileWriter fstream = new FileWriter("/Users/kwang2/Desktop/interactionTerms.txt");
+		//linux
+		FileWriter fstream = new FileWriter("/home/kuangyu/Desktop/interactionTerms.txt");
+		BufferedWriter out = new BufferedWriter(fstream);
 		  
 			int[][] interactionTerm2EnvMap = new int[simulatedCodonNr][simulatedCodonNr];
 
