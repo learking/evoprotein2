@@ -3,8 +3,11 @@
  */
 package beast.evolution.alignment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import beast.evolution.datatype.DataType;
 import beast.util.AddOnManager;
@@ -73,9 +76,15 @@ public class GappedAlignment extends Alignment {
             throw new Exception("Sequence data expected, but none found");
         }
 
-        // handle insertions and deletions here
-        findInDels();
+        // handle insertions first, because position numbering will change after we deletion things
         removeInsertions();
+        
+        // mark down positions where deletions happen
+        if(noInsertion(m_counts.get(0))){
+            findDeletions();
+        }else{
+        	throw new Exception("there shouldn't be any insertions left!");
+        }
         
         // Sanity check: make sure sequences are of same length
         int nLength = m_counts.get(0).size();
@@ -87,15 +96,80 @@ public class GappedAlignment extends Alignment {
         
         calcPatterns();
     }
-	
-    void findInDels(){
-    	// how to find indel at the beginning, middle section and end region?
-    	
-    }
     
-    void removeInsertions(){
-    	// do something to sequences stored in m_counts to remove insertions
-    	
+    // handle indels
+    final static public int GAP_INT = 16;
+    
+    boolean noInsertion(List<Integer> referenceSeq){
+    	boolean noInsertionFlag = true;
+    	for(int i = 0; i < referenceSeq.size(); i++){
+    		if(referenceSeq.get(i) == GAP_INT){
+    			noInsertionFlag = false;
+    			break;
+    		}
+    	}
+    	return noInsertionFlag;
     }
 
+    void removeInsertions(){
+    	List<List<Integer>> newSequences = new ArrayList<List<Integer>>();
+    	for(int nTaxa = 0; nTaxa < m_counts.size(); nTaxa++){
+    		newSequences.add(new ArrayList<Integer>());
+    	}
+    	
+    	List<Integer> referenceSeq = m_counts.get(0);
+    	// if gap in the first (reference) seq, delete same positions in other seqs
+    	for (int AAsite=0; AAsite < referenceSeq.size(); AAsite += 3) {
+    		if(referenceSeq.get(AAsite) != GAP_INT){
+    			addAA(newSequences, m_counts, AAsite);
+    		}
+    	}
+    	m_counts = newSequences;
+    }
+    
+    void addAA(List<List<Integer>> newSequences, List<List<Integer>> oldSequences, int AAsite){
+    	for (int nTaxa = 0; nTaxa < oldSequences.size(); nTaxa++) {
+    		newSequences.get(nTaxa).add(oldSequences.get(nTaxa).get(AAsite));
+    		newSequences.get(nTaxa).add(oldSequences.get(nTaxa).get(AAsite + 1));
+    		newSequences.get(nTaxa).add(oldSequences.get(nTaxa).get(AAsite + 2));    		
+    	}
+    }
+    
+    boolean isDeletion(List<List<Integer>> sequences, int AAsite) throws Exception{
+    	boolean deletionFlag = false;
+    	for(int nTaxa = 1; nTaxa < sequences.size(); nTaxa++){
+    		List<Integer> tmpSeq = sequences.get(nTaxa);
+    		if(tmpSeq.get(AAsite) == GAP_INT && tmpSeq.get(AAsite + 1) == GAP_INT && tmpSeq.get(AAsite + 2) == GAP_INT){
+    			deletionFlag = true;
+    			break;
+    		}else if (tmpSeq.get(AAsite) != GAP_INT && tmpSeq.get(AAsite + 1) != GAP_INT && tmpSeq.get(AAsite + 2) != GAP_INT){
+    			continue;
+    		}else{
+    			throw new Exception("A deletion should be 3 nucleotide wide only");
+    		}
+    	}
+    	return deletionFlag;
+    }
+    
+    //shouldn't be a list, but a set
+    protected Set<Integer> m_deletionPositions = new HashSet<Integer>();
+    
+	// if gap in other seq/seqs mark down the positions
+    void findDeletions() throws Exception{
+    	// skip the reference seq
+    	for(int i = 0 ; i < m_counts.get(0).size(); i +=3){
+    		if(isDeletion(m_counts, i)){
+    			// add i to the collection of deletion positions
+    			m_deletionPositions.add(i);
+    		}
+    	}
+    }
+    
+    // getter for m_deletionPositions
+    public Set<Integer> getDeletionPositions(){
+    	return m_deletionPositions;
+    }
+    
 }
+
+

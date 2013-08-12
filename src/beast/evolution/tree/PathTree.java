@@ -74,8 +74,11 @@ public class PathTree extends Tree {
 		for (int i = 0; i < m_alignment.get().getNrTaxa(); i++) {
 			if (m_alignment.get().m_pSequences.get().get(i).m_sTaxon.get()
 					.toString() == sequenceID) {
-				sequenceTarget = m_alignment.get().m_pSequences.get().get(i)
-						.getSequence(nucleo);
+				//wrong ! don't try to use member variables
+				//sequenceTarget = m_alignment.get().m_pSequences.get().get(i).getSequence(nucleo);
+				
+				// when we delete insertions, we are operating on m_counts instead of m_pSequences !!
+				sequenceTarget = m_alignment.get().getCounts().get(i);
 			}
 		}
 		int[] sequence = new int[sequenceTarget.size()];
