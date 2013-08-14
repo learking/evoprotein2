@@ -7,6 +7,8 @@ import beast.core.CalculationNode;
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
+import beast.evolution.alignment.Alignment;
+import beast.evolution.alignment.GappedAlignment;
 import evoprotein.evolution.datatype.CodonUtil;
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.proteinstructure.InputStructure;
@@ -32,6 +34,9 @@ public class TwoStructSubstModel extends CalculationNode {
 	//public Input<InputStructure> m_inputStructure = new Input<InputStructure>("inputStructure", "input Structure pre-calculated", Validate.REQUIRED);
 	public Input<InputTwoStruct> m_inputTwoStruct = new Input<InputTwoStruct>("inputTwoStruct", "two input Structures pre-calculated", Validate.REQUIRED);
 	
+	// add gapped alignment as input so that we would be able to know where deletion-caused gaps happen
+	public Input<Alignment> m_alignment = new Input<Alignment>("alignment", "gapped alignment", Validate.REQUIRED);
+	
 	static CodonUtil codonUtil = new CodonUtil();
 	
 	// define variables here
@@ -52,8 +57,10 @@ public class TwoStructSubstModel extends CalculationNode {
     	frequencies = m_frequencies.get();
     	inputTwoStruct = m_inputTwoStruct.get();
     	
+    	// cast to gapped alignment
+    	GappedAlignment alignment = (GappedAlignment) m_alignment.get();
     	// do sth here to handle deletion-caused gaps
-    	
+    	inputTwoStruct.removeGapRelatedTerms(alignment.getDeletionPositions());
     	
     	interactionRange = 10;
     }

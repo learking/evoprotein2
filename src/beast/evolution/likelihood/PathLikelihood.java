@@ -32,20 +32,20 @@ public class PathLikelihood extends Distribution {
     public Input<PathTree> m_pathTree = new Input<PathTree>("PathTree", "PathTree with sequence data in the all nodes", Validate.REQUIRED);
     
     // one struct
-    public Input<ProteinCodingDNASubstModel> m_ourModel = new Input<ProteinCodingDNASubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
+    //public Input<ProteinCodingDNASubstModel> m_ourModel = new Input<ProteinCodingDNASubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
     
     // two struct
-    //public Input<TwoStructSubstModel> m_ourModel = new Input<TwoStructSubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
+    public Input<TwoStructSubstModel> m_ourModel = new Input<TwoStructSubstModel>("ourModel", "Our model that allows dependence among sites", Validate.REQUIRED);
     
 	static CodonUtil codonUtil = new CodonUtil();
     
     PathTree pathTree;
     
     // one struct case
-    ProteinCodingDNASubstModel ourModel;
+    //ProteinCodingDNASubstModel ourModel;
     
     // two structs case
-    //TwoStructSubstModel ourModel;
+    TwoStructSubstModel ourModel;
     
 	// init
     @Override

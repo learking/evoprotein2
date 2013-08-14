@@ -141,32 +141,38 @@ public class InputStructure extends Plugin {
 				newFirstOrderTerms[j] = getFirstOrderTerm(i);
 				
 				j++;
-				if(j >= newDim){
+				if(j > newDim){
 					throw new Exception("J shouldn't exceed newDim");
 				}
 			}
 		}
 		
+		
 		int m = 0;
-		int n = 0;
 		// delete interaction terms by creating a new int[][] and replace the original one with the new one
-		for(int rowNr = 0; rowNr < getFirstOrderDim(); rowNr++){
-			for(int colNr = 0; colNr < getFirstOrderDim(); colNr++){		
-				if((!deletionPositions.contains(rowNr*3)) && (!deletionPositions.contains(colNr*3))){
-					newInteractionTerm2EnvMap[m][n] = getInteractionTerm(rowNr, colNr);
+		for(int rowNr = 0; rowNr < getInteractionDim(); rowNr++){
+		
+			System.out.println("interaction dim:" + getInteractionDim());			
+			if(!deletionPositions.contains(rowNr*3)){
+				// init n to be zero
+				int n = 0;
+				for(int colNr = 0; colNr < getInteractionDim(); colNr++){		
+					if(!deletionPositions.contains(colNr*3)){
+						newInteractionTerm2EnvMap[m][n] = getInteractionTerm(rowNr, colNr);
 					
-					// update after operation
-					m++;
-					n++;
-					if(m >= newDim || n >= newDim){
-						throw new Exception("M or N shouldn't exceed or equal to newDim");
+						// update after operation
+						n++;
 					}
 				}
+						
+				m++;		
 			}
+		
 		}
 		
 		updateFirstOrderTerms(newFirstOrderTerms);
 		updateInteractionTerms(newInteractionTerm2EnvMap);
+		
 	}
 	
 	void updateFirstOrderTerms(int[] newFirstOrderTerms){
@@ -180,6 +186,10 @@ public class InputStructure extends Plugin {
 	// getter
 	int getFirstOrderDim(){
 		return firstOrderTerms.length;
+	}
+	
+	int getInteractionDim(){
+		return interactionTerm2EnvMap.length;
 	}
 	
 	int getFirstOrderTerm(int i){

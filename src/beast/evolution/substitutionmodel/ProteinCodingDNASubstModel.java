@@ -47,7 +47,8 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	
     	// cast to gapped alignment
     	GappedAlignment alignment = (GappedAlignment) m_alignment.get();
-    	// needs to be implemented
+    	
+    	// remove terms associated with deletion-caused gaps
     	inputStructure.removeGapRelatedTerms(alignment.getDeletionPositions());
     	
     	interactionRange = 10;

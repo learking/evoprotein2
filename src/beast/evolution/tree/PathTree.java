@@ -35,6 +35,7 @@ public class PathTree extends Tree {
 			
 			nucleoSequenceLength = m_alignment.get().getSiteCount();
 			codonSequenceLength = nucleoSequenceLength / 3;
+			
 			for(int i=0; i<nodeCount; i++) {
 				m_sequences.add(new MutableSequence(nucleoSequenceLength));
 				if(m_nodes[i].isRoot()){

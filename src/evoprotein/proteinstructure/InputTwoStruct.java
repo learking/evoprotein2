@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import beast.core.Input;
 import beast.core.Plugin;
@@ -177,4 +178,89 @@ public class InputTwoStruct extends Plugin {
 		return rootSeqLogP;
 	}
 
+	public void removeGapRelatedTerms(Set<Integer> deletionPositions) {
+		int newDim = getFirstOrderDim() - deletionPositions.size(); 
+		
+		int[] newFirstOrderStructA = new int[newDim];
+		int[] newFirstOrderStructB = new int[newDim];		
+		int[][] newInteractionTermsStructA2EnvMap = new int[newDim][newDim];
+		int[][] newInteractionTermsStructB2EnvMap = new int[newDim][newDim];
+		
+		int j  = 0;
+		for(int i = 0; i < getFirstOrderDim(); i++){
+			// add to new int[] only when it is not deletion site
+			if(!deletionPositions.contains(i*3)){
+				newFirstOrderStructA[j] = getFirstOrderTermStructA(i);
+				newFirstOrderStructB[j] = getFirstOrderTermStructB(i);
+				
+				j++;
+				/*
+				if(j > newDim){
+					throw new Exception("J shouldn't exceed newDim");
+				}
+				*/
+			}
+		}
+		
+		int m = 0;
+		// delete interaction terms by creating a new int[][] and replace the original one with the new one
+		for(int rowNr = 0; rowNr < getInteractionDim(); rowNr++){
+		
+			System.out.println("interaction dim:" + getInteractionDim());			
+			if(!deletionPositions.contains(rowNr*3)){
+				// init n to be zero
+				int n = 0;
+				for(int colNr = 0; colNr < getInteractionDim(); colNr++){		
+					if(!deletionPositions.contains(colNr*3)){
+						newInteractionTermsStructA2EnvMap[m][n] = getInteractionTermStructA(rowNr, colNr);
+						newInteractionTermsStructB2EnvMap[m][n] = getInteractionTermStructB(rowNr, colNr);
+						// update after operation
+						n++;
+					}
+				}
+						
+				m++;	
+			}
+		
+		}
+		
+		updateFirstOrderTerms(newFirstOrderStructA, newFirstOrderStructB);
+		updateInteractionTerms(newInteractionTermsStructA2EnvMap, newInteractionTermsStructB2EnvMap);
+		
+	}
+		
+	void updateFirstOrderTerms(int[] newFirstOrderStructA, int[] newFirstOrderStructB){
+		firstOrderStructA = newFirstOrderStructA;
+		firstOrderStructB = newFirstOrderStructB;
+	}
+	
+	void updateInteractionTerms(int[][] newInteractionTermsStructA2EnvMap, int[][] newInteractionTermsStructB2EnvMap){
+		interactionTermsStructA2EnvMap = newInteractionTermsStructA2EnvMap;
+		interactionTermsStructB2EnvMap = newInteractionTermsStructB2EnvMap;
+	}
+	
+	int getFirstOrderDim(){
+		return firstOrderStructA.length;
+	}
+	
+	int getInteractionDim(){
+		return interactionTermsStructA2EnvMap.length;
+	}
+	
+	int getFirstOrderTermStructA(int i){
+		return firstOrderStructA[i];
+	}
+
+	int getFirstOrderTermStructB(int i){
+		return firstOrderStructB[i];
+	}
+	
+	int getInteractionTermStructA(int rowNr, int colNr){
+		return interactionTermsStructA2EnvMap[rowNr][colNr];
+	}
+
+	int getInteractionTermStructB(int rowNr, int colNr){
+		return interactionTermsStructB2EnvMap[rowNr][colNr];
+	}
+	
 }
