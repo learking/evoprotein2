@@ -81,7 +81,10 @@ public class GappedAlignment extends Alignment {
         
         // mark down positions where deletions happen
         if(noInsertion(m_counts.get(0))){
-            findDeletions();
+            // store all deletion-caused gap positions first
+        	findDeletions();
+        	// remove all deletion-caused gap positions
+        	removeDeletions();
         }else{
         	throw new Exception("there shouldn't be any insertions left!");
         }
@@ -162,6 +165,29 @@ public class GappedAlignment extends Alignment {
     			// add i to the collection of deletion positions
     			m_deletionPositions.add(i);
     		}
+    	}
+    }
+    
+    void removeDeletions() {
+    	
+    	if(!m_deletionPositions.isEmpty()){
+    		
+        	List<List<Integer>> newSequences = new ArrayList<List<Integer>>();
+        	for(int nTaxa = 0; nTaxa < m_counts.size(); nTaxa++){
+        		newSequences.add(new ArrayList<Integer>());
+        	}
+        	
+        	// if this position is not in m_deletionPositions, add it to newSequences
+        	List<Integer> referenceSeq = m_counts.get(0);
+        	// if gap in the first (reference) seq, delete same positions in other seqs
+        	for (int AAsite=0; AAsite < referenceSeq.size(); AAsite += 3) {
+        		// if not a deletion site
+        		if(!m_deletionPositions.contains(AAsite)){
+        			addAA(newSequences, m_counts, AAsite);
+        		}
+        	}
+        	m_counts = newSequences;
+        	
     	}
     }
     

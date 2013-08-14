@@ -51,6 +51,10 @@ public class TwoStructSubstModel extends CalculationNode {
     public void initAndValidate(){
     	frequencies = m_frequencies.get();
     	inputTwoStruct = m_inputTwoStruct.get();
+    	
+    	// do sth here to handle deletion-caused gaps
+    	
+    	
     	interactionRange = 10;
     }
     

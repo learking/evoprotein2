@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import beast.core.Input;
 import beast.core.Plugin;
@@ -27,10 +28,10 @@ public class InputStructure extends Plugin {
 	public Input<String> m_interactionTermsFile = new Input<String>("interactionTerms", "interactionTerm file", Validate.REQUIRED);// not required, Beauti may need this for example
 	
 	
-	int [] firstOrderTerms; 
+	protected int [] firstOrderTerms; 
 	
 	// need a sparse matrix here to store pairwise info, however, since the # of entries is much smaller than ...
-	int [][] interactionTerm2EnvMap;
+	protected int [][] interactionTerm2EnvMap;
 	
 	// initiate and validate
 	public void initAndValidate() throws IOException{
@@ -124,6 +125,69 @@ public class InputStructure extends Plugin {
 		}
 		
 		return matrix;
+	}
+	
+	// remove deletion-caused-gap related first order and second order terms
+	public void removeGapRelatedTerms(Set<Integer> deletionPositions) throws Exception{
+		int newDim = getFirstOrderDim() - deletionPositions.size(); 
+		int[] newFirstOrderTerms = new int[newDim];
+		int[][] newInteractionTerm2EnvMap = new int[newDim][newDim];
+		
+		// delete first order terms by creating a new int[] and replace the original one with the new one
+		int j  = 0;
+		for(int i = 0; i < getFirstOrderDim(); i++){
+			// add to new int[] only when it is not deletion site
+			if(!deletionPositions.contains(i*3)){
+				newFirstOrderTerms[j] = getFirstOrderTerm(i);
+				
+				j++;
+				if(j >= newDim){
+					throw new Exception("J shouldn't exceed newDim");
+				}
+			}
+		}
+		
+		int m = 0;
+		int n = 0;
+		// delete interaction terms by creating a new int[][] and replace the original one with the new one
+		for(int rowNr = 0; rowNr < getFirstOrderDim(); rowNr++){
+			for(int colNr = 0; colNr < getFirstOrderDim(); colNr++){		
+				if((!deletionPositions.contains(rowNr*3)) && (!deletionPositions.contains(colNr*3))){
+					newInteractionTerm2EnvMap[m][n] = getInteractionTerm(rowNr, colNr);
+					
+					// update after operation
+					m++;
+					n++;
+					if(m >= newDim || n >= newDim){
+						throw new Exception("M or N shouldn't exceed or equal to newDim");
+					}
+				}
+			}
+		}
+		
+		updateFirstOrderTerms(newFirstOrderTerms);
+		updateInteractionTerms(newInteractionTerm2EnvMap);
+	}
+	
+	void updateFirstOrderTerms(int[] newFirstOrderTerms){
+		firstOrderTerms = newFirstOrderTerms;
+	}
+	
+	void updateInteractionTerms(int[][] newInteractionTerm2EnvMap){
+		interactionTerm2EnvMap = newInteractionTerm2EnvMap;
+	}
+	
+	// getter
+	int getFirstOrderDim(){
+		return firstOrderTerms.length;
+	}
+	
+	int getFirstOrderTerm(int i){
+		return firstOrderTerms[i];
+	}
+	
+	int getInteractionTerm(int rowNr, int colNr){
+		return interactionTerm2EnvMap[rowNr][colNr];
 	}
 	
 	// for testing only

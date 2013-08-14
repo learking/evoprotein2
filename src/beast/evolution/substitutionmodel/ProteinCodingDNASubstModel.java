@@ -7,6 +7,8 @@ import beast.core.CalculationNode;
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
+import beast.evolution.alignment.Alignment;
+import beast.evolution.alignment.GappedAlignment;
 import beast.evolution.datatype.DataType;
 import beast.evolution.tree.Node;
 
@@ -21,6 +23,9 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
 	// for use in struct based model
 	public Input<InputStructure> m_inputStructure = new Input<InputStructure>("inputStructure", "input Structure pre-calculated", Validate.REQUIRED);
 
+	// add gapped alignment as input so that we would be able to know where deletion-caused gaps happen
+	public Input<Alignment> m_alignment = new Input<Alignment>("alignment", "gapped alignment", Validate.REQUIRED);
+	
 	static CodonUtil codonUtil = new CodonUtil();
 	
 	// define variables here
@@ -36,9 +41,15 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     
 	// initAndValidate
     @Override
-    public void initAndValidate(){
+    public void initAndValidate() throws Exception{
     	frequencies = frequenciesInput.get();
     	inputStructure = m_inputStructure.get();
+    	
+    	// cast to gapped alignment
+    	GappedAlignment alignment = (GappedAlignment) m_alignment.get();
+    	// needs to be implemented
+    	inputStructure.removeGapRelatedTerms(alignment.getDeletionPositions());
+    	
     	interactionRange = 10;
     }
     
