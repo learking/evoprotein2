@@ -18,6 +18,10 @@ public class SolventAccessibility extends Plugin {
 	
 	// getters
 	
+	public double[][] getSolventCategories(){
+		return solventCategories;
+	}
+	
 	public int getNumOfCategories() {
 		return solventCategories.length;
 	}

@@ -14,7 +14,7 @@ public class StructureEnv extends Plugin {
 	// first row represents row marginal, second row represents column marginal
 	List<double [][]> marginalProbMatrices;
 	
-	// tmp, used to test whether pre-compute log would speed up my application
+	// pre-compute log would speed up my application
 	List<double [][]> logStructEnv;
 	List<double [][]> marginalLogProbMatrices;
 	
@@ -83,6 +83,10 @@ public class StructureEnv extends Plugin {
 	}	
 	
 	// getter
+	public List<double[][]> getLogStructEnv(){
+		return logStructEnv;
+	}
+	
 	List<double [][]> getMarginalProbMatrices () {
 		List<double [][]> marginalMatrices = new ArrayList<double [][]>();
 		for (int envNum = 0; envNum < structEnv.size(); envNum++) {

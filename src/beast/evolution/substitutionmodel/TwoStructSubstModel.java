@@ -209,19 +209,17 @@ public class TwoStructSubstModel extends CalculationNode {
     	double fNow = f.get().getValue();
     	double structBasedSeqProbRatio = 0;
     	
+    	double firstOrderRatio = 0;
     	// get firstOrderRatio for both structures, f*firstOrderStructA + (1-f)*firstOrderStructB
-    	double firstOrderRatio = inputTwoStruct.getFirstOrderRatio(codonDifferPosition, differCodon, codonArrayI[codonDifferPosition], fNow);
-    	//System.out.println("first order:" + firstOrderRatio);
+    	firstOrderRatio = inputTwoStruct.getFirstOrderRatio(codonDifferPosition, differCodon, codonArrayI[codonDifferPosition], fNow);
 
-    	//****************************************************************************************************************
     	// our new way to calculate interactionRatio
-    	double interactionRatio = 0;   	
+    	double interactionRatio = 0;
     	int leftBound = getInteractionRangeLeftBound(codonDifferPosition);
     	int rightBound = getInteractionRangeRightBound(codonDifferPosition, codonArrayI.length);
     	interactionRatio = inputTwoStruct.getInteractionRatio(codonArrayI, leftBound, rightBound, codonDifferPosition, differCodon, fNow);
     	
     	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
-    	//System.out.println(interactionRatio);
     	return structBasedSeqProbRatio;
     }
     

@@ -27,9 +27,17 @@ public class InputTwoStruct extends Plugin {
 	int [][] interactionTermsStructA2EnvMap;
 	int [][] interactionTermsStructB2EnvMap;
 	
+	// introduce this in order to run faster, but does it help?
+	double[][] solventCategories;
+	List<double[][]> logStructEnv;
+	
 	// initiate and validate
 	public void initAndValidate() throws IOException{
 		parseInputTwoStruct();
+		
+		// try to speed up
+		solventCategories = solventAccessibility.get().getSolventCategories(); 
+		logStructEnv = structureEnv.get().getLogStructEnv();
 	}
 	
 	public void parseInputTwoStruct() throws IOException{
@@ -104,12 +112,22 @@ public class InputTwoStruct extends Plugin {
 	
 	public double getFirstOrderLogProb(int codonPosition, int codonType, int[] firstOrderTerms) {
 		int firstOrderTermCategory = firstOrderTerms[codonPosition];
-		return solventAccessibility.get().getLogProb(firstOrderTermCategory, codonType); 
+		
+		// before introducing solventAccessibility
+		//return solventAccessibility.get().getLogProb(firstOrderTermCategory, codonType); 
+		
+		// after introducing solventAccessibility		
+		return solventCategories[firstOrderTermCategory][codonType];
 	}
 	
 	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType, int[][] interactionTerm2EnvMap) {
 		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
-		return structureEnv.get().getLogProb(structEnvNumber, firstCodonType, secondCodonType);
+
+		// before introducing logStructEnv 
+		//return structureEnv.get().getLogProb(structEnvNumber, firstCodonType, secondCodonType);
+		
+		// after introducing logStructEnv
+		return logStructEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
 	}
 	
 	/*

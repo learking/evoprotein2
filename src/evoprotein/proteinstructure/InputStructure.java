@@ -19,7 +19,7 @@ import beast.util.Randomizer;
 public class InputStructure extends Plugin {
 	
 	// for debugging only
-	int simulatedCodonNr = 12;
+	int simulatedCodonNr = 137;
 	
 	public Input<StructureEnv> structureEnv = new Input<StructureEnv>("structureEnv", "Structure Environment", Validate.REQUIRED);
 	public Input<SolventAccessibility> solventAccessibility = new Input<SolventAccessibility>("solventAccessibility", "solvent accessibility categories", Validate.REQUIRED);
