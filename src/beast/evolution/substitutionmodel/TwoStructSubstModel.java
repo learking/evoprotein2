@@ -62,6 +62,7 @@ public class TwoStructSubstModel extends CalculationNode {
     	// do sth here to handle deletion-caused gaps
     	inputTwoStruct.removeGapRelatedTerms(alignment.getDeletionPositions());
     	
+    	// range is set here
     	interactionRange = 10;
     }
     
@@ -177,31 +178,6 @@ public class TwoStructSubstModel extends CalculationNode {
     	differCodon = codonUtil.translate(seqJ, codonDifferPosition * 3);
     	return differCodon;
     }
-    
-    // full interaction version of getStructBasedSeqProbRatio
-    /*
-    double getStructBasedSeqProbRatio(int[] codonArrayI, int differCodon, int codonDifferPosition) throws Exception{
-    	double structBasedSeqProbRatio = 0;
-    	
-    	double firstOrderRatio = inputStructure.getFirstOrderLogProb(codonDifferPosition, differCodon) - inputStructure.getFirstOrderLogProb(codonDifferPosition, codonArrayI[codonDifferPosition]);
-    	
-    	double interactionRatio = 0;
-    	
-    	// here, m refers to a codon position, it should in
-    	
-		for (int m = 0; m < codonDifferPosition; m++) {
-			interactionRatio += inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon) - inputStructure.getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]);
-		}
-		
-		for (int n = codonDifferPosition + 1 ; n < codonArrayI.length; n++) {
-			interactionRatio += inputStructure.getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n]) - inputStructure.getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n]);
-		}	
-    	
-    	structBasedSeqProbRatio = firstOrderRatio + interactionRatio;
-    	//System.out.println(interactionRatio);
-    	return structBasedSeqProbRatio;
-    }
-    */
     
     // range 10 version of getStructBasedSeqProbRatio
     // change it to allow inputStructure as input

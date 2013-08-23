@@ -113,9 +113,6 @@ public class InputTwoStruct extends Plugin {
 	public double getFirstOrderLogProb(int codonPosition, int codonType, int[] firstOrderTerms) {
 		int firstOrderTermCategory = firstOrderTerms[codonPosition];
 		
-		// before introducing solventAccessibility
-		//return solventAccessibility.get().getLogProb(firstOrderTermCategory, codonType); 
-		
 		// after introducing solventAccessibility		
 		return solventCategories[firstOrderTermCategory][codonType];
 	}
@@ -123,19 +120,9 @@ public class InputTwoStruct extends Plugin {
 	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType, int[][] interactionTerm2EnvMap) {
 		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
 
-		// before introducing logStructEnv 
-		//return structureEnv.get().getLogProb(structEnvNumber, firstCodonType, secondCodonType);
-		
 		// after introducing logStructEnv
 		return logStructEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
 	}
-	
-	/*
-	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType){
-		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
-		return structureEnv.get().getLogProb(structEnvNumber, firstCodonType, secondCodonType);
-	}
-	*/
 	
 	public double getFirstOrderRatio(int codonDifferPosition, int differCodonType, int originalCodonType, double fNow){
 		double firstOrderRatio = 0;

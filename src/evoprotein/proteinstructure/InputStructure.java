@@ -33,10 +33,19 @@ public class InputStructure extends Plugin {
 	// need a sparse matrix here to store pairwise info, however, since the # of entries is much smaller than ...
 	protected int [][] interactionTerm2EnvMap;
 	
+	
+	// introduce this in order to run faster, but does it help?
+	double[][] solventCategories;
+	List<double[][]> logStructEnv;
+	
 	// initiate and validate
 	public void initAndValidate() throws IOException{
 		System.out.println(m_interactionTermsFile.get());
 		parseInputStructure();
+		
+		// try to speed up
+		solventCategories = solventAccessibility.get().getSolventCategories(); 
+		logStructEnv = structureEnv.get().getLogStructEnv();
 	}
 	
 	// file parser
@@ -69,13 +78,13 @@ public class InputStructure extends Plugin {
 	
 	public double getFirstOrderLogProb(int codonPosition, int codonType) {
 		int firstOrderTermCategory = firstOrderTerms[codonPosition];
-		return solventAccessibility.get().getLogProb(firstOrderTermCategory, codonType); 
+		return solventCategories[firstOrderTermCategory][codonType];
 	}
 	
 	// needs efficiency boost
 	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType){
 		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
-		return structureEnv.get().getLogProb(structEnvNumber, firstCodonType, secondCodonType);
+		return logStructEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
 	}
 	
 	
