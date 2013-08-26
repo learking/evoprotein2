@@ -126,15 +126,16 @@ public class TwoStructSubstModel extends CalculationNode {
 
     // used only in getSubstAwayRate
     double getStructLogProb(int[] codonArrayI, int site){
-    	double structLogProb = 0;
+    	double fNow = f.get().getValue();
     	
-    	double firstOrderLogProb = inputTwoStruct.getFirstOrderLogProb;
+    	double structLogProb = 0;
+    	int codonPosition = site/3;
+    	
+    	double firstOrderLogProb = inputTwoStruct.getFirstOrderSeqLogP(codonArrayI[codonPosition], codonPosition, fNow);
     	
     	int leftBound = getInteractionRangeLeftBound(site);
-    	int rightBound = getInteractionRangeRightBound(site, codonArrayI.length);
-    	//interactionRatio = inputTwoStruct.getInteractionRatio(codonArrayI, leftBound, rightBound, site, differCodon, fNow);
-    	
-    	double interactionLogProb = ;
+    	int rightBound = getInteractionRangeRightBound(site, codonArrayI.length);    	
+    	double interactionLogProb = inputTwoStruct.getInteractionSeqLogP();
     	
     	structLogProb = firstOrderLogProb + interactionLogProb;
     	return structLogProb; 

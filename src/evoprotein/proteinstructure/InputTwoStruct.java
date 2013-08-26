@@ -135,6 +135,15 @@ public class InputTwoStruct extends Plugin {
 		return firstOrderRatio;
 	}
 
+	// instead of calculating ratio, this function calculates firstOrderLogP for a given sequence at a given position
+	public double getFirstOrderSeqLogP(int codonType, int codonPosition, double fNow){
+		
+		double firstOrderSeqLogProbStructA = getFirstOrderLogProb(codonPosition, codonType, firstOrderStructA);
+		double firstOrderSeqLogProbStructB = getFirstOrderLogProb(codonPosition, codonType, firstOrderStructB);
+		
+		return fNow*firstOrderSeqLogProbStructA + (1-fNow)*firstOrderSeqLogProbStructB;
+	}
+	
 	public double getInteractionRatio(int[] codonArrayI, int leftBound, int rightBound, int codonDifferPosition, int differCodon, double fNow) {
 		double interactionRatio = 0;
 		double interactionStructARatio = 0;
