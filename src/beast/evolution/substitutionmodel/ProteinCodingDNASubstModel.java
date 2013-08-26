@@ -152,8 +152,14 @@ public class ProteinCodingDNASubstModel extends CalculationNode {
     	double neutralSeqProbRatio = Math.log(frequencies.getFreqs()[seqJ.getSequence()[differPosition]] / frequencies.getFreqs()[seqI.getSequence()[differPosition]]);
 
     	int codonDifferPosition = differPosition / 3;
-    	//int differCodon = getDifferCodon(seqJ, codonDifferPosition);
-    	double structBasedSeqProbRatio = getStructBasedSeqProbRatio(codonArrayI, differCodon, codonDifferPosition);
+    	
+    	// if Synonymous substitution
+    	double structBasedSeqProbRatio;
+    	if(codonArrayI[codonDifferPosition] != differCodon){
+    		structBasedSeqProbRatio = getStructBasedSeqProbRatio(codonArrayI, differCodon, codonDifferPosition);
+    	}else{
+    		structBasedSeqProbRatio = 0;
+    	}
 
     	logTAU = structBasedSeqProbRatio - neutralSeqProbRatio;
     	return logTAU;
