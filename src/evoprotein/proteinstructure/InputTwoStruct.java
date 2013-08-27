@@ -109,17 +109,8 @@ public class InputTwoStruct extends Plugin {
 	}
 	
 	// getter
-	
-	public double getFirstOrderLogProb(int codonPosition, int codonType, int[] firstOrderTerms) {
-		int firstOrderTermCategory = firstOrderTerms[codonPosition];
-		
-		// after introducing solventAccessibility		
-		return solventCategories[firstOrderTermCategory][codonType];
-	}
-	
 	public double getInteractionLogProb(int firstCodonPosition, int secondCodonPosition, int firstCodonType, int secondCodonType, int[][] interactionTerm2EnvMap) {
 		int structEnvNumber = interactionTerm2EnvMap[firstCodonPosition][secondCodonPosition];
-
 		// after introducing logStructEnv
 		return logStructEnv.get(structEnvNumber)[firstCodonType][secondCodonType];
 	}
@@ -129,19 +120,12 @@ public class InputTwoStruct extends Plugin {
 		double firstOrderStructARatio = 0;
 		double firstOrderStructBRatio = 0;
 		
-		firstOrderStructARatio = getFirstOrderLogProb(codonDifferPosition, differCodonType, firstOrderStructA) - getFirstOrderLogProb(codonDifferPosition, originalCodonType, firstOrderStructA);
-		firstOrderStructBRatio = getFirstOrderLogProb(codonDifferPosition, differCodonType, firstOrderStructB) - getFirstOrderLogProb(codonDifferPosition, originalCodonType, firstOrderStructB);
+		int firstOrderTermCategory_A = firstOrderStructA[codonDifferPosition];
+		int firstOrderTermCategory_B = firstOrderStructB[codonDifferPosition];
+		firstOrderStructARatio = solventCategories[firstOrderTermCategory_A][differCodonType] - solventCategories[firstOrderTermCategory_A][originalCodonType];
+		firstOrderStructBRatio = solventCategories[firstOrderTermCategory_B][differCodonType] - solventCategories[firstOrderTermCategory_B][originalCodonType];
 	    firstOrderRatio = fNow*firstOrderStructARatio + (1-fNow)*firstOrderStructBRatio;
 		return firstOrderRatio;
-	}
-
-	// instead of calculating ratio, this function calculates firstOrderLogP for a given sequence at a given position
-	public double getFirstOrderSeqLogP(int codonType, int codonPosition, double fNow){
-		
-		double firstOrderSeqLogProbStructA = getFirstOrderLogProb(codonPosition, codonType, firstOrderStructA);
-		double firstOrderSeqLogProbStructB = getFirstOrderLogProb(codonPosition, codonType, firstOrderStructB);
-		
-		return fNow*firstOrderSeqLogProbStructA + (1-fNow)*firstOrderSeqLogProbStructB;
 	}
 	
 	public double getInteractionRatio(int[] codonArrayI, int leftBound, int rightBound, int codonDifferPosition, int differCodon, double fNow) {
@@ -151,19 +135,23 @@ public class InputTwoStruct extends Plugin {
 
 		// calculate interaction ratio for both structs independently (or jointly?)
 		for (int m = leftBound; m < codonDifferPosition; m++) {
+			int structEnvNumber_A = interactionTermsStructA2EnvMap[m][codonDifferPosition];
+			int structEnvNumber_B = interactionTermsStructB2EnvMap[m][codonDifferPosition];
 			//interactionRatio += getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon) - getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition]);
-			interactionStructARatio = getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon, interactionTermsStructA2EnvMap) 
-					- getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition], interactionTermsStructA2EnvMap);
+			interactionStructARatio += logStructEnv.get(structEnvNumber_A)[codonArrayI[m]][differCodon]
+					- logStructEnv.get(structEnvNumber_A)[codonArrayI[m]][codonArrayI[codonDifferPosition]];
 			
-			interactionStructBRatio = getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], differCodon, interactionTermsStructB2EnvMap) 
-					- getInteractionLogProb(m, codonDifferPosition, codonArrayI[m], codonArrayI[codonDifferPosition], interactionTermsStructB2EnvMap);
+			interactionStructBRatio += logStructEnv.get(structEnvNumber_B)[codonArrayI[m]][differCodon]
+					- logStructEnv.get(structEnvNumber_B)[codonArrayI[m]][codonArrayI[codonDifferPosition]];
 		}	
 		for (int n = codonDifferPosition + 1 ; n < rightBound; n++) {
-			interactionStructARatio += getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n], interactionTermsStructA2EnvMap) 
-			- getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n], interactionTermsStructA2EnvMap);
+			int structEnvNumber_A = interactionTermsStructA2EnvMap[codonDifferPosition][n];
+			int structEnvNumber_B = interactionTermsStructB2EnvMap[codonDifferPosition][n];
+			interactionStructARatio += logStructEnv.get(structEnvNumber_A)[differCodon][codonArrayI[n]]
+			- logStructEnv.get(structEnvNumber_A)[codonArrayI[codonDifferPosition]][codonArrayI[n]];
 			
-			interactionStructBRatio += getInteractionLogProb(codonDifferPosition, n, differCodon, codonArrayI[n], interactionTermsStructB2EnvMap) 
-			- getInteractionLogProb(codonDifferPosition, n, codonArrayI[codonDifferPosition], codonArrayI[n], interactionTermsStructB2EnvMap);
+			interactionStructBRatio += logStructEnv.get(structEnvNumber_B)[differCodon][codonArrayI[n]]
+					- logStructEnv.get(structEnvNumber_B)[codonArrayI[codonDifferPosition]][codonArrayI[n]];
 		}	
 		
 		interactionRatio = fNow*interactionStructARatio + (1-fNow)*interactionStructBRatio;
@@ -174,8 +162,10 @@ public class InputTwoStruct extends Plugin {
 		double rootSeqLogP = 0;
 		
     	for(int codonPosition = 0; codonPosition < rootCodonSeq.length; codonPosition++) {
-    		double firstOrderLogProbA = getFirstOrderLogProb(codonPosition, rootCodonSeq[codonPosition], firstOrderStructA);
-    		double firstOrderLogProbB = getFirstOrderLogProb(codonPosition, rootCodonSeq[codonPosition], firstOrderStructB);
+    		int firstOrderTermCategory_A = firstOrderStructA[codonPosition];
+    		int firstOrderTermCategory_B = firstOrderStructB[codonPosition];
+    		double firstOrderLogProbA = solventCategories[firstOrderTermCategory_A][rootCodonSeq[codonPosition]];
+    		double firstOrderLogProbB = solventCategories[firstOrderTermCategory_B][rootCodonSeq[codonPosition]];
     		rootSeqLogP += fNow*firstOrderLogProbA + (1-fNow)*firstOrderLogProbB;
     	}
     	

@@ -66,29 +66,12 @@ public class TwoStructSubstModel extends CalculationNode {
     	interactionRange = 10;
     }
     
-    //anything below has not been improved
-    //************************************************************************************************************  
     public double getSubstAwayRate(MutableSequence seqI) throws Exception{
 		//System.out.println("Rate away start:" + System.currentTimeMillis());
     	double awayRate = 0;
     	int[] originalNucleoSeq = seqI.getSequence();
     	int seqLength = originalNucleoSeq.length;
     	int[] codonArrayI = seqI.toCodonArray();
-    	
-    	// calculate neutralLogProb and structLogProb for seqI prior to calculation of substAwayRate
-    	double[] neutralLogProbSeqI = new double[seqLength];
-    	double[] structLogProbSeqI = new double[seqLength];
-    	
-    	double[] logFreqs = getLogFreqs(frequencies.getFreqs());
-    	
-    	// pre-compute stuff for seq I since it does not change
-    	for(int site = 0; site < seqLength; site++){
-    		// neutralLogProb calculation for seqI
-    		//double neutralLogPorbSeqI = Math.log(frequencies.getFreqs()[seqI.getSequence()[differPosition]]);
-    		neutralLogProbSeqI[site] = logFreqs[originalNucleoSeq[site]];
-    		// structLogProb calculation for seqI
-    		structLogProbSeqI[site] = getStructLogProb(codonArrayI, site);
-    	}
     	
     	//MutableSequence tmpSeq;
     	MutableSequence tmpSeq = new MutableSequence(originalNucleoSeq.length);
@@ -103,53 +86,15 @@ public class TwoStructSubstModel extends CalculationNode {
     			//System.out.println(tmpSeq.toString());
     			int mutatedCodonStartSite = site - (site%3);
     			int differCodon = codonUtil.translate(tmpSeq, mutatedCodonStartSite);
-    			if(differCodon != -1) {  				
-    				//awayRate += getSubstitutionRate(seqI, tmpSeq, codonArrayI, site, differCodon);
-    				
-    				// new awayRate (store struct value for seqI )
-    				awayRate += getSubstRate();
+    			if(differCodon != -1) {
+    				awayRate += getSubstitutionRate(seqI, tmpSeq, codonArrayI, site, differCodon);
     			}
     		}
     	}
 		//System.out.println("Rate away end:" + System.currentTimeMillis());
     	return awayRate;
-    }
-    
-    // used only in getSubstAwayRate
-    double[] getLogFreqs(double[] freqs){
-    	double[] logFreqs = new double[freqs.length];
-    	for (int i = 0; i < freqs.length; i++) {
-    		logFreqs[i] = Math.log(freqs[i]);
-    	}
-    	return logFreqs;
-    }
+    }    
 
-    // used only in getSubstAwayRate
-    double getStructLogProb(int[] codonArrayI, int site){
-    	double fNow = f.get().getValue();
-    	
-    	double structLogProb = 0;
-    	int codonPosition = site/3;
-    	
-    	double firstOrderLogProb = inputTwoStruct.getFirstOrderSeqLogP(codonArrayI[codonPosition], codonPosition, fNow);
-    	
-    	int leftBound = getInteractionRangeLeftBound(site);
-    	int rightBound = getInteractionRangeRightBound(site, codonArrayI.length);    	
-    	double interactionLogProb = inputTwoStruct.getInteractionSeqLogP();
-    	
-    	structLogProb = firstOrderLogProb + interactionLogProb;
-    	return structLogProb; 
-    }
-    
-    double getSubstRate(){
-    	scalingFactor = getScalingFactor();
-    	
-    	double substRate = 0;
-    	
-    	
-    	
-    	return substRate;
-    }
     
     int[] getChangableNucleotides(int originalNucleotide){
     	int [] changableNucleotides;
@@ -218,12 +163,12 @@ public class TwoStructSubstModel extends CalculationNode {
 
     	int codonDifferPosition = differPosition / 3;
     	
-    	// if Synonymous substitution
+    	// if non-Synonymous substitution
     	double structBasedSeqProbRatio;
     	if(codonArrayI[codonDifferPosition] != differCodon ){
     		structBasedSeqProbRatio = getStructBasedSeqProbRatio(codonArrayI, differCodon, codonDifferPosition);
     	}else{
-    		// if non-Synonymous substitution
+    		// if synonymous substitution
     		structBasedSeqProbRatio = 0;
     	}
 
