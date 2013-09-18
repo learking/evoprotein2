@@ -73,7 +73,7 @@ public class PathTree extends Tree {
 		Nucleotide nucleo = new Nucleotide();
 		List<Integer> sequenceTarget = new ArrayList<Integer>();
 		for (int i = 0; i < m_alignment.get().getNrTaxa(); i++) {
-			if (m_alignment.get().m_pSequences.get().get(i).m_sTaxon.get()
+			if (m_alignment.get().sequenceInput.get().get(i).taxonInput.get()
 					.toString() == sequenceID) {
 				//wrong ! don't try to use member variables
 				//sequenceTarget = m_alignment.get().m_pSequences.get().get(i).getSequence(nucleo);

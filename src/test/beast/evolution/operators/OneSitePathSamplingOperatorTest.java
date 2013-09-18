@@ -8,10 +8,10 @@ import org.junit.Test;
 
 import test.beast.evoprotein2TestCase;
 
+import beast.core.BEASTObject;
 import beast.core.Distribution;
 import beast.core.Logger;
 import beast.core.MCMC;
-import beast.core.Plugin;
 import beast.core.parameter.RealParameter;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.likelihood.PathTreeLikelihood;
@@ -42,7 +42,7 @@ public class OneSitePathSamplingOperatorTest extends evoprotein2TestCase {
 	Distribution likelihood;
 
 	Logger tmpLogger;
-	ArrayList<Plugin> log;
+	ArrayList<BEASTObject> log;
 	
 	OneSitePathSamplingOperator oneSitePathSamplingOperator;
 	

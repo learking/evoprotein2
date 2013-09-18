@@ -14,7 +14,7 @@ public class InstantHKY extends HKY {
 		// need a condition here
 		setupMatrix();
 		
-		double k = kappa.get().getValue();
+		double k = kappaInput.get().getValue();
 		double freqR = freqA + freqG;
 		double freqY = freqC + freqT;
 		

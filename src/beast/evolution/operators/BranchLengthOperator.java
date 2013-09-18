@@ -16,7 +16,7 @@ public class BranchLengthOperator extends TreeOperator {
 	
 	@Override
 	public double proposal() {
-        final PathTree tree = (PathTree) m_tree.get(this);
+        final PathTree tree = (PathTree) treeInput.get(this);
         // randomly select internal node
         final int nNodeCount = tree.getNodeCount();
         Node node;       

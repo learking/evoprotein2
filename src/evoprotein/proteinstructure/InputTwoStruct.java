@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import beast.core.BEASTObject;
 import beast.core.Input;
-import beast.core.Plugin;
 import beast.core.Input.Validate;
 
-public class InputTwoStruct extends Plugin {
+public class InputTwoStruct extends BEASTObject {
 
 	public Input<StructureEnv> structureEnv = new Input<StructureEnv>("structureEnv", "Structure Environment", Validate.REQUIRED);
 	public Input<SolventAccessibility> solventAccessibility = new Input<SolventAccessibility>("solventAccessibility", "solvent accessibility categories", Validate.REQUIRED);

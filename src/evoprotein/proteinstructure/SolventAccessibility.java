@@ -1,9 +1,9 @@
 package evoprotein.proteinstructure;
 
-import beast.core.Plugin;
+import beast.core.BEASTObject;
 import beast.util.Randomizer;
 
-public class SolventAccessibility extends Plugin {
+public class SolventAccessibility extends BEASTObject {
 	
 	double [][] solventCategories;
 	

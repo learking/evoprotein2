@@ -31,7 +31,7 @@ public class PathTreeLikelihood extends Distribution {
     @Override
     public void initAndValidate() throws Exception {
         m_siteModel = m_pSiteModel.get();
-        m_substitutionModel = m_siteModel.m_pSubstModel.get();
+        m_substitutionModel = m_siteModel.substModelInput.get();
         m_substModel = (InstantHKY) m_substitutionModel;
     }
     

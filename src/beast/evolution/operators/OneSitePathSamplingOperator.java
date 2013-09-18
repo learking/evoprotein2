@@ -57,7 +57,7 @@ public class OneSitePathSamplingOperator extends Operator{
     
     @Override
     public void initAndValidate() throws Exception {
-    	m_substitutionModel = m_pSiteModel.get().m_pSubstModel.get();
+    	m_substitutionModel = m_pSiteModel.get().substModelInput.get();
     	
     	rootNr = m_pathTree.get().getRoot().getNr();
     	sudoRootNr = m_pathTree.get().getSudoRootNr();

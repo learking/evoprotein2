@@ -4,8 +4,8 @@
 package evoprotein.proteinstructure;
 
 import evoprotein.evolution.datatype.MutableSequence;
+import beast.core.BEASTObject;
 import beast.core.Input;
-import beast.core.Plugin;
 import beast.core.Input.Validate;
 import beast.evolution.substitutionmodel.Frequencies;
 
@@ -13,7 +13,7 @@ import beast.evolution.substitutionmodel.Frequencies;
  * @author kuangyu
  *
  */
-public class NeutralSeqProb extends Plugin {
+public class NeutralSeqProb extends BEASTObject {
 	// Note: not the frequencies that serve as input to the model used in the proposing stage
     public Input<Frequencies> frequenciesInput =
             new Input<Frequencies>("frequencies", "our substitution model equilibrium state frequencies", Validate.REQUIRED);

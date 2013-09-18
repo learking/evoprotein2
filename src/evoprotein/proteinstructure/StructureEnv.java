@@ -2,12 +2,9 @@ package evoprotein.proteinstructure;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import beast.core.BEASTObject;
 
-import beast.core.Plugin;
-import beast.util.Randomizer;
-
-public class StructureEnv extends Plugin {
+public class StructureEnv extends BEASTObject {
 	
 	List<double [][]> structEnv;
 	

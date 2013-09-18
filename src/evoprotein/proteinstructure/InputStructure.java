@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import beast.core.BEASTObject;
 import beast.core.Input;
-import beast.core.Plugin;
 import beast.core.Input.Validate;
 import beast.util.Randomizer;
 
-public class InputStructure extends Plugin {
+public class InputStructure extends BEASTObject {
 	
 	// for debugging only
 	int simulatedCodonNr = 137;

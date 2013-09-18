@@ -41,17 +41,17 @@ public class GappedAlignment extends Alignment {
     @Override
     public void initAndValidate() throws Exception {
         // determine data type, either user defined or one of the standard ones
-        if (m_userDataType.get() != null) {
-            m_dataType = m_userDataType.get();
+        if (userDataTypeInput.get() != null) {
+            m_dataType = userDataTypeInput.get();
         } else {
-            if (m_sTypes.indexOf(m_sDataType.get()) < 0) {
-                throw new Exception("data type + '" + m_sDataType.get() + "' cannot be found. " +
-                        "Choose one of " + Arrays.toString(m_sTypes.toArray(new String[0])));
+            if (types.indexOf(dataTypeInput.get()) < 0) {
+                throw new Exception("data type + '" + dataTypeInput.get() + "' cannot be found. " +
+                        "Choose one of " + Arrays.toString(types.toArray(new String[0])));
             }
             List<String> sDataTypes = AddOnManager.find(beast.evolution.datatype.DataType.class, IMPLEMENTATION_DIR);
             for (String sDataType : sDataTypes) {
                 DataType dataType = (DataType) Class.forName(sDataType).newInstance();
-                if (m_sDataType.get().equals(dataType.getDescription())) {
+                if (dataTypeInput.get().equals(dataType.getDescription())) {
                     m_dataType = dataType;
                     break;
                 }
@@ -59,19 +59,19 @@ public class GappedAlignment extends Alignment {
         }
 
         // grab data from child sequences
-        m_sTaxaNames.clear();
-        m_nStateCounts.clear();
-        m_counts.clear();
-        for (Sequence seq : m_pSequences.get()) {
+        taxaNames.clear();
+        stateCounts.clear();
+        counts.clear();
+        for (Sequence seq : sequenceInput.get()) {
             //m_counts.add(seq.getSequence(getMap()));
-            m_counts.add(seq.getSequence(m_dataType));
-            if (m_sTaxaNames.indexOf(seq.m_sTaxon.get()) >= 0) {
-                throw new Exception("Duplicate taxon found in alignment: " + seq.m_sTaxon.get());
+            counts.add(seq.getSequence(m_dataType));
+            if (taxaNames.indexOf(seq.taxonInput.get()) >= 0) {
+                throw new Exception("Duplicate taxon found in alignment: " + seq.taxonInput.get());
             }
-            m_sTaxaNames.add(seq.m_sTaxon.get());
-            m_nStateCounts.add(seq.m_nTotalCount.get());
+            taxaNames.add(seq.taxonInput.get());
+            stateCounts.add(seq.totalCountInput.get());
         }
-        if (m_counts.size() == 0) {
+        if (counts.size() == 0) {
             // no sequence data
             throw new Exception("Sequence data expected, but none found");
         }
@@ -80,7 +80,7 @@ public class GappedAlignment extends Alignment {
         removeInsertions();
         
         // mark down positions where deletions happen
-        if(noInsertion(m_counts.get(0))){
+        if(noInsertion(counts.get(0))){
             // store all deletion-caused gap positions first
         	findDeletions();
         	// remove all deletion-caused gap positions
@@ -90,8 +90,8 @@ public class GappedAlignment extends Alignment {
         }
         
         // Sanity check: make sure sequences are of same length
-        int nLength = m_counts.get(0).size();
-        for (List<Integer> seq : m_counts) {
+        int nLength = counts.get(0).size();
+        for (List<Integer> seq : counts) {
             if (seq.size() != nLength) {
                 throw new Exception("Two sequences with different length found: " + nLength + " != " + seq.size());
             }
@@ -116,18 +116,18 @@ public class GappedAlignment extends Alignment {
 
     void removeInsertions(){
     	List<List<Integer>> newSequences = new ArrayList<List<Integer>>();
-    	for(int nTaxa = 0; nTaxa < m_counts.size(); nTaxa++){
+    	for(int nTaxa = 0; nTaxa < counts.size(); nTaxa++){
     		newSequences.add(new ArrayList<Integer>());
     	}
     	
-    	List<Integer> referenceSeq = m_counts.get(0);
+    	List<Integer> referenceSeq = counts.get(0);
     	// if gap in the first (reference) seq, delete same positions in other seqs
     	for (int AAsite=0; AAsite < referenceSeq.size(); AAsite += 3) {
     		if(referenceSeq.get(AAsite) != GAP_INT){
-    			addAA(newSequences, m_counts, AAsite);
+    			addAA(newSequences, counts, AAsite);
     		}
     	}
-    	m_counts = newSequences;
+    	counts = newSequences;
     }
     
     void addAA(List<List<Integer>> newSequences, List<List<Integer>> oldSequences, int AAsite){
@@ -160,8 +160,8 @@ public class GappedAlignment extends Alignment {
 	// if gap in other seq/seqs mark down the positions
     void findDeletions() throws Exception{
     	// skip the reference seq
-    	for(int i = 0 ; i < m_counts.get(0).size(); i +=3){
-    		if(isDeletion(m_counts, i)){
+    	for(int i = 0 ; i < counts.get(0).size(); i +=3){
+    		if(isDeletion(counts, i)){
     			// add i to the collection of deletion positions
     			m_deletionPositions.add(i);
     		}
@@ -173,20 +173,20 @@ public class GappedAlignment extends Alignment {
     	if(!m_deletionPositions.isEmpty()){
     		
         	List<List<Integer>> newSequences = new ArrayList<List<Integer>>();
-        	for(int nTaxa = 0; nTaxa < m_counts.size(); nTaxa++){
+        	for(int nTaxa = 0; nTaxa < counts.size(); nTaxa++){
         		newSequences.add(new ArrayList<Integer>());
         	}
         	
         	// if this position is not in m_deletionPositions, add it to newSequences
-        	List<Integer> referenceSeq = m_counts.get(0);
+        	List<Integer> referenceSeq = counts.get(0);
         	// if gap in the first (reference) seq, delete same positions in other seqs
         	for (int AAsite=0; AAsite < referenceSeq.size(); AAsite += 3) {
         		// if not a deletion site
         		if(!m_deletionPositions.contains(AAsite)){
-        			addAA(newSequences, m_counts, AAsite);
+        			addAA(newSequences, counts, AAsite);
         		}
         	}
-        	m_counts = newSequences;
+        	counts = newSequences;
         	
     	}
     }
