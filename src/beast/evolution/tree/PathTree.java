@@ -7,9 +7,9 @@ import java.util.List;
 
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.evolution.substitution.SubstitutionEvent;
-
 import beast.core.Description;
 import beast.core.Input;
+import beast.core.StateNodeInitialiser;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.datatype.Nucleotide;
 
@@ -31,6 +31,16 @@ public class PathTree extends Tree {
 	
 	@Override
 	public void initAndValidate() throws Exception {
+			// in tree class, this part was, for some reason, commented out
+		
+			if (m_initial.get() != null && !(this instanceof StateNodeInitialiser)) {
+				final Tree other = m_initial.get();
+      			root = other.root.copy();
+      			nodeCount = other.nodeCount;
+      			internalNodeCount = other.internalNodeCount;
+      			leafNodeCount = other.leafNodeCount;
+      		}
+		
 			super.initAndValidate();
 			
 			nucleoSequenceLength = m_alignment.get().getSiteCount();

@@ -58,23 +58,34 @@ public class OneSitePathSamplingOperator extends Operator{
     @Override
     public void initAndValidate() throws Exception {
     	m_substitutionModel = m_pSiteModel.get().substModelInput.get();
-    	
+    	System.out.println("step 1 passed");
     	rootNr = m_pathTree.get().getRoot().getNr();
+    	System.out.println("root nr is:" + rootNr);
+    	System.out.println("step 2 passed");
     	sudoRootNr = m_pathTree.get().getSudoRootNr();
+    	System.out.println("step 3 passed");
     	internalNodesNr = getInternalNodesNr();
-    	
+    	System.out.println("step 4 passed");
+
     	seqLength = m_pathTree.get().getSequences().get(0).getSequence().length;
+    	System.out.println("step 5 passed");
     	oldSitesProb = new double[seqLength];
+    	System.out.println("step 6 passed");
     }
     
     List<Integer> getInternalNodesNr(){
     	List<Integer> internalNodes = new ArrayList<Integer>();
+    	System.out.println("Leaf node count:" + m_pathTree.get().getLeafNodeCount());
+    	System.out.println("node count" + m_pathTree.get().getNodeCount());
 		for (int internalNodeIndex = m_pathTree.get().getLeafNodeCount(); internalNodeIndex < m_pathTree.get().getNodeCount(); internalNodeIndex++) {
 			internalNodes.add(internalNodeIndex);
 		}
 		// remove the root number from internalNodeNum
+		System.out.println(internalNodes.toString());
+		System.out.println("before remove:");
 		internalNodes.remove(internalNodes.indexOf(rootNr));
-    	return internalNodes;
+		System.out.println("after remove");
+		return internalNodes;
     }
     
 	@Override
