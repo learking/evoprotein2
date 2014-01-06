@@ -112,12 +112,35 @@ public class PathTree extends Tree {
 			 * aligned_seq.getSiteCount());
 			 */
 			String real_seq = nucleo.state2string(tmp_seq);
-			System.out.println("The node is:" + i);
+			System.out.print("The node is:" + m_nodes[i].getNr() + " ");
 			if (m_nodes[i].isLeaf()) {
-				System.out.println("The ID is:" + m_nodes[i].getID()
+				System.out.print("The ID is:" + m_nodes[i].getID()
 						+ " and length is: " + m_nodes[i].getLength());
 			}
-			System.out.println(" and the Seq is: \n" + real_seq);
+			if(!m_nodes[i].isLeaf() && !m_nodes[i].isRoot()){
+				System.out.print("Parent:" + m_nodes[i].getParent().getNr() + " Left child:" + m_nodes[i].getLeft().getNr() + " Right child:" + m_nodes[i].getRight().getNr() + " and length is:" + m_nodes[i].getLength());
+			}
+			if(m_nodes[i].isRoot()){
+				System.out.print("This is root. " + "Left child:" + m_nodes[i].getLeft().getNr() + " Right child:" + m_nodes[i].getRight().getNr() + " and length is:" + m_nodes[i].getLength());
+			}
+			System.out.print(" and the Seq is: " + real_seq + "\n");
+		}
+	}
+	
+	public void showPathBranches() throws Exception{
+		//show seq path when this branch does not end with sudo-root or root
+		for(int i = 0; i < m_branches.size(); i++){
+			if(!m_nodes[i].isRoot() && i!=getSudoRootNr()){
+				//get seqPath
+				int endNodeNr = m_branches.get(i).getEndNodeNr();
+				int beginNodeNr = m_branches.get(i).getBeginNodeNr();
+				MutableSequence childSeq = m_sequences.get(endNodeNr);
+				MutableSequence parentSeq = m_sequences.get(beginNodeNr);
+				SeqPath currentSeqPath = m_branches.get(i).getSeqPath(parentSeq, childSeq);
+				//print out seqPath so that we can check correctness
+				System.out.println("begin node:" + beginNodeNr + " end node:" + endNodeNr);
+				System.out.print(currentSeqPath.toString());
+			}
 		}
 	}
 	
@@ -199,6 +222,15 @@ public class PathTree extends Tree {
     	// tmp
     	// showSequences();
     	// System.out.println("#############################################################################");
+    }
+    
+    /**
+     * StateNode implementation
+     */
+    public String toString() {
+        String treeStr = super.toString();
+        String pathsStr = "to be filled";
+        return treeStr + "\n" + pathsStr;
     }
     
     /**
