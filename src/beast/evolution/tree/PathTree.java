@@ -12,6 +12,7 @@ import beast.core.Input;
 import beast.core.StateNodeInitialiser;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.datatype.Nucleotide;
+import beast.util.TreeParser;
 
 
 @Description("Tree that enables path sampling")
@@ -228,9 +229,66 @@ public class PathTree extends Tree {
      * StateNode implementation
      */
     public String toString() {
+    	//part I: tree
         String treeStr = super.toString();
-        String pathsStr = "to be filled";
-        return treeStr + "\n" + pathsStr;
+        //part II: seqs at nodes
+        String seqStr = "";
+        for (int i = 0; i < m_sequences.size(); i++) {
+        	seqStr += m_sequences.get(i).toString();
+        }
+        //part III: pathbranchs
+        String branchStr = "";
+        for (int i = 0; i < m_branches.size(); i++) {
+        	//need to implement toString for PathBranch
+        	branchStr += m_branches.get(i).toString();
+        }
+        //Join all parts
+        String pathTreeStr = treeStr + "\n" + seqStr + "\n" + branchStr;
+        //remove the last character in the string
+        pathTreeStr = pathTreeStr.substring(0, pathTreeStr.length() - 1);
+        return pathTreeStr;
+    }
+    
+    /**
+     * reconstruct PathTree from XML fragment in the form of a DOM node *
+     */
+    @Override
+    public void fromXML(final org.w3c.dom.Node node) {
+    	/*************************************************/
+    	//get text content
+        final String sNewick = node.getTextContent();
+        
+        /*************************************************/
+        //seperate the text into 3 sections: tree, seqs and branches
+        //to-do
+        
+        /*************************************************/
+        //parse tree
+        //create a tree parser
+        final TreeParser parser = new TreeParser();
+        try {
+            parser.thresholdInput.setValue(1e-10, parser);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        try {
+            parser.offsetInput.setValue(0, parser);
+            setRoot(parser.parseNewick(sNewick));
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        initArrays();
+        
+        /*************************************************/
+        //reconstruct m_sequences
+        
+        
+        /*************************************************/
+        //reconstruct m_branches
+        
+        //finish
+        
     }
     
     /**

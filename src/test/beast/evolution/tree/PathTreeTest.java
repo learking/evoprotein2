@@ -1,11 +1,19 @@
 package test.beast.evolution.tree;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
+import org.junit.Ignore;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.evolution.substitution.SubstitutionEvent;
@@ -50,8 +58,8 @@ public class PathTreeTest extends TestCase {
         tree = getSimpleTree(data);
     }
 	
-	@Test
-	public void testToString() throws Exception{
+    @Test
+	@Ignore public void testToString() throws Exception{
 		PathTree pathTree = new PathTree();
 		pathTree.initByName("initial", tree, "alignment", data);
 		//initialize internal node seq
@@ -78,6 +86,24 @@ public class PathTreeTest extends TestCase {
 		
 		//show all pathBranches to verify that the pathTree is what we designed
 		pathTree.showPathBranches();
+		System.out.print(pathTree.toString());
 	}
 	
+    @Test
+    public void testFromXML() throws Exception{
+    	//parse PathTree XML file
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        String stateFileName = "/home/kuangyu/Dropbox/research/meeting_memo/Jan_2014/pathTree.xml.state";
+        Document doc = factory.newDocumentBuilder().parse(new File(stateFileName));
+        doc.normalize();
+        final NodeList nodes = doc.getElementsByTagName("*");
+        final Node topNode = nodes.item(0);
+        final NodeList children = topNode.getChildNodes();
+        //get the node that contains PathTree
+        
+        //show it text content
+        
+        //
+    }
+    
 }

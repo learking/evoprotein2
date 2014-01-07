@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 import beast.core.Description;
-
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.evolution.substitution.Substitution;
 import evoprotein.evolution.substitution.SubstitutionEvent;
@@ -152,6 +151,39 @@ public class PathBranch {
 			}
 		}
 
+	}
+	
+	String mutationPath2String() {
+		String mutationPathStr = "";
+		//for each none empty path, record its position and substitution events (could be more than one)
+		for(int i = 0; i < m_MutationPaths.size(); i++){
+			//do this only when there is at least one substitution at this site
+			if(m_MutationPaths.get(i).size() > 0){
+				//convert each substitution event to string: site Nr, previousNucleo, currNucleo, time interval;
+				String tmpPathStr = "";
+				for(int j = 0; j < m_MutationPaths.get(i).size(); j++){
+					//need to fix the toString() method of SubstitutionEvent
+					tmpPathStr += "(" + Integer.toString(i) + "," + m_MutationPaths.get(i).get(j).toString() + ")";
+				}
+				mutationPathStr += tmpPathStr;
+			}
+		}
+		return mutationPathStr;
+	}
+	
+	public String toString() {
+		String branchStr = "";
+		//do the following only when it is a branch that has substitution event(s)
+		if(getTotalNumSubstitutions()!=0){
+			//need to put in all that are needed in order to reconstruct a PathBranch
+			//part I: begin and end node
+			String twoEndsStr = "(" + Integer.toString(getBeginNodeNr()) + "," + Integer.toString(getEndNodeNr()) + ")";
+			//part II: mutationPaths
+			String mutationPathStr = mutationPath2String();
+			//join two parts
+			branchStr = twoEndsStr + mutationPathStr + "|";
+		}
+		return branchStr;
 	}
 	
 }

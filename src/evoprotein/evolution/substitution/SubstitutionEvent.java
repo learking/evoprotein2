@@ -14,7 +14,7 @@ public class SubstitutionEvent {
 	
 	public String toString(){
 		String outputString;
-		outputString = Integer.toString(previousNucleotide) + "->" +Integer.toString(currentNucleotide) + " timeInterval: " + Double.toString(timeInterval);
+		outputString = Integer.toString(previousNucleotide) + "," +Integer.toString(currentNucleotide) + "," + Double.toString(timeInterval);
 		return outputString;
 	}
 	
