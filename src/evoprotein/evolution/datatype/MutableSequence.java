@@ -15,6 +15,11 @@ public class MutableSequence {
 		intSequence = new int[sequenceLength];
 	}
 	
+	public MutableSequence(int[] newSequence){
+		intSequence = new int[newSequence.length];
+		setSequence(newSequence);
+	}
+	
 	// setters
 	public void setSequence(int[] newSequence){
 		// sanity check

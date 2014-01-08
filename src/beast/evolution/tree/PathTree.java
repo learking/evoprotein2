@@ -4,6 +4,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.evolution.substitution.SubstitutionEvent;
@@ -256,15 +258,35 @@ public class PathTree extends Tree {
     public void fromXML(final org.w3c.dom.Node node) {
     	/*************************************************/
     	//get text content
-        final String sNewick = node.getTextContent();
+        final String pathTreeStr = node.getTextContent();
         
         /*************************************************/
         //seperate the text into 3 sections: tree, seqs and branches
-        //to-do
+        String[] parts = pathTreeStr.split("\n");
+        String treeStr = parts[0];
+        String seqStr = parts[1];
+        String branchStr = parts[2];
         
         /*************************************************/
         //parse tree
         //create a tree parser
+        //this part needs to be put into a function
+        setTreeFromString(treeStr);
+        
+        /*************************************************/
+        //reconstruct m_sequences
+        //parse each sequence
+        //this part needs to be put into a function too
+        setSequencesFromString(seqStr);
+        
+        /*************************************************/
+        //reconstruct m_branches
+        setBranchesFromString(branchStr);
+        //finish
+        
+    }
+
+    private void setTreeFromString(String treeStr){
         final TreeParser parser = new TreeParser();
         try {
             parser.thresholdInput.setValue(1e-10, parser);
@@ -273,22 +295,39 @@ public class PathTree extends Tree {
         }
         try {
             parser.offsetInput.setValue(0, parser);
-            setRoot(parser.parseNewick(sNewick));
+            setRoot(parser.parseNewick(treeStr));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         initArrays();
-        
-        /*************************************************/
-        //reconstruct m_sequences
-        
-        
-        /*************************************************/
-        //reconstruct m_branches
-        
-        //finish
-        
+    }
+    
+    private void setSequencesFromString(String seqStr){
+        List<int[]> allSeqs = new ArrayList<int[]>();
+        Pattern seqPattern = Pattern.compile("\\[(.*?)\\]");
+        Matcher seqMatcher = seqPattern.matcher(seqStr);
+        while (seqMatcher.find()) {
+        	//need to remove blank space first
+        	String[] tmpStrArr = seqMatcher.group(1).replaceAll(" ", "").split(",");
+        	int[] tmpIntArr = new int[tmpStrArr.length];
+        	for(int n = 0; n < tmpStrArr.length; n++) {
+        	    tmpIntArr[n] = Integer.parseInt(tmpStrArr[n]);
+        	}
+        	allSeqs.add(tmpIntArr);
+        }
+        //add seq one by one to m_sequences
+        m_sequences.clear();
+        for(int i = 0; i < allSeqs.size(); i++){
+        	m_sequences.add(new MutableSequence(allSeqs.get(i)));
+        }
+    }
+    
+    private void setBranchesFromString(String branchStr){
+    	//seperate substrings for diff branches
+    	
+    	//deal with each branch
+    	
     }
     
     /**

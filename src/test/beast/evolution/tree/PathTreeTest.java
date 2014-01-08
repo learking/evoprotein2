@@ -3,6 +3,7 @@ package test.beast.evolution.tree;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -91,19 +92,28 @@ public class PathTreeTest extends TestCase {
 	
     @Test
     public void testFromXML() throws Exception{
-    	//parse PathTree XML file
+    	//prepare parser
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         String stateFileName = "/home/kuangyu/Dropbox/research/meeting_memo/Jan_2014/pathTree.xml.state";
+        //String stateFileName = "/home/kuangyu/workspace/beast2/realData_twoStruct_gapped.xml.state";
         Document doc = factory.newDocumentBuilder().parse(new File(stateFileName));
         doc.normalize();
+        //get node that belongs to PathTree
         final NodeList nodes = doc.getElementsByTagName("*");
         final Node topNode = nodes.item(0);
-        final NodeList children = topNode.getChildNodes();
-        //get the node that contains PathTree
-        
-        //show it text content
-        
+        final NodeList children = topNode.getChildNodes();  
+        final Node child = children.item(1);
+
+        //verify its ID:
+        //final String sID = child.getAttributes().getNamedItem("id").getNodeValue();
+        //System.out.println(sID);
+
+        //show its text content:
+        PathTree pathTree = new PathTree();
+        pathTree.fromXML(child);
+
         //
+        
     }
     
 }
