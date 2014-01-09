@@ -82,8 +82,8 @@ public class PathTree extends Tree {
 		}
 	}
 	
-	public int[] getSequenceByID(String sequenceID) throws Exception {
-		Nucleotide nucleo = new Nucleotide();
+	private int[] getSequenceByID(String sequenceID) throws Exception {
+		//Nucleotide nucleo = new Nucleotide();
 		List<Integer> sequenceTarget = new ArrayList<Integer>();
 		for (int i = 0; i < m_alignment.get().getNrTaxa(); i++) {
 			if (m_alignment.get().sequenceInput.get().get(i).taxonInput.get()
@@ -316,6 +316,12 @@ public class PathTree extends Tree {
         	}
         	allSeqs.add(tmpIntArr);
         }
+        //set correct nucleoSequenceLength and codonSequenceLength
+        if(allSeqs.size()>0){
+    		nucleoSequenceLength = allSeqs.get(0).length;
+    		codonSequenceLength = nucleoSequenceLength / 3;
+        }
+        
         //add seq one by one to m_sequences
         m_sequences.clear();
         for(int i = 0; i < allSeqs.size(); i++){
@@ -326,7 +332,13 @@ public class PathTree extends Tree {
     //need to change to private after testing
     private void setBranchesFromString(String branchStr){
     	//add all empty branches (check Nr of seq and nodes to make sure at the same time)
-    	//TODO
+    	m_branches.clear();
+    	if(nodeCount == m_sequences.size()){
+			for(int i=0; i<nodeCount; i++) {
+					m_branches.add(new PathBranch());
+					//How about sudoRoot? (though I think we never gonna use its PathBranch)
+			}
+    	}
     	//seperate substrings for diff branches
     	String[] branchStrArr = branchStr.replaceAll(" ", "").split("\\|");
     	//deal with each branch
@@ -337,9 +349,11 @@ public class PathTree extends Tree {
     
     private void setOneBranchFromStr(String bStr) {
     	//create a PathBranch
-    	//TODO
+    	PathBranch currBranch = new PathBranch(bStr);
+    	
     	//replace the empty branch with newly created one in m_branches (how to deal with empty branch, order?)
     	//TODO
+    	
     }
     
     /**

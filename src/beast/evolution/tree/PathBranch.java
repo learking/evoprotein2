@@ -6,6 +6,8 @@ package beast.evolution.tree;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import beast.core.Description;
 import evoprotein.evolution.datatype.MutableSequence;
@@ -35,6 +37,26 @@ public class PathBranch {
 		}
 	}
 	
+	public PathBranch(int sequenceLength, String bStr) {
+        Pattern branchPattern = Pattern.compile("\\((.*?)\\)");
+        Matcher branchMatcher = branchPattern.matcher(bStr);
+        while (branchMatcher.find()) {
+        	System.out.print(branchMatcher.group(1) + "&");
+        	//need to remove blank space first
+ 
+        	String[] tmpStrArr = branchMatcher.group(1).replaceAll(" ", "").split(",");
+        	//if first 
+        	//init begin and end node nr
+        	//TODO
+        	
+        	//if after first
+        	//add to mutationPaths (again, need to know how many sites we need)
+        	//TODO
+        	
+        }
+        System.out.print("|||");
+	}
+
 	// getters
 	public List<SubstitutionEvent> getMutationPath (int seqSite){
 		return m_MutationPaths.get(seqSite);
