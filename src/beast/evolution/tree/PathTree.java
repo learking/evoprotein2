@@ -323,11 +323,23 @@ public class PathTree extends Tree {
         }
     }
     
+    //need to change to private after testing
     private void setBranchesFromString(String branchStr){
+    	//add all empty branches (check Nr of seq and nodes to make sure at the same time)
+    	//TODO
     	//seperate substrings for diff branches
-    	
+    	String[] branchStrArr = branchStr.replaceAll(" ", "").split("\\|");
     	//deal with each branch
-    	
+    	for(int i = 0; i < branchStrArr.length ; i++) {
+    		setOneBranchFromStr(branchStrArr[i]);
+    	}
+    }
+    
+    private void setOneBranchFromStr(String bStr) {
+    	//create a PathBranch
+    	//TODO
+    	//replace the empty branch with newly created one in m_branches (how to deal with empty branch, order?)
+    	//TODO
     }
     
     /**

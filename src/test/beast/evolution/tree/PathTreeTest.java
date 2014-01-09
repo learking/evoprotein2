@@ -94,7 +94,12 @@ public class PathTreeTest extends TestCase {
     public void testFromXML() throws Exception{
     	//prepare parser
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        String stateFileName = "/home/kuangyu/Dropbox/research/meeting_memo/Jan_2014/pathTree.xml.state";
+        
+        //under linux
+        //String stateFileName = "/home/kuangyu/Dropbox/research/meeting_memo/Jan_2014/pathTree.xml.state";
+        //under mac
+        String stateFileName = "/Users/kwang2/Desktop/Dropbox/research/meeting_memo/Jan_2014/pathTree.xml.state";
+        
         //String stateFileName = "/home/kuangyu/workspace/beast2/realData_twoStruct_gapped.xml.state";
         Document doc = factory.newDocumentBuilder().parse(new File(stateFileName));
         doc.normalize();
