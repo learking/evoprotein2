@@ -39,7 +39,7 @@ public class PathLikelihood extends Distribution {
     
 	static CodonUtil codonUtil = new CodonUtil();
     
-    PathTree pathTree;
+    //PathTree pathTree;
     
     // one struct case
     //ProteinCodingDNASubstModel ourModel;
@@ -51,19 +51,19 @@ public class PathLikelihood extends Distribution {
     @Override
     public void initAndValidate() throws Exception {
     	ourModel = m_ourModel.get();
-    	pathTree = m_pathTree.get();
+    	//pathTree = m_pathTree.get();
     }
     
     // a totally different calculation compared to PathTreeLikelihood
     @Override
     public double calculateLogP() throws Exception{
     	// if the first time calculating "oldLikelihood"
-    	int rootNr = pathTree.getRoot().getNr();
-    	int [] rootSeq = pathTree.getSequences().get(rootNr).getSequence();
+    	int rootNr = m_pathTree.get().getRoot().getNr();
+    	int [] rootSeq = m_pathTree.get().getSequences().get(rootNr).getSequence();
     	boolean firstTimeCalculation;
     	int rootSeqTotal = 0;
     	for(int i = 0 ; i < rootSeq.length ; i++){
-    		rootSeqTotal += rootSeq[0];
+    		rootSeqTotal += rootSeq[i];
     	}
     	if(rootSeqTotal == 0){
     		firstTimeCalculation = true;
@@ -74,6 +74,9 @@ public class PathLikelihood extends Distribution {
     	
     	if(firstTimeCalculation){
     		logP = -999999999;
+    		//tmp test
+    		//TODO
+    		//logP = calcTotalPathLogP();
     	}else{
         	logP = calcTotalPathLogP();
     	}
@@ -84,9 +87,9 @@ public class PathLikelihood extends Distribution {
     public double calcTotalPathLogP() throws Exception{
     	logP = 0;
     	// loop through all branches, except the one with length 0 (the beginning of the branch is rootSeq)
-    	for (int i=0 ; i< pathTree.getNodeCount(); i++){
-			if(pathTree.getNode(i).getHeight() != pathTree.getRoot().getHeight()){
-				PathBranch currentBranch = pathTree.getBranch(i);
+    	for (int i=0 ; i< m_pathTree.get().getNodeCount(); i++){
+			if(m_pathTree.get().getNode(i).getHeight() != m_pathTree.get().getRoot().getHeight()){
+				PathBranch currentBranch = m_pathTree.get().getBranch(i);
 				
 				// sanity check
 				if (i != currentBranch.getEndNodeNr()){
@@ -95,8 +98,8 @@ public class PathLikelihood extends Distribution {
 				
 				int endNodeNr = currentBranch.getEndNodeNr();
 				int beginNodeNr = currentBranch.getBeginNodeNr();
-				MutableSequence childSeq = pathTree.getSequences().get(endNodeNr);
-				MutableSequence parentSeq = pathTree.getSequences().get(beginNodeNr);
+				MutableSequence childSeq = m_pathTree.get().getSequences().get(endNodeNr);
+				MutableSequence parentSeq = m_pathTree.get().getSequences().get(beginNodeNr);
 				
 				// deal with each branch separately
 				logP += calcPathLogP(currentBranch, parentSeq, childSeq);
@@ -105,8 +108,8 @@ public class PathLikelihood extends Distribution {
     	}
     	
     	// get root seq
-    	int rootNr = pathTree.getRoot().getNr();
-    	int [] rootCodonSeq = pathTree.getSequences().get(rootNr).toCodonArray();
+    	int rootNr = m_pathTree.get().getRoot().getNr();
+    	int [] rootCodonSeq = m_pathTree.get().getSequences().get(rootNr).toCodonArray();
     	// need to add rootSeq Stationary log prob back into the pathLikelihood
     	logP += ourModel.getRootSeqLogP(rootCodonSeq);
     	
@@ -117,7 +120,7 @@ public class PathLikelihood extends Distribution {
     	double pathLogP = 0;
     	
     	int childNodeNr = currentBranch.getEndNodeNr();
-    	double currentBranchLength = pathTree.getNode(childNodeNr).getLength();
+    	double currentBranchLength = m_pathTree.get().getNode(childNodeNr).getLength();
     	
     	SeqPath currentSeqPath = currentBranch.getSeqPath(parentSeq, childSeq);
     	/*
@@ -202,7 +205,7 @@ public class PathLikelihood extends Distribution {
         }
     	
     	// if tree is dirty, recalculate
-    	return pathTree.somethingIsDirty();
+    	return m_pathTree.get().somethingIsDirty();
     }
     
 	@Override

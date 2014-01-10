@@ -2,7 +2,6 @@ package beast.evolution.tree;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,7 +10,9 @@ import evoprotein.evolution.datatype.MutableSequence;
 import evoprotein.evolution.substitution.SubstitutionEvent;
 import beast.core.Description;
 import beast.core.Input;
+import beast.core.StateNode;
 import beast.core.StateNodeInitialiser;
+import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.datatype.Nucleotide;
 import beast.util.TreeParser;
@@ -88,9 +89,6 @@ public class PathTree extends Tree {
 		for (int i = 0; i < m_alignment.get().getNrTaxa(); i++) {
 			if (m_alignment.get().sequenceInput.get().get(i).taxonInput.get()
 					.toString() == sequenceID) {
-				//wrong ! don't try to use member variables
-				//sequenceTarget = m_alignment.get().m_pSequences.get().get(i).getSequence(nucleo);
-				
 				// when we delete insertions, we are operating on m_counts instead of m_pSequences !!
 				sequenceTarget = m_alignment.get().getCounts().get(i);
 			}
@@ -228,8 +226,122 @@ public class PathTree extends Tree {
     }
     
     /**
+     * deep copy, returns a completely new PathTree
+     *
+     * @return a deep copy of this PathTree.
+     */
+    @Override
+    public PathTree copy() {
+    	//specific to tree
+        PathTree newPathTree = new PathTree();
+        newPathTree.ID = ID;
+        newPathTree.index = index;
+        //all nodes get copied correctly
+        newPathTree.root = root.copy();
+        newPathTree.nodeCount = nodeCount;
+        newPathTree.internalNodeCount = internalNodeCount;
+        newPathTree.leafNodeCount = leafNodeCount;
+        //my added part
+        newPathTree.nucleoSequenceLength = nucleoSequenceLength;
+        newPathTree.codonSequenceLength = codonSequenceLength;
+        //need deep copy of m_sequences and m_branches
+		for(int i=0; i<nodeCount; i++) {
+			newPathTree.m_sequences.add(m_sequences.get(i).copy());
+			newPathTree.m_branches.add(m_branches.get(i).copy());
+		}
+        //should not need deep copy of m_alignment, if I think it correctly
+        return newPathTree;
+    }
+    
+    //************************************************************************************
+    //wrong!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //************************************************************************************
+    /**
+     * copy of all values from existing PathTree *
+     */
+    /*
+    @Override
+    public void assignFrom(final StateNode other) {
+        final PathTree pathtree = (PathTree) other;
+        final Node[] nodes = new Node[pathtree.getNodeCount()];
+        for (int i = 0; i < pathtree.getNodeCount(); i++) {
+            nodes[i] = newNode();
+        }
+        ID = pathtree.ID;
+        //index = tree.index; ? why do not need now ? (Kuangyu)
+        root = nodes[pathtree.root.getNr()];
+        root.assignFrom(nodes, pathtree.root);
+        root.parent = null;
+        nodeCount = pathtree.nodeCount;
+        internalNodeCount = pathtree.internalNodeCount;
+        leafNodeCount = pathtree.leafNodeCount;
+        initArrays();
+        
+        //my added part
+        nucleoSequenceLength = pathtree.nucleoSequenceLength;
+        codonSequenceLength = pathtree.codonSequenceLength;
+        //need deep copy of m_sequences and m_branches
+        m_sequences.clear();
+        m_branches.clear();
+        //can I access pathtree's member variables like this?
+		for(int i=0; i<nodeCount; i++) {
+			m_sequences.add(pathtree.m_sequences.get(i).copy());
+			m_branches.add(pathtree.m_branches.get(i).copy());
+		}
+        
+    }
+    */
+    //************************************************************************************
+
+    //need to tailor it for PathTree !!!!!!
+    /*
+    @Override
+    public void assignFromFragile(final StateNode other) {
+        final Tree tree = (Tree) other;
+        if (m_nodes == null) {
+            initArrays();
+        }
+        root = m_nodes[tree.root.getNr()];
+        final Node[] otherNodes = tree.m_nodes;
+        final int iRoot = root.getNr();
+        assignFrom(0, iRoot, otherNodes);
+        root.height = otherNodes[iRoot].height;
+        root.parent = null;
+        if (otherNodes[iRoot].getLeft() != null) {
+            root.setLeft(m_nodes[otherNodes[iRoot].getLeft().getNr()]);
+        } else {
+            root.setLeft(null);
+        }
+        if (otherNodes[iRoot].getRight() != null) {
+            root.setRight(m_nodes[otherNodes[iRoot].getRight().getNr()]);
+        } else {
+            root.setRight(null);
+        }
+        assignFrom(iRoot + 1, nodeCount, otherNodes);
+    }
+
+    private void assignFrom(final int iStart, final int iEnd, final Node[] otherNodes) {
+        for (int i = iStart; i < iEnd; i++) {
+            Node sink = m_nodes[i];
+            Node src = otherNodes[i];
+            sink.height = src.height;
+            sink.parent = m_nodes[src.parent.getNr()];
+            if (src.getLeft() != null) {
+                sink.setLeft(m_nodes[src.getLeft().getNr()]);
+                if (src.getRight() != null) {
+                    sink.setRight(m_nodes[src.getRight().getNr()]);
+                } else {
+                    sink.setRight(null);
+                }
+            }
+        }
+    }
+    */
+    
+    /**
      * StateNode implementation
      */
+    @Override
     public String toString() {
     	//part I: tree
         String treeStr = super.toString();
@@ -254,6 +366,7 @@ public class PathTree extends Tree {
     /**
      * reconstruct PathTree from XML fragment in the form of a DOM node *
      */
+    
     @Override
     public void fromXML(final org.w3c.dom.Node node) {
     	/*************************************************/
