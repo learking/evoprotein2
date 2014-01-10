@@ -349,11 +349,17 @@ public class PathTree extends Tree {
     
     private void setOneBranchFromStr(String bStr) {
     	//create a PathBranch
-    	PathBranch currBranch = new PathBranch(bStr);
+    	PathBranch currBranch = new PathBranch(nucleoSequenceLength, bStr);
     	
     	//replace the empty branch with newly created one in m_branches (how to deal with empty branch, order?)
-    	//TODO
-    	
+    	//need to find which branch it is first
+        Pattern branchPattern = Pattern.compile("\\((.*?)\\)");
+        Matcher branchMatcher = branchPattern.matcher(bStr);
+		branchMatcher.find();
+		String[] twoEndNodes = branchMatcher.group(1).replaceAll(" ", "").split(",");
+		int EndNodeNr = Integer.parseInt(twoEndNodes[1]);
+    	//replace it then
+    	m_branches.set(EndNodeNr, currBranch);
     }
     
     /**

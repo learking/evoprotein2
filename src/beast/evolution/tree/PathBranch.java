@@ -40,21 +40,30 @@ public class PathBranch {
 	public PathBranch(int sequenceLength, String bStr) {
         Pattern branchPattern = Pattern.compile("\\((.*?)\\)");
         Matcher branchMatcher = branchPattern.matcher(bStr);
+        
+        //handle begin and end node
+        //add empty mutationpaths first
+		for(int i = 0; i < sequenceLength; i++){
+			m_MutationPaths.add(new ArrayList<SubstitutionEvent>());
+		}
+		branchMatcher.find();
+		String[] twoEndNodes = branchMatcher.group(1).replaceAll(" ", "").split(",");
+		beginNodeNr = Integer.parseInt(twoEndNodes[0]);
+		endNodeNr = Integer.parseInt(twoEndNodes[1]);
+		//System.out.println("begin:" + beginNodeNr + " end:" + endNodeNr);
+		
         while (branchMatcher.find()) {
-        	System.out.print(branchMatcher.group(1) + "&");
-        	//need to remove blank space first
- 
+        	//System.out.print(branchMatcher.group(1) + "&");
         	String[] tmpStrArr = branchMatcher.group(1).replaceAll(" ", "").split(",");
-        	//if first 
-        	//init begin and end node nr
-        	//TODO
         	
-        	//if after first
-        	//add to mutationPaths (again, need to know how many sites we need)
-        	//TODO
+        	//create new substitution event from tmpStrArr
+        	SubstitutionEvent tmpSubEvent = new SubstitutionEvent(Integer.parseInt(tmpStrArr[1]), Integer.parseInt(tmpStrArr[2]), Double.parseDouble(tmpStrArr[3]));
+        	
+        	//add substitution events to corresponding mutationPaths
+        	m_MutationPaths.get(Integer.parseInt(tmpStrArr[0])).add(tmpSubEvent); 	
         	
         }
-        System.out.print("|||");
+        //System.out.print("|||");
 	}
 
 	// getters
