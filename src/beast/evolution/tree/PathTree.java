@@ -164,6 +164,10 @@ public class PathTree extends Tree {
 		return m_sequences;
 	}
 	
+	public MutableSequence getSequence(int sequenceNr){
+		return m_sequences.get(sequenceNr);
+	}
+	
 	public List<PathBranch> getBranches(){
 		return m_branches;
 	}
@@ -254,57 +258,25 @@ public class PathTree extends Tree {
     }
     
     //************************************************************************************
-    //wrong!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //************************************************************************************
-    /**
-     * copy of all values from existing PathTree *
-     */
-    /*
-    @Override
-    public void assignFrom(final StateNode other) {
-        final PathTree pathtree = (PathTree) other;
-        final Node[] nodes = new Node[pathtree.getNodeCount()];
-        for (int i = 0; i < pathtree.getNodeCount(); i++) {
-            nodes[i] = newNode();
-        }
-        ID = pathtree.ID;
-        //index = tree.index; ? why do not need now ? (Kuangyu)
-        root = nodes[pathtree.root.getNr()];
-        root.assignFrom(nodes, pathtree.root);
-        root.parent = null;
-        nodeCount = pathtree.nodeCount;
-        internalNodeCount = pathtree.internalNodeCount;
-        leafNodeCount = pathtree.leafNodeCount;
-        initArrays();
-        
-        //my added part
-        nucleoSequenceLength = pathtree.nucleoSequenceLength;
-        codonSequenceLength = pathtree.codonSequenceLength;
-        //need deep copy of m_sequences and m_branches
-        m_sequences.clear();
-        m_branches.clear();
-        //can I access pathtree's member variables like this?
-		for(int i=0; i<nodeCount; i++) {
-			m_sequences.add(pathtree.m_sequences.get(i).copy());
-			m_branches.add(pathtree.m_branches.get(i).copy());
-		}
-        
-    }
-    */
-    //************************************************************************************
-
-    //need to tailor it for PathTree !!!!!!
-    /*
     @Override
     public void assignFromFragile(final StateNode other) {
-        final Tree tree = (Tree) other;
+	// make sure the input PathTree cannot be changed by accident during the process 
+        final PathTree pathtree = (PathTree) other;
+			
+	// initialise tree-as-array representation + its stored variant
         if (m_nodes == null) {
             initArrays();
         }
-        root = m_nodes[tree.root.getNr()];
-        final Node[] otherNodes = tree.m_nodes;
+	// get root node
+        root = m_nodes[pathtree.root.getNr()];
+	// make sure nodes cannot be changed
+        final Node[] otherNodes = pathtree.m_nodes;
+	// get root Nr
         final int iRoot = root.getNr();
+	// update this tree's nodes to input (other) tree's nodes
         assignFrom(0, iRoot, otherNodes);
+	
+	// treat root
         root.height = otherNodes[iRoot].height;
         root.parent = null;
         if (otherNodes[iRoot].getLeft() != null) {
@@ -318,17 +290,35 @@ public class PathTree extends Tree {
             root.setRight(null);
         }
         assignFrom(iRoot + 1, nodeCount, otherNodes);
+        
+        //my assumption:
+        //nodeCounts and sequenceLengths should not need reset, since they will be the same for original stateNode and "other" (input) PathTree
+        
+        //take care of m_sequences and m_branches
+        m_sequences.clear();
+        m_branches.clear();
+		for(int i=0; i<nodeCount; i++) {
+			m_sequences.add(pathtree.getSequence(i).copy());
+			m_branches.add(pathtree.getBranch(i).copy());
+		}
+	
     }
-
+    
     private void assignFrom(final int iStart, final int iEnd, final Node[] otherNodes) {
         for (int i = iStart; i < iEnd; i++) {
+	    // node we need to update
             Node sink = m_nodes[i];
+	    // our source node
             Node src = otherNodes[i];
+	    // set height
             sink.height = src.height;
+	    // set parent
             sink.parent = m_nodes[src.parent.getNr()];
             if (src.getLeft() != null) {
+		// set left
                 sink.setLeft(m_nodes[src.getLeft().getNr()]);
                 if (src.getRight() != null) {
+		    // set right
                     sink.setRight(m_nodes[src.getRight().getNr()]);
                 } else {
                     sink.setRight(null);
@@ -336,7 +326,6 @@ public class PathTree extends Tree {
             }
         }
     }
-    */
     
     /**
      * StateNode implementation
